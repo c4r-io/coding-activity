@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider';
 import React, { Fragment, useEffect, useState } from 'react';
 function EditTextElementWrapper({ children, className, path, buttonEditor = false }) {
@@ -70,4 +68,3 @@ function EditTextElementWrapper({ children, className, path, buttonEditor = fals
 }
 
 export default EditTextElementWrapper;
->>>>>>> Stashed changes

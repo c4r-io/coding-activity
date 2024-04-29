@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider';
 import React, { Fragment, useState } from 'react';
 import { MdCloudUpload } from "react-icons/md";
@@ -207,4 +205,3 @@ function UploadImageWrapper({ children, className, path, stylePath, styles }) {
 }
 
 export default UploadImageWrapper;
->>>>>>> Stashed changes

@@ -47,17 +47,11 @@ const ChatPromptTopCardUi = ({ headerText }) => {
                         >
                             <div
                                 className='chat-prompt-top-card-container-header-text'
-<<<<<<< Updated upstream
-=======
                             >
                                 <MystPreviewTwContainer data={uiData?.uiContent?.chatprompt?.headerElement || ""} />
                             </div>
->>>>>>> Stashed changes
 
-                                dangerouslySetInnerHTML={{ __html: uiData?.uiContent?.chatprompt?.headerElement }}
-                            >
-                            </h3>
-                        </EditTextElementWrapper>
+                        </EditMystMdElementWrapper>
                     </div>
                     <div className='chat-prompt-top-card-container-footer-text-container relative'>
                         <EditMystMdElementWrapper
@@ -67,14 +61,9 @@ const ChatPromptTopCardUi = ({ headerText }) => {
                             <div
                                 className='chat-prompt-top-card-container-footer-text'
                             >
-<<<<<<< Updated upstream
-                            </p>
-                        </EditTextElementWrapper>
-=======
                                 <MystPreviewTwContainer data={uiData?.uiContent?.chatprompt?.footerElement || ""} />
                             </div>
                         </EditMystMdElementWrapper>
->>>>>>> Stashed changes
                     </div>
                 </div>
             </div>
