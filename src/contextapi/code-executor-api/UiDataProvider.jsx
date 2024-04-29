@@ -107,6 +107,7 @@ const allCss = `
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+  position: relative;
 }
 
 .code-editor-top-card-container .text-element-container-inner-1 .text-element-container-inner-1-text {
@@ -554,12 +555,13 @@ margin-right: 20px;
 .chat-prompt-user-review-action-container-buttons {
   padding-top: 30px;
   padding-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   width: 365px;
   margin-left: auto;
   margin-right: auto;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
     
@@ -892,6 +894,24 @@ export const UiDataProvider = ({ children }) => {
         "editorActionAttachScreenshot": "Attach Screenshot",
         "editorActionSubmitAttachment": "Submit",
         "sample": ""
+      },
+      "codeEditorTopCardImage": {
+        "styles": {
+          "top": -61,
+          "left": 525,
+          "width": 253,
+          "height": 252,
+          "rotateAngle": 0
+        }
+      },
+      "chatPromptTopCardAvater": {
+        "styles": {
+          "top": 19,
+          "left": 24,
+          "width": 207,
+          "height": 162,
+          "rotateAngle": 0
+        }
       },
       cssdata: {
         all: allCss,
