@@ -155,6 +155,11 @@ body {
 .ͼ2 .cm-gutters {
   border-right: 0px solid #ddd !important;
 }
+/* disable show autocomplete */
+.cm-tooltip-autocomplete.cm-tooltip.cm-tooltip-below{
+opacity: 0;
+display: none;
+}
 
 /* 
 

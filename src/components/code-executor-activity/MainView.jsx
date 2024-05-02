@@ -32,7 +32,7 @@ const MainView = ({ devmode, codingActivityId, uiDataFromDb }) => {
       console.log('uiDataFromDb', uiDataFromDb)
       if (uiDataFromDb?.uiContent) {
         setTimeout(() => {
-          dispatchUiData({ type: 'setUiContent', payload: uiDataFromDb?.uiContent });
+          dispatchUiData({ type: 'setUiContent', payload: uiDataFromDb });
         }, 200)
       }
       if (uiDataFromDb?.activityDefaultCode) {

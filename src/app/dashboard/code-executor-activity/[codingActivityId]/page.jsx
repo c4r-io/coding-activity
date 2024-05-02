@@ -50,6 +50,15 @@ const Page = ({ params }) => {
   useEffect(() => {
     getVideoClipList();
   }, [params.codingActivityId]);
+  useEffect(() => {
+    setVideoClipListResponse(state=>{
+      return {
+        ...state,
+        activityCodeRuntime: activityCodeRuntime
+      }
+    
+    });
+  },[activityCodeRuntime])
   function extractQueryParam(url, param) {
     const urlObj = new URL(url);
     const searchParams = new URLSearchParams(urlObj.search);
@@ -70,7 +79,7 @@ const Page = ({ params }) => {
     if (activityCodeExecutor && videoClipListResponse?.activityCodeExecutor !== activityCodeExecutor) {
       data.activityCodeExecutor = activityCodeExecutor;
     }
-    if (activityCodeRuntime && videoClipListResponse?.activityCodeRuntime !== activityCodeRuntime) {
+    if (activityCodeRuntime) {
       data.activityCodeRuntime = activityCodeRuntime;
     }
     if (Object.keys(data).length <= 0) {

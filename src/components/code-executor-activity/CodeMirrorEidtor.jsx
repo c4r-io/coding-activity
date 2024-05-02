@@ -4,6 +4,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { createTheme } from "@uiw/codemirror-themes";
 import { loadLanguage } from "@uiw/codemirror-extensions-langs";
 import { tags as t } from "@lezer/highlight";
+import { parser} from "@lezer/css"
 const myTheme = createTheme({
     theme: "light",
     settings: {
@@ -39,6 +40,28 @@ const myTheme = createTheme({
     ],
 });
 // const extensions = [python()];
+import {highlightCode, classHighlighter} from "@lezer/highlight"
+
+// let code = `.mystmd-preview-container blockquote`
+
+// let result = document.createElement("pre")
+
+// function emit(text, classes) {
+//   let node = document.createTextNode(text)
+//   if (classes) {
+//     let span = document.createElement("span")
+//     span.appendChild(node)
+//     span.className = classes
+//     node = span
+//   }
+//   result.appendChild(node)
+// }
+// function emitBreak() {
+//   result.appendChild(document.createTextNode("\n"))
+// }
+
+// highlightCode(code, parser.parse(code), classHighlighter,
+//               emit, emitBreak)
 const CodeMirrorEidtor = ({value, onChange, height, language}) => {
     const [extensions,setExtentions] = React.useState([loadLanguage(`python`)]);
     useEffect(() => {

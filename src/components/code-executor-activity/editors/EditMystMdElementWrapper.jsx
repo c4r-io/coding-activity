@@ -3,9 +3,18 @@ import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider';
 import React, { Fragment, useEffect, useState } from 'react';
 
 function EditMystMdElementWrapper({ children, className, path, buttonEditor = false }) {
+    const previewElement = React.useRef(null);
+    const [heightOfPreview, setHeightOfPreview] = React.useState(40);
     const [editorFocused, setEditorFocused] = React.useState('');
     const { uiData, dispatchUiData } = React.useContext(UiDataContext);
     // State to store the base64 string
+    const getData = (path) => {
+        return path.split(".").reduce((acc, curr) => {
+            if (curr) {
+                return acc[curr];
+            }
+        }, uiData?.uiContent)
+    }
     const [data, setData] = useState('');
 
     useEffect(() => {
@@ -20,47 +29,46 @@ function EditMystMdElementWrapper({ children, className, path, buttonEditor = fa
             setData(nd)
         }
     }, [path])
-
     return (
         <div>
             {uiData.devmode ?
                 <Fragment>
-                    {editorFocused == "chatprompt-top-headertext-editor" ?
+                    {editorFocused == "mystmd-editor-focused" ?
                         <Fragment>
                             {buttonEditor ?
                                 <input className={`${className} html-editor`}
-                                    autoFocus={editorFocused == "chatprompt-top-headertext-editor"}
+                                    autoFocus={editorFocused == "mystmd-editor-focused"}
                                     onChange={(e) => {
                                         dispatchUiData({ type: 'setContent', payload: { key: path, data: e.target.value } });
                                     }}
-                                    defaultValue={data}
+                                    defaultValue={getData(path)}
                                     onBlur={() => setEditorFocused("")}></input>
                                 : <textarea className={`${className} html-editor`}
-
-                                    autoFocus={editorFocused == "chatprompt-top-headertext-editor"}
+                                    style={{ height: heightOfPreview + "px" }}
+                                    autoFocus={editorFocused == "mystmd-editor-focused"}
                                     onChange={(e) => {
                                         dispatchUiData({ type: 'setContent', payload: { key: path, data: e.target.value } });
                                     }}
-                                    defaultValue={data}
+                                    defaultValue={getData(path)}
                                     onBlur={() => setEditorFocused("")}></textarea>}
                         </Fragment>
                         :
                         <div
+                            ref={previewElement}
                             className={`${className}`}
                             tabIndex={1}
                             title={`${className}`}
                             onFocus={(e) => {
                                 if (uiData.devmode) {
-                                    setEditorFocused("chatprompt-top-headertext-editor")
+                                    setHeightOfPreview(previewElement?.current?.clientHeight)
+                                    setTimeout(() => {
+                                        setEditorFocused("mystmd-editor-focused")
+                                    }, 100);
                                 }
                             }
                             }
                         >
-                            <MystPreviewTwContainer data={path.split(".").reduce((acc, curr) => {
-                                if (curr) {
-                                    return acc[curr];
-                                }
-                            }, uiData?.uiContent)} />
+                            <MystPreviewTwContainer data={getData(path)} />
                         </div>
 
                     }

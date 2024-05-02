@@ -1,9 +1,9 @@
 "use client";
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect,useCallback, useRef, useState } from "react";
 import EditorViewTopCardUi from "./cards/EditorViewTopCardUi.jsx";
 import { UiDataContext } from "@/contextapi/code-executor-api/UiDataProvider.jsx";
 import { ChatMessagesContext } from "@/contextapi/code-executor-api/ChatMessagesProvider.jsx";
-import { api, authorDaashboardApi } from "@/utils/apibase.js";
+import { api } from "@/utils/apibase.js";
 import { toast } from "react-toastify";
 import {
   MdKeyboardArrowDown,
@@ -21,6 +21,8 @@ import ChatPromptTopCardUi from "./cards/ChatPromptTopCardUi.jsx";
 import Script from "next/script.js";
 import CodeMirrorEidtor from "./CodeMirrorEidtor.jsx";
 import EditTextElementWrapper from "./editors/EditTextElementWrapper.jsx";
+import DrawerArround from "./DrawerArround.jsx";
+import { WebR } from 'webr';
 
 const demoCode = `
 
@@ -60,6 +62,13 @@ export default function CodeEditorView() {
   let pyodide = useRef(null);
   let pyodideLoaded = useRef(null);
 
+
+  let webRLoaded = useRef(false);
+  const webRRef = useRef(new WebR());
+  const webR = webRRef.current;
+  const webR2Ref = useRef(new WebR());
+  const webR2 = webR2Ref.current;
+
   const [code, setCode] = React.useState("");
   const [isCodeExecuting, setIsCodeExecuting] = React.useState(false);
   const [isCodeFormating, setIsCodeFormating] = React.useState(false);
@@ -79,9 +88,103 @@ export default function CodeEditorView() {
   useEffect(() => {
     if (uiData.devmode) {
       dispatchUiData({ type: 'setOpenReportUi', payload: true })
+    } else {
+      setCode(uiData?.uiContent?.defaults?.code || "")
     }
-  }, [uiData.devmode])
+  }, [uiData.devmode, uiData?.uiContent?.defaults?.code])
 
+
+  const getReadyWebR = useCallback(async function getReadyWebR() {
+    await webR.init();
+
+    // Set the default graphics device and pager
+    await webR.evalRVoid('webr::pager_install()');
+    await webR.evalRVoid('webr::canvas_install()');
+
+    // shim function from base R with implementations for webR
+    // see ?webr::shim_install for details.
+    await webR.evalRVoid('webr::shim_install()');
+
+  },[])
+  useEffect(() => {
+    if (!webRLoaded.current) {
+      getReadyWebR();
+      webRLoaded.current = true;
+      console.log("R added");
+    }
+  }, [webRLoaded.current]);
+
+  const runWebRCode = async (apiCallCount = 1) => {
+    if (code == "") {
+      toast.error("Please enter code to execute");
+      return;
+    }
+    // const nc = code.replaceAll("plt.show()", pltshow);
+    // const nc2 = nc.replaceAll(/print\((.*?)\)/g, "$1");
+    setIsCodeExecuting(true);
+    console.log("code   ", code);
+    try {
+      setOutputImageUrl(null);
+      const canvas = document.getElementById('plot-canvas');
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+      if (graphicsCode.some((gc) => code.includes(gc))) {
+
+        const res = await webR2.evalRVoid(`
+        webr::shim_install()
+        webr::canvas()
+        ${code}
+        dev.off()
+      `);
+
+        const output2 = await webR2.read();
+        console.log("output type 2 ", output2.type);
+        const msgs = await webR2.flush();
+        msgs.forEach(async (msg) => {
+          if (msg?.type === 'canvas' && msg?.data.event === 'canvasImage') {
+            console.log(JSON.stringify(msg.data.image));
+            canvas.getContext('2d').drawImage(msg.data.image, 0, 0);
+
+          } else {
+            console.log(msg);
+          }
+        });
+        webR.destroy(res);
+      } else {
+        let result = await webR.evalR(`
+        webr::shim_install()
+        ${code}
+        `);
+        let output = await result.toArray();
+        const output1 = await webR.read();
+
+        console.log("output type 1 ", output1.type);
+        console.log('Result of running `rnorm` from webR: ', output);
+        webR.destroy(result);
+        setExecutedCodeOutput({
+          output: output,
+          error: null,
+        });
+      }
+
+      setIsCodeExecuting(false);
+      setExpandBottomSection(true);
+    } catch (error) {
+      if (apiCallCount <= 3) {
+        setTimeout(() => {
+          console.log("running count", apiCallCount);
+          runWebRCode(apiCallCount + 1);
+        }, 500 * apiCallCount);
+      } else {
+        setExecutedCodeOutput({
+          output: null,
+          error: error,
+        });
+        setIsCodeExecuting(false);
+      }
+      getReadyWebR()
+      console.error(error);
+    }
+  };
 
   async function getReadyPyodide() {
     pyodide.current = await window.loadPyodide();
@@ -119,15 +222,20 @@ export default function CodeEditorView() {
   const handleOnChange = (e) => {
     setCode(e);
     dispatchMessages({ type: "setCode", payload: e })
+    if (uiData.devmode) {
+      dispatchUiData({ type: 'setContent', payload: { key: "defaults.code", data: e } });
+    }
   };
 
 
   const pltshow = `
 from io import BytesIO
+import base64
 buf = BytesIO()
-plt.savefig(buf, format="svg")
+plt.savefig(buf, format="jpeg")
 buf.seek(0)
-buf.read().decode("utf-8")`;
+dt = "data:image/jpeg;base64,"+ base64.b64encode(buf.read()).decode()
+expectedop.append(dt)`;
   const pep8FromatEer = `
 import autopep8
 
@@ -148,21 +256,39 @@ autopep8.fix_code(code)`;
       toast.error("Please enter code to execute");
       return;
     }
-    const nc = code.replaceAll("plt.show()", pltshow);
-    const nc2 = nc.replaceAll(/print\((.*?)\)/g, "$1");
+    const modifiedCode = `
+import json
+expectedop = []
+${code}
+`
+    const nc = modifiedCode.replaceAll("plt.show()", pltshow);
+    const nc2 = nc.replaceAll(/print\((.*?)\)/g, "expectedop.extend([$1])");
     setIsCodeExecuting(true);
+    const executableCode = `
+${nc2}
+json.dumps(expectedop, indent=2)
+`
     try {
       // const response = await pythonExecutorApi.request(config);
+      console.log(
+        pyodide.current.runPython(`
+${executableCode}
+`))
+
       const op = pyodide.current.runPython(`
-${nc2}`);
+${executableCode}`)
+        ;
       // if (typeof op == "object") {
       //   console.log("op code obj",op, JSON.stringify(op));
       // } else if(typeof op == "string") {
       // }
       // console.log("op code str", op, nc2);
       // console.log("code nc", nc);
+      const stringOutput = JSON.parse(op);
+      console.log("op code", stringOutput);
       setExecutedCodeOutput({
-        output: op,
+        output: stringOutput.filter((op) => !String(op).includes("data:image")).join("\n"),
+        images: stringOutput.filter((op) => String(op).includes("data:image")),
         error: null,
       });
       setIsCodeExecuting(false);
@@ -172,11 +298,12 @@ ${nc2}`);
         setTimeout(() => {
           console.log("running count", apiCallCount);
           runCode(apiCallCount + 1);
-        }, 5000 * apiCallCount);
+        }, 500 * apiCallCount);
       } else {
         setExecutedCodeOutput({
           output: null,
-          error: error,
+          images: null,
+          error: JSON.stringify(error),
         });
         setIsCodeExecuting(false);
       }
@@ -203,7 +330,7 @@ ${fc}
         setTimeout(() => {
           console.log("running count", apiCallCount);
           formatCodeWithPep8(apiCallCount + 1);
-        }, 5000 * apiCallCount);
+        }, 500 * apiCallCount);
       } else {
         setExecutedCodeOutput({ error: error });
         setIsCodeFormating(false);
@@ -386,13 +513,20 @@ ${fc}
                     <button
                       className={`${isCodeExecuting ? "clicked" : "unclicked"
                         } py-2 px-3 w-full !text-sm`}
-                      onClick={() => runCode()}
+                      onClick={() => {
+                        runCode()
+                        // runWebRCode()
+                      }}
                     >
                       {isCodeExecuting ? <img className="w-6 h-6" src="/images/loading.gif" /> : "Execute"}
                     </button>
                   </EditTextElementWrapper>
                 </div>
               </div>
+              <div>{uiData?.activityCodeRuntime}</div>
+            <DrawerArround>
+              <canvas id="plot-canvas" className="bg-white w-full" width="1008" height="1008"></canvas>
+            </DrawerArround>
               {!uiData?.openReportUi && executedCodeOutput && (
                 <div className="px-3 space-y-3">
                   <div className="divider w-full"></div>
@@ -409,16 +543,7 @@ ${fc}
                       className="px-2 py-1 codeoutput-bg text-white"
                       id="codeoutput-bg"
                     >
-                      {typeof executedCodeOutput?.output == "string" &&
-                        executedCodeOutput?.output?.includes(
-                          'xmlns:xlink="http://www.w3.org/1999/xlink"'
-                        ) ? (
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: executedCodeOutput?.output,
-                          }}
-                        ></div>
-                      ) : (
+                      {(typeof executedCodeOutput?.output == "string" || executedCodeOutput?.error) &&
                         <textarea
                           type="textarea"
                           disabled
@@ -431,8 +556,15 @@ ${fc}
                             executedCodeOutput?.output?.toString() ||
                             "No output found"
                           }
-                        ></textarea>
-                      )}
+                        ></textarea>}
+                      {executedCodeOutput?.images && executedCodeOutput?.images.map((img, index) => (
+                        <img
+                          key={index}
+                          src={`${img}`}
+                          alt="output"
+                          className="w-full h-auto"
+                        />
+                      ))}
                       {/* {executedCodeOutput?.error &&
                     !(
                       typeof executedCodeOutput?.output == "string" &&

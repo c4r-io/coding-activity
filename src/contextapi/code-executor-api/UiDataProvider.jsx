@@ -806,7 +806,7 @@ export const UiDataProvider = ({ children }) => {
       case "setUiContent": {
         return {
           ...state,
-          uiContent: action.payload,
+          ...action.payload,
         };
       }
       case "setContent": {
@@ -920,6 +920,10 @@ export const UiDataProvider = ({ children }) => {
         data: null
       }
     },
+    activityTitle: "Activity Title",
+    activityDefaultCode: "",
+    activityCodeExecutor: "Pyodide",
+    activityCodeRuntime: "Pyodide",
     screen: 'editor',
     chatScreenStatus: 'followUpAskQuestion',
     devmode: false,

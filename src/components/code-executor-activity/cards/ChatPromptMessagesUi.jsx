@@ -13,6 +13,7 @@ const ChatPromptMessagesUi = ({ }) => {
     const { uiData, dispatchUiData } = React.useContext(UiDataContext);
     return (
         <div className='text-white'>
+            {uiData.devmode && <FollowUpAskQuestionUi />}
             {messages.messageList.map((message, index) => {
                 return (
                     <div key={index}>
@@ -28,8 +29,8 @@ const ChatPromptMessagesUi = ({ }) => {
                     </div>
                 );
             })}
-            {(uiData.devmode || messages.takeScreenshot) && <ScreenshotImageCard image={uiData.devmode ? '/images/code-sample-screenshot.jpg' : messages.image} />}
-            {(uiData.devmode || uiData.chatScreenStatus === 'followUpAskQuestion') && <FollowUpAskQuestionUi />}
+            {messages.takeScreenshot && messages.image && <ScreenshotImageCard image={messages.image} />}
+            {(!uiData.devmode && uiData.chatScreenStatus === 'followUpAskQuestion') && <FollowUpAskQuestionUi />}
             {(uiData.devmode || uiData.chatScreenStatus === 'followUpReviewAction') && <FollowUpReviewActionUi />}
         </div>
     )
