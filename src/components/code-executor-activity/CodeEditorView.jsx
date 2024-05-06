@@ -94,9 +94,8 @@ export default function CodeEditorView() {
   useEffect(() => {
     if (uiData.devmode) {
       dispatchUiData({ type: 'setOpenReportUi', payload: true })
-    } else {
-      setCode(uiData?.uiContent?.defaults?.code || "")
     }
+    setCode(uiData?.uiContent?.defaults?.code || "")
   }, [uiData.devmode, uiData?.uiContent?.defaults?.code])
 
 
