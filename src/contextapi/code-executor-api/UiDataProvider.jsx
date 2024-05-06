@@ -3,7 +3,6 @@ import css from "styled-jsx/css";
 export const UiDataContext = createContext();
 
 const allCss = `
-
 :root {
   --ui-violet: #854ABE;
   --ui-dark: #171819;
@@ -12,16 +11,10 @@ const allCss = `
   --ui-gray-2: #828282;
   --ui-gray-3: #4F4F4F;
   --ui-gray-4: #404040;
-  --ui-orange: #DD8B3C;
   --ui-dark-orange: #6E3822;
-  --ui-blue: #00BBFF;
   --ui-medium-violet: #532688;
   --ui-dark-violet: #5A3A69;
   --ui-light-blue-shade: #D9D9D9;
-  --ui-light-blue: #b0ddff;
-  --ui-light-gray: #D9D9D9;
-  --ui-medium-gray: #282b30;
-  --ui-dark-gray: #1e2124;
   --ui-white-title: #858585;
   --ui-white-text: #A5A5A5;
   --ui-orange: #FF8C00;
@@ -891,7 +884,7 @@ export const UiDataProvider = ({ children }) => {
         "sample": ""
       },
       "editorview": {
-        "headerTitle": "# Custom header\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.ljasldfj\n\n**Footer**",
+        "headerTitle": "# Let’s visualize block randomization\n\nBlock randomization is as simple as hitting a button! Free software packages such as **blockrand**, **randomizR**, or **psych** in R can block randomize your study.\n\\\nBut what is happening under the hood? Hit “Run” on this R code to see a visualization of a block randomized study with 4 treatments.",
         "headerBodyTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
         "headerFooterTitle": "### Custom footer",
         "editorPep8Btn": "PEP8",
@@ -899,17 +892,17 @@ export const UiDataProvider = ({ children }) => {
         "editorActionBtn": "Execute",
         "editorActionAttachScreenshot": "Attach Screenshot",
         "editorActionSubmitAttachment": "Submit",
-        "plotLeftLabel": "This axis shows you how many blocks into which your patients have been randomized",
-        "plotRightLabel": "This legend shows a different color for each treatment",
-        "plotBottomLabel": "This axis shows you the sequence of the treatments within each block",
         "sample": "",
+        "plotLeftLabel": "This axis shows you how many blocks into which your patients have been randomized",
+        "plotBottomLabel": "This axis shows you the sequence of the treatments within each block",
+        "plotRightLabel": "This legend shows a different color for each treatment"
       },
       "codeEditorTopCardImage": {
         "styles": {
-          "top": -61,
-          "left": 525,
-          "width": 253,
-          "height": 252,
+          "top": -1,
+          "left": 597,
+          "width": 125,
+          "height": 171,
           "rotateAngle": 0
         }
       },
@@ -921,6 +914,27 @@ export const UiDataProvider = ({ children }) => {
           "height": 162,
           "rotateAngle": 0
         }
+      },
+      "feedbackReviewUnLikeImage": {
+        "styles": {
+          "top": -47,
+          "left": 139,
+          "width": 110,
+          "height": 94,
+          "rotateAngle": 0
+        }
+      },
+      "feedbackReviewLikeImage": {
+        "styles": {
+          "top": -29,
+          "left": 100,
+          "width": 200,
+          "height": 173,
+          "rotateAngle": 0
+        }
+      },
+      "defaults": {
+        "code": "print(\"hello from default!\")"
       },
       cssdata: {
         all: allCss,

@@ -9,7 +9,6 @@ import { UserContext } from "@/contextapi/UserProvider";
 import { useRouter } from "next/navigation";
 import { MdCheckBoxOutlineBlank, MdCheckBox } from "react-icons/md";
 import { useDeleteByIds, useCreateDefault } from "../hooks/ApiHooks";
-
 const CodeExecutorItemsUi = ({ searchParams }) => {
   const { userData, dispatchUserData } = useContext(UserContext);
   const router = useRouter();
@@ -91,7 +90,7 @@ const CodeExecutorItemsUi = ({ searchParams }) => {
       activityTitle: "Sample Title",
       activityDefaultCode: "# print('Hello World')",
       activityCodeExecutor: "Python",
-      activityCodeRuntime: "Pyodide",
+      activityCodeRuntime: "Pyodide"
     }
   );
   const deleteConfirmDialog = () => {
