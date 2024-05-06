@@ -146,7 +146,42 @@ const Page = ({ params }) => {
     // router.push({ query: { page: e } });
   };
   useEffect(() => {
-    getpythonExecutorIssueListsList(page);
+    const getpythonExecutorIssues = async (page) => {
+      dispatchUserData({ type: 'checkLogin' });
+      const config = {
+        method: 'GET',
+        url: 'api/chat-feedback',
+        headers: {
+          Authorization: `Bearer ${getToken('token')}`,
+        },
+        params: {
+          pageNumber: page,
+          codeExecutorActivity: params.codingActivityId,
+          select: ' description',
+        },
+      };
+      setListLoading(true);
+      try {
+        const response = await api.request(config);
+        setPythonExecutorIssueListList(response.data);
+        console.log(response.data);
+        setListLoading(false);
+      } catch (error) {
+        console.log(error);
+        setListLoading(false);
+        if (error?.response?.status == 401) {
+          toast.error(error.response.data.message + ', Login to try again.', {
+            position: 'top-center',
+          });
+          router.push('/');
+        } else {
+          toast.error(error.message, {
+            position: 'top-center',
+          });
+        }
+      }
+    };
+    getpythonExecutorIssues(page);
   }, [page]);
 
   const toggleAddToDeleteList = (id) => {

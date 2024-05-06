@@ -60,6 +60,7 @@ function EditMystMdElementWrapper({ children, className, path, buttonEditor = fa
                             title={`${className}`}
                             onFocus={(e) => {
                                 if (uiData.devmode) {
+                                    dispatchUiData({ type: 'setHighlightClass', payload: className });
                                     setHeightOfPreview(previewElement?.current?.clientHeight)
                                     setTimeout(() => {
                                         setEditorFocused("mystmd-editor-focused")

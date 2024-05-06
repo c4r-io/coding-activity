@@ -11,35 +11,36 @@ const Page = ({ params }) => {
   const { userData, dispatchUserData } = useContext(UserContext);
   const [codeExecutorActivityData, setCodeExecutorActivityData] = useState({});
   const router = useRouter();
-  const getVideoClipList = async () => {
-    dispatchUserData({ type: "checkLogin" });
-    const config = {
-      method: "GET",
-      url: "/api/code-executor-activity/" + params.codingActivityId,
-      headers: {
-        Authorization: `Bearer ${getToken("token")}`,
-      },
-    };
-    try {
-      const response = await api.request(config);
-      setCodeExecutorActivityData(response.data.results);
-    } catch (error) {
-      if (error?.response?.status == 401) {
-        toast.error(error.response.data.message + ". Login to try again.", {
-          position: "top-center",
-        });
-        router.push("/dashboard");
-        return;
-      } else {
-        toast.error(error.message, {
-          position: "top-center",
-        });
-      }
-      router.push("/dashboard/code-executor-activity");
-      console.error(error);
-    }
-  };
+
   useEffect(() => {
+    const getVideoClipList = async () => {
+      dispatchUserData({ type: "checkLogin" });
+      const config = {
+        method: "GET",
+        url: "/api/code-executor-activity/" + params.codingActivityId,
+        headers: {
+          Authorization: `Bearer ${getToken("token")}`,
+        },
+      };
+      try {
+        const response = await api.request(config);
+        setCodeExecutorActivityData(response.data.results);
+      } catch (error) {
+        if (error?.response?.status == 401) {
+          toast.error(error.response.data.message + ". Login to try again.", {
+            position: "top-center",
+          });
+          router.push("/dashboard");
+          return;
+        } else {
+          toast.error(error.message, {
+            position: "top-center",
+          });
+        }
+        router.push("/dashboard/code-executor-activity");
+        console.error(error);
+      }
+    };
     getVideoClipList();
   }, [params.codingActivityId]);
   return (

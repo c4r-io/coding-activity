@@ -160,6 +160,9 @@ body {
 opacity: 0;
 display: none;
 }
+.highlight {
+  background-color: #854ABE99;
+}
 
 /* 
 

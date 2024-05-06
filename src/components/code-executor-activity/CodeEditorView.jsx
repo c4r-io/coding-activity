@@ -1,5 +1,5 @@
 "use client";
-import React, { Fragment, useEffect,useCallback, useRef, useState } from "react";
+import React, { Fragment, useEffect, useCallback, useRef, useState } from "react";
 import EditorViewTopCardUi from "./cards/EditorViewTopCardUi.jsx";
 import { UiDataContext } from "@/contextapi/code-executor-api/UiDataProvider.jsx";
 import { ChatMessagesContext } from "@/contextapi/code-executor-api/ChatMessagesProvider.jsx";
@@ -57,6 +57,7 @@ plt.show()
 
 `;
 export default function CodeEditorView() {
+  const { uiData, dispatchUiData } = React.useContext(UiDataContext);
 
   const { messages, dispatchMessages } = React.useContext(ChatMessagesContext);
   let pyodide = useRef(null);
@@ -64,9 +65,15 @@ export default function CodeEditorView() {
 
 
   let webRLoaded = useRef(false);
-  const webRRef = useRef(new WebR());
+  const webRRef = useRef(null);
+  const webR2Ref = useRef(null);
+  useEffect(() => {
+    if (!uiData.devmode) {
+      webRRef.current = new WebR()
+      webR2Ref.current = new WebR()
+    }
+  }, [uiData.devmode])
   const webR = webRRef.current;
-  const webR2Ref = useRef(new WebR());
   const webR2 = webR2Ref.current;
 
   const [code, setCode] = React.useState("");
@@ -78,8 +85,7 @@ export default function CodeEditorView() {
   const [issueDiscription, setIssueDiscription] = React.useState(null);
   const [issueAttachment, setIssueAttachment] = React.useState(null);
   const [executedCodeOutput, setExecutedCodeOutput] = React.useState(null);
-  const { uiData, dispatchUiData } = React.useContext(UiDataContext);
-  const [editorFocused, setEditorFocused] = React.useState('');
+  const [isWebRImage, setIsWebRImage] = React.useState(false);
   const [expandBottomSection, setExpandBottomSection] = React.useState(!uiData.devmode);
   const handleExpandBottomSection = () => {
     dispatchUiData({ type: 'setOpenReportUi', payload: !uiData.openReportUi })
@@ -95,25 +101,26 @@ export default function CodeEditorView() {
 
 
   const getReadyWebR = useCallback(async function getReadyWebR() {
-    await webR.init();
+    await webR?.init();
 
     // Set the default graphics device and pager
-    await webR.evalRVoid('webr::pager_install()');
-    await webR.evalRVoid('webr::canvas_install()');
+    await webR?.evalRVoid('webr::pager_install()');
+    await webR?.evalRVoid('webr::canvas_install()');
 
     // shim function from base R with implementations for webR
     // see ?webr::shim_install for details.
-    await webR.evalRVoid('webr::shim_install()');
+    await webR?.evalRVoid('webr::shim_install()');
 
-  },[])
+  }, [])
   useEffect(() => {
-    if (!webRLoaded.current) {
+    if (!webRLoaded.current && !uiData.devmode) {
       getReadyWebR();
       webRLoaded.current = true;
       console.log("R added");
     }
-  }, [webRLoaded.current]);
-
+  }, [webRLoaded.current, uiData.devmode]);
+  const [outputImageUrl, setOutputImageUrl] = useState(null);
+  const graphicsCode = ["plot", "barplot", "pie"]
   const runWebRCode = async (apiCallCount = 1) => {
     if (code == "") {
       toast.error("Please enter code to execute");
@@ -128,7 +135,7 @@ export default function CodeEditorView() {
       const canvas = document.getElementById('plot-canvas');
       canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
       if (graphicsCode.some((gc) => code.includes(gc))) {
-
+        setIsWebRImage(true);
         const res = await webR2.evalRVoid(`
         webr::shim_install()
         webr::canvas()
@@ -148,7 +155,7 @@ export default function CodeEditorView() {
             console.log(msg);
           }
         });
-        webR.destroy(res);
+        // webR2?.destroy(res);
       } else {
         let result = await webR.evalR(`
         webr::shim_install()
@@ -157,7 +164,7 @@ export default function CodeEditorView() {
         let output = await result.toArray();
         const output1 = await webR.read();
 
-        console.log("output type 1 ", output1.type);
+        console.log("output type 1 ", output1.type, output1.data);
         console.log('Result of running `rnorm` from webR: ', output);
         webR.destroy(result);
         setExecutedCodeOutput({
@@ -187,6 +194,9 @@ export default function CodeEditorView() {
   };
 
   async function getReadyPyodide() {
+    if (uiData.devmode) {
+      return;
+    }
     pyodide.current = await window.loadPyodide();
     await pyodide.current.loadPackage("micropip");
     await pyodide.current.loadPackage("sympy");
@@ -247,10 +257,6 @@ autopep8.fix_code(code)`;
   function preparedCodeForPep8() {
     return pep8FromatEer.replaceAll("{codestring}", code.replaceAll('"""', '\\"\\"\\"'));
   }
-  const pythonExecutorApi = axios.create({
-    // baseURL: "http://127.0.0.1:8000/", // local development django server
-    baseURL: "https://python-executor.vercel.app/",
-  });
   const runCode = (apiCallCount = 1) => {
     if (code == "") {
       toast.error("Please enter code to execute");
@@ -269,7 +275,6 @@ ${nc2}
 json.dumps(expectedop, indent=2)
 `
     try {
-      // const response = await pythonExecutorApi.request(config);
       console.log(
         pyodide.current.runPython(`
 ${executableCode}
@@ -278,12 +283,6 @@ ${executableCode}
       const op = pyodide.current.runPython(`
 ${executableCode}`)
         ;
-      // if (typeof op == "object") {
-      //   console.log("op code obj",op, JSON.stringify(op));
-      // } else if(typeof op == "string") {
-      // }
-      // console.log("op code str", op, nc2);
-      // console.log("code nc", nc);
       const stringOutput = JSON.parse(op);
       console.log("op code", stringOutput);
       setExecutedCodeOutput({
@@ -339,6 +338,127 @@ ${fc}
       console.error(error);
     }
   };
+
+  // aws code runner 
+
+  const pltshowAws = `
+import json
+from io import BytesIO
+buf = BytesIO()
+plt.savefig(buf, format="svg")
+buf.seek(0)
+output = {}
+output["type"] = "image"
+output["content"] = buf.read().decode("utf-8")
+print(json.dumps(output))`;
+  const pep8FromaterAws = `
+import autopep8
+
+code = """
+{codestring}
+"""
+print(autopep8.fix_code(code))`;
+
+  const pythonExecutorApi = axios.create({
+    baseURL: "https://em8ez2rypi.execute-api.us-east-2.amazonaws.com",
+  });
+  const runCodeAws = async (apiCallCount = 1) => {
+    if (code == "") {
+      toast.error("Please enter code to execute");
+      return;
+    }
+    const modifiedCode = `
+import json
+expectedop = []
+${code}
+`
+    const nc = modifiedCode.replaceAll("plt.show()", pltshow);
+    const nc2 = nc.replaceAll(/print\((.*?)\)/g, "expectedop.extend([$1])");
+    setIsCodeExecuting(true);
+    const executableCode = `
+${nc2}
+opdt = json.dumps(expectedop, indent=2)
+print(opdt)
+`
+    // const nc2 = nc.replaceAll(/print\((.*?)\)/g, "$1");
+    console.log(nc);
+    setIsCodeExecuting(true);
+    try {
+      const config = {
+        method: "post",
+        url: "default",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: {
+          code: `print('New Code Running...')\n${executableCode}`,
+        }
+      }
+      const response = await pythonExecutorApi.request(config);
+      if (response.data?.body) {
+        const output = JSON.parse(response.data?.body)?.output;
+        const error = JSON.parse(response.data?.body)?.error;
+        let op = []
+        const imagesList = []
+        if (output) {
+          for (const [key, value] of Object.entries(output)) {
+            if (value != 'New Code Running...') {
+              // console.log("val",value)
+              op.push(value)
+              // try {
+              //   const data = JSON.parse(value)
+              //   if (data.type == "image") {
+              //     imagesList.push(data.content)
+              //   }
+              // } catch (e) {
+              //   if (!value.includes("Matplotlib created a temporary cache directory at")) {
+              //     op.push(value)
+              //   }
+              // }
+
+            }
+          }
+          // setExecutedCodeImageOutput(imagesList)
+          const stringOutput = JSON.parse(JSON.stringify(op))
+          stringOutput.shift()
+          stringOutput.pop()
+          const modifiedStringOp = stringOutput.map((op) => {
+            op = op.replaceAll("\"", "")
+            return  op;
+          })
+          setExecutedCodeOutput({
+            output: modifiedStringOp.filter((op) => !String(op).includes("data:image")).join("\n"),
+            images: modifiedStringOp.filter((op) => String(op).includes("data:image")),
+            error: null,
+          });
+        }
+        if (error) {
+          // setExecutedCodeErrorOutput("Error: " + error);
+        }
+        // console.log(op)
+      } else if (response.data?.errorMessage) {
+        // setExecutedCodeErrorOutput(response.data?.body);
+      }
+      setIsCodeExecuting(false);
+      setExpandBottomSection(true);
+    } catch (error) {
+      if (apiCallCount <= 3) {
+        setTimeout(() => {
+          console.log("running count", apiCallCount);
+          runCode(apiCallCount + 1);
+        }, 5000 * apiCallCount);
+      } else {
+        setExecutedCodeOutput({
+          output: null,
+          error: error,
+        });
+        setIsCodeExecuting(false);
+      }
+      // getReadyPyodide()
+      console.error(error);
+    }
+  };
+  // aws code runner
   const createSamplePythonExecutorIssueList = async () => {
     if (issueDiscription == null) {
       toast.error("Please enter issue description", {
@@ -383,12 +503,6 @@ ${fc}
       setIsIssueSubmitting(false);
     }
   };
-  const pc = `
-  str = "Hello World"
-  print(str)
-  `;
-
-
 
   // implement take screenshot functionality
   const [crop, setCrop] = useState();
@@ -442,7 +556,6 @@ ${fc}
         src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"
         onLoad={() => getReadyPyodide()}
       />
-      {/* <div className="bg-black text-white">{JSON.stringify(uiData)}</div> */}
       <ReactCrop
         crop={crop}
         onChange={(c) => setCrop(c)}
@@ -466,24 +579,26 @@ ${fc}
                     handleOnChange(e);
                   }}
                 />
-                <div className="buttons absolute top-[10px] right-[10px]">
-                  <div className="progressive">
+                {(uiData.activityCodeRuntime === "Pyodide" || uiData.activityCodeRuntime === "Python Aws Api") &&
+                  <div className="buttons absolute top-[10px] right-[10px]">
+                    <div className="progressive">
 
-                    <EditTextElementWrapper
-                      className={`unclicked py-0.5 px-3 rounded-sm pep8-formatter-button text-center`}
-                      path={"editorview.editorPep8Btn"}
-                      buttonEditor={true}
-                    >
-                      <button
-                        className={`${isCodeFormating ? "clicked" : "unclicked"
-                          } py-0.5 px-3 rounded-sm pep8-formatter-button`}
-                        onClick={() => formatCodeWithPep8()}
+                      <EditTextElementWrapper
+                        className={`unclicked py-0.5 px-3 rounded-sm pep8-formatter-button text-center`}
+                        path={"editorview.editorPep8Btn"}
+                        buttonEditor={true}
                       >
-                        {isCodeFormating ? "Formating" : uiData?.uiContent?.editorview?.editorPep8Btn}
-                      </button>
-                    </EditTextElementWrapper>
+                        <button
+                          className={`${isCodeFormating ? "clicked" : "unclicked"
+                            } py-0.5 px-3 rounded-sm pep8-formatter-button`}
+                          onClick={() => formatCodeWithPep8()}
+                        >
+                          {isCodeFormating ? "Formating" : uiData?.uiContent?.editorview?.editorPep8Btn}
+                        </button>
+                      </EditTextElementWrapper>
+                    </div>
                   </div>
-                </div>
+                }
               </div>
               <div className="px-3 pt-0 flex justify-between buttons -m-2">
                 <div className="passive w-1/2 m-2">
@@ -514,19 +629,29 @@ ${fc}
                       className={`${isCodeExecuting ? "clicked" : "unclicked"
                         } py-2 px-3 w-full !text-sm`}
                       onClick={() => {
-                        runCode()
-                        // runWebRCode()
+                        if (uiData.activityCodeRuntime === "Pyodide") {
+                          runCode()
+                        }
+                        else if (uiData.activityCodeRuntime === "Python Aws Api") {
+                          runCodeAws()
+                        }
+                        else if (uiData.activityCodeRuntime === "Web-R") {
+                          runWebRCode()
+                        }
                       }}
                     >
-                      {isCodeExecuting ? <img className="w-6 h-6" src="/images/loading.gif" /> : "Execute"}
+                      {isCodeExecuting ? <div className="w-full flex justify-center items-center"><img className="w-6 h-6" src="/images/loading.gif" /></div> : "Execute"}
                     </button>
                   </EditTextElementWrapper>
                 </div>
               </div>
-              <div>{uiData?.activityCodeRuntime}</div>
-            <DrawerArround>
-              <canvas id="plot-canvas" className="bg-white w-full" width="1008" height="1008"></canvas>
-            </DrawerArround>
+              {(uiData.devmode || uiData.activityCodeRuntime === "Web-R") &&
+                <div className={`${isWebRImage || uiData.devmode ? '' : 'hidden'}`}>
+                  <DrawerArround>
+                    <canvas id="plot-canvas" className="bg-white w-full" width="1008" height="1008"></canvas>
+                  </DrawerArround>
+                </div>
+              }
               {!uiData?.openReportUi && executedCodeOutput && (
                 <div className="px-3 space-y-3">
                   <div className="divider w-full"></div>
@@ -556,30 +681,20 @@ ${fc}
                             executedCodeOutput?.output?.toString() ||
                             "No output found"
                           }
-                        ></textarea>}
-                      {executedCodeOutput?.images && executedCodeOutput?.images.map((img, index) => (
-                        <img
-                          key={index}
-                          src={`${img}`}
-                          alt="output"
-                          className="w-full h-auto"
-                        />
-                      ))}
-                      {/* {executedCodeOutput?.error &&
-                    !(
-                      typeof executedCodeOutput?.output == "string" &&
-                      executedCodeOutput?.output?.includes(
-                        'xmlns:xlink="http://www.w3.org/1999/xlink"'
-                      )
-                    ) && (
-                      <textarea
-                        type="textarea"
-                        disabled
-                        className="h-64 w-full codeoutput-bg text-red-600"
-                        value={executedCodeOutput?.error || ""}
-                      ></textarea>
-                    )} */}
-                      {/* {JSON.stringify(executedCodeOutput)} */}
+                        />}
+                      {executedCodeOutput?.images && executedCodeOutput?.images.length > 0 &&
+                        <DrawerArround>
+                          {executedCodeOutput?.images.map((img, index) => (
+                            <img
+                              key={index}
+                              src={`${img}`}
+                              alt="output"
+                              className="w-full h-auto"
+                            />
+                          ))}
+                        </DrawerArround>
+                      }
+
                     </div>
                   </div>
                 </div>
@@ -685,8 +800,6 @@ ${fc}
                 </button>
               </div>
             </div>
-            {/* {runningIssueStatus (
-        )} */}
           </div>
         </div>
       </ReactCrop>

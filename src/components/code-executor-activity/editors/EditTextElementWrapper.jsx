@@ -53,6 +53,7 @@ function EditTextElementWrapper({ children, className, path, buttonEditor = fals
                             title={`${className}`}
                             onFocus={(e) => {
                                 if (uiData.devmode) {
+                                    dispatchUiData({ type: 'setHighlightClass', payload: className });
                                     setHeightOfPreview(previewElement?.current?.clientHeight)
                                     setTimeout(() => {
                                         setEditorFocused("chatprompt-top-headertext-editor")

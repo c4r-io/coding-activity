@@ -135,6 +135,7 @@ function UploadImageWrapper({ children, className, path, stylePath, styles }) {
                                 if (stylePath && !resisable) {
                                     setResisable(state => !state)
                                 }
+                                dispatchUiData({ type: 'setHighlightClass', payload: className });
                             }}
                             onBlur={() => {
                                 setResisable(false)
@@ -144,6 +145,7 @@ function UploadImageWrapper({ children, className, path, stylePath, styles }) {
                                     setEditorFocused("chatprompt-user-message-headertext-editor")
                                     setResisable(false)
                                 }
+                                dispatchUiData({ type: 'setHighlightClass', payload: className });
                             }}
                             // onFocus={(e) => {
                             //     if (uiData.devmode) {

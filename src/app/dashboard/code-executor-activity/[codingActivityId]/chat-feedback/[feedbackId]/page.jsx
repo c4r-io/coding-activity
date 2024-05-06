@@ -14,35 +14,36 @@ const Page = ({ params }) => {
     useState(null);
   const [description, setDescription] = useState(null);
   const [attachment, setAttachment] = useState(null);
-  const getPythonExecutorIssueList = async () => {
-    dispatchUserData({ type: 'checkLogin' });
-    const config = {
-      method: 'GET',
-      url: 'api/chat-feedback/' + params.feedbackId,
-      headers: {
-        Authorization: `Bearer ${getToken('token')}`,
-      },
-    };
-    try {
-      const response = await api.request(config);
-      setPythonExecutorIssueListResponse(response.data);
-    } catch (error) {
-      if (error?.response?.status == 401) {
-        toast.error(error.response.data.message + '. Login to try again.', {
-          position: 'top-center',
-        });
-        router.push('/dashboard');
-        return;
-      } else {
-        toast.error(error.message, {
-          position: 'top-center',
-        });
-      }
-      router.push('/dashboard/pythonExecutorIssueList');
-      console.error(error);
-    }
-  };
+
   useEffect(() => {
+    const getPythonExecutorIssueList = async () => {
+      dispatchUserData({ type: 'checkLogin' });
+      const config = {
+        method: 'GET',
+        url: 'api/chat-feedback/' + params.feedbackId,
+        headers: {
+          Authorization: `Bearer ${getToken('token')}`,
+        },
+      };
+      try {
+        const response = await api.request(config);
+        setPythonExecutorIssueListResponse(response.data);
+      } catch (error) {
+        if (error?.response?.status == 401) {
+          toast.error(error.response.data.message + '. Login to try again.', {
+            position: 'top-center',
+          });
+          router.push('/dashboard');
+          return;
+        } else {
+          toast.error(error.message, {
+            position: 'top-center',
+          });
+        }
+        router.push('/dashboard/pythonExecutorIssueList');
+        console.error(error);
+      }
+    };
     getPythonExecutorIssueList();
   }, [params.feedbackId]);
   useEffect(() => {
@@ -97,7 +98,6 @@ const Page = ({ params }) => {
     try {
       const response = await api.request(config);
       router.push('/dashboard/pythonExecutorIssueList');
-      getPythonExecutorIssueList;
       toast.success('Updated Successfully!', {
         position: 'top-center',
       });

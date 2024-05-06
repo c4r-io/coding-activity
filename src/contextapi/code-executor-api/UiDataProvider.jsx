@@ -855,6 +855,12 @@ export const UiDataProvider = ({ children }) => {
           openReportUi: action.payload,
         };
       }
+      case "setHighlightClass": {
+        return {
+          ...state,
+          highlightClass: action.payload,
+        };
+      }
       default: {
         return state;
       }
@@ -893,7 +899,10 @@ export const UiDataProvider = ({ children }) => {
         "editorActionBtn": "Execute",
         "editorActionAttachScreenshot": "Attach Screenshot",
         "editorActionSubmitAttachment": "Submit",
-        "sample": ""
+        "plotLeftLabel": "This axis shows you how many blocks into which your patients have been randomized",
+        "plotRightLabel": "This legend shows a different color for each treatment",
+        "plotBottomLabel": "This axis shows you the sequence of the treatments within each block",
+        "sample": "",
       },
       "codeEditorTopCardImage": {
         "styles": {
@@ -929,6 +938,7 @@ export const UiDataProvider = ({ children }) => {
     devmode: false,
     openReportUi: false,
     activityDefaultCode: "",
+    highlightClass: "",
   });
   return (
     <UiDataContext.Provider value={{ uiData, dispatchUiData }}>

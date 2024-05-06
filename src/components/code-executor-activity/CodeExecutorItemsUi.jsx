@@ -62,6 +62,25 @@ const CodeExecutorItemsUi = ({ searchParams }) => {
       }
     }
   };
+  const duplicateItem = async (id) => {
+    dispatchUserData({ type: "checkLogin" });
+    const config = {
+      method: "POST",
+      url: "/api/code-executor-activity/" + id,
+      headers: {
+        Authorization: `Bearer ${getToken("token")}`,
+      },
+    };
+    setListLoading(true);
+    try {
+      const response = await api.request(config);
+      setListLoading(false);
+      getvideoClipListsList(page);
+    } catch (error) {
+      console.log(error);
+      setListLoading(false);
+    }
+  };
   const createSampleVideoClipList = async () => {
     dispatchUserData({ type: "checkLogin" });
 
@@ -211,6 +230,22 @@ const CodeExecutorItemsUi = ({ searchParams }) => {
                     <td className="px-6 py-4">{item?.activityTitle}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="inline-flex space-x-1 items-center text-base font-semibold text-white">
+                        <button
+                          type="button"
+                          className="edit_button"
+                          onClick={()=>duplicateItem(item._id)}
+                        >
+                          Duplicate
+                        </button>
+                        <Link href={`/code-executor-activity/${item._id}`}>
+                          <button
+                            type="button"
+                            className="edit_button"
+
+                          >
+                            Preview
+                          </button>
+                        </Link>
                         <Link href={`/dashboard/code-executor-activity/${item._id}`}>
                           <button
                             type="button"

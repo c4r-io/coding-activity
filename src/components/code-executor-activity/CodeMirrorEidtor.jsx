@@ -62,11 +62,24 @@ import {highlightCode, classHighlighter} from "@lezer/highlight"
 
 // highlightCode(code, parser.parse(code), classHighlighter,
 //               emit, emitBreak)
-const CodeMirrorEidtor = ({value, onChange, height, language}) => {
+const CodeMirrorEidtor = ({value, onChange, height, language, highlights}) => {
     const [extensions,setExtentions] = React.useState([loadLanguage(`python`)]);
+    const [editorRef, setEditorRef] = React.useState(null);
     useEffect(() => {
         setExtentions([loadLanguage(`${language? language: 'python'}`)]);
     },[language])
+    useEffect(() => {
+        console.log('Applying highlights:', highlights);
+        if (editorRef && highlights) {
+            editorRef.getAllMarks().forEach(mark => mark.clear());
+    
+            highlights.forEach(({ from, to, className }) => {
+                console.log('Marking from', from, 'to', to, 'with class', className);
+                editorRef.markText(from, to, { class: className });
+            });
+        }
+    }, [highlights, editorRef]);
+
     return (
         <CodeMirror
             value={value|| ""}
