@@ -150,7 +150,7 @@ const Page = ({ params }) => {
         </Link>
         <Link href={`/code-executor-activity/${params.codingActivityId}`}>
           <button className="me-2 px-4 py-2 bg-violet-500 text-white rounded-md mb-4 "
-          >View original</button>
+          >Preview</button>
         </Link>
       </div>
       <button

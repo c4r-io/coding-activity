@@ -231,7 +231,7 @@ const CodeExecutorItemsUi = ({ searchParams }) => {
                       <div className="inline-flex space-x-1 items-center text-base font-semibold text-white">
                         <button
                           type="button"
-                          className="edit_button"
+                          className="edit_button  bg-orange-500"
                           onClick={()=>duplicateItem(item._id)}
                         >
                           Duplicate
@@ -239,7 +239,7 @@ const CodeExecutorItemsUi = ({ searchParams }) => {
                         <Link href={`/code-executor-activity/${item._id}`}>
                           <button
                             type="button"
-                            className="edit_button"
+                            className="edit_button bg-violet-500"
 
                           >
                             Preview
