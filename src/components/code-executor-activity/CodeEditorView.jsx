@@ -577,6 +577,7 @@ print(opdt)
                   onChange={(e) => {
                     handleOnChange(e);
                   }}
+                  height={`${code.split("\n").length * 19.5 + 20}px`}
                 />
                 {(uiData.activityCodeRuntime === "Pyodide" || uiData.activityCodeRuntime === "Python Aws Api") &&
                   <div className="buttons absolute top-[10px] right-[10px]">
