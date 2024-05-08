@@ -7,10 +7,12 @@ import { useState, useEffect, useContext } from 'react';
 import { UserContext } from '@/contextapi/UserProvider';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import Sidebar from '@/components/Sidebar';
 const Page = ({ params }) => {
   const { userData, dispatchUserData } = useContext(UserContext);
   const router = useRouter();
   const [userResponse, setUserResponse] = useState(null);
+  const [permission, setPermission] = useState(null);
   const [userName, setUserName] = useState(null);
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
@@ -46,6 +48,7 @@ const Page = ({ params }) => {
     getUser();
   }, [params.slug]);
   useEffect(() => {
+    setPermission(userResponse?.users?.permission);
     setUserName(userResponse?.users?.userName);
     setEmail(userResponse?.users?.email);
     setPassword(userResponse?.users?.password);
@@ -56,6 +59,9 @@ const Page = ({ params }) => {
     e.preventDefault();
     dispatchUserData({ type: 'checkLogin' });
     const data = {};
+    if (permission && userResponse?.users?.permission !== permission) {
+      data.permission = permission;
+    }
     if (userName && userResponse?.users?.userName !== userName) {
       data.userName = userName;
     }
@@ -106,68 +112,97 @@ const Page = ({ params }) => {
     }
   };
   return (
-    <div className="container mx-auto py-4 px-4 md:px-0">
-      <div>
-        <div className="mb-6">
-          <label
-            htmlFor="userName"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
-            {' '}
-            User name
-          </label>
-          <input
-            type="text"
-            id="userName"
-            className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
-            placeholder="User name"
-            defaultValue={userResponse?.users?.userName}
-            onInput={(e) => setUserName(e.target.value)}
-          />
+    <>
+      <Sidebar />
+      <div className="p-4 sm:ml-64 bg-gray-700 min-h-screen">
+        <div className="p-4 border-2 border-dashed rounded-lg border-gray-600">
+          <div className="container mx-auto py-4 px-4 md:px-0">
+            <div>
+              <div className="mb-6">
+                <label
+                  htmlFor="userName"
+                  className="block mb-2 text-sm font-medium text-white"
+                >
+                  {' '}
+                  UserName
+                </label>
+                <input
+                  type="text"
+                  id="userName"
+                  className="shadow-sm border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
+                  placeholder="UserName"
+                  defaultValue={userResponse?.users?.userName}
+                  onInput={(e) => setUserName(e.target.value)}
+                />
+              </div>
+              <div className="mb-6">
+                <label
+                  htmlFor="email"
+                  className="block mb-2 text-sm font-medium text-white"
+                >
+                  {' '}
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  className="shadow-sm border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
+                  placeholder="name@example.com"
+                  defaultValue={userResponse?.users?.email}
+                  onInput={(e) => setEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="mb-6">
+                <label
+                  htmlFor="permission"
+                  className="block mb-2 text-sm font-medium text-white"
+                >
+                  {`Select a permission from option "${permission}"`}
+                </label>
+                {userResponse?.users &&
+                <select
+                  value={permission}
+                  onChange={(e) => setPermission(e.target.value)}
+                  id="permission"
+                  className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option>Choose a permission</option>
+                  <option value="self">Self</option>
+                  <option value="admin">Admin</option>
+                  <option value="super admin">Super Admin</option>
+                </select>
+                }
+              </div>
+              <div className="mb-6">
+                <label
+                  htmlFor="password"
+                  className="block mb-2 text-sm font-medium text-white"
+                >
+                  {' '}
+                  Password
+                </label>
+                <input
+                  type="text"
+                  id="password"
+                  className="shadow-sm border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
+                  placeholder="Password"
+                  defaultValue={userResponse?.users?.password}
+                  onInput={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <button
+                type="submit"
+                className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                onClick={updateUser}
+              >
+                Update User
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="mb-6">
-          <label
-            htmlFor="email"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
-            {' '}
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
-            placeholder="name@example.com"
-            defaultValue={userResponse?.users?.email}
-            onInput={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="password"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
-            {' '}
-            Password
-          </label>
-          <input
-            type="text"
-            id="password"
-            className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
-            placeholder="Password"
-            defaultValue={userResponse?.users?.password}
-            onInput={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button
-          type="submit"
-          className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-          onClick={updateUser}
-        >
-          Update User
-        </button>
       </div>
-    </div>
+    </>
   );
 };
 export default Page;
@@ -194,7 +229,7 @@ const StringArrayInput = ({ defaultValues, onUpdate, label }) => {
       <div className="mb-2 relative">
         <label
           htmlFor="add_new_incorrect_answer"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          className="block mb-2 text-sm font-medium text-gray-900 text-white"
         >
           {' '}
           {label}
@@ -202,7 +237,7 @@ const StringArrayInput = ({ defaultValues, onUpdate, label }) => {
         <input
           type="text"
           id="add_new_incorrect_answer"
-          className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
+          className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
           placeholder={label}
           value={newString}
           onInput={(e) => setNewString(e.target.value)}

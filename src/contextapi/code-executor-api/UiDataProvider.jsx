@@ -943,6 +943,7 @@ export const UiDataProvider = ({ children }) => {
         data: null
       }
     },
+    _id: null,
     activityTitle: "Activity Title",
     activityDefaultCode: "",
     activityCodeExecutor: "Pyodide",

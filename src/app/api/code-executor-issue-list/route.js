@@ -7,8 +7,8 @@ import filehandler from '@/lib/filehandler';
 // @acess Privet
 export async function GET(req, res) {
   const keywords = {};
-  if(req.nextUrl.searchParams.get('codeExecutorActivity')) {
-    keywords['codeExecutorActivity'] = req.nextUrl.searchParams.get('codeExecutorActivity');
+  if(req.nextUrl.searchParams.get('codingActivity')) {
+    keywords['codingActivity'] = req.nextUrl.searchParams.get('codingActivity');
   }
   // in case if the query is not js object
   // if (
@@ -23,7 +23,8 @@ export async function GET(req, res) {
   const apiFunction = CodeExecutorIssueList.find({ ...keywords })
     .limit(pageSize)
     .skip(pageSize * (page - 1))
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .populate('user');
   if (req.nextUrl.searchParams.get('select')) {
     apiFunction.select(req.nextUrl.searchParams.get('select'));
   }
@@ -42,10 +43,13 @@ export async function POST(req, context) {
   const codeExecutorIssueList = {};
   // start if
   const body = await req.formData();
-  if (body.get('codeExecutorActivity')) {
-    codeExecutorIssueList['codeExecutorActivity'] = body.get('codeExecutorActivity');
+  if (body.get('user')) {
+    codeExecutorIssueList['user'] = body.get('user');
   }
-  console.log('codeExecutorIssueList', body.get('codeExecutorActivity'));
+  if (body.get('codingActivity')) {
+    codeExecutorIssueList['codingActivity'] = body.get('codingActivity');
+  }
+  // console.log('codingActivity', body.get('codingActivity'));
   if (body.get('description')) {
     codeExecutorIssueList['description'] = body.get('description');
   }

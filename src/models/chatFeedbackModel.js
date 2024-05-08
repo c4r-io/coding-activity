@@ -1,9 +1,13 @@
 import mongoose from 'mongoose';
 const chatFeedbackSchema = mongoose.Schema(
   {
-    codeExecutorActivity: {
+    codingActivity: {
       type: mongoose.Schema.Types.ObjectId, 
-      ref: 'CodeExecutorActivity',
+      ref: 'CodingActivity',
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User',
     },
     feedback: {
       type: String,

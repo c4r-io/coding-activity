@@ -24,4 +24,18 @@ const admin = (req) => {
     return false;
   }
 };
-export { protect, admin };
+const superAdmin = (req) => {
+  if (req.user && req.user.permission === 'super admin') {
+    return true;
+  } else {
+    return false;
+  }
+};
+const adminOrSuperAdmin = (req) => {
+  if (req.user && (req.user.permission === 'admin' || req.user.permission === 'super admin')) {
+    return true;
+  } else {
+    return false;
+  }
+};
+export { protect, admin, superAdmin, adminOrSuperAdmin };

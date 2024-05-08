@@ -7,7 +7,10 @@ import Link from 'next/link';
 import { useContext, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { UserContext } from '@/contextapi/UserProvider';
-const UserListPage = () => {
+import { MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md';
+import { useDeleteByIds } from '@/components/hooks/ApiHooks';
+import Sidebar from '@/components/Sidebar';
+const Page = ({ params }) => {
   function getTrimedString(str, len = 50) {
     const arStr = str?.split(' ');
     let opStr = '';
@@ -30,14 +33,16 @@ const UserListPage = () => {
   }
   const { userData, dispatchUserData } = useContext(UserContext);
   const router = useRouter();
-  const [userList, setUserList] = useState({
-    page: 1,
-    pages: 1,
-    users: null,
-  });
+  const [pythonExecutorIssueListList, setPythonExecutorIssueListList] =
+    useState({
+      page: 1,
+      pages: 1,
+      results: null,
+    });
   const [page, setPage] = useState(1);
   const [deletePopup, setDeletePopup] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [deleteList, setDeleteList] = useState([]);
   const [createLoading, setCreateLoading] = useState(false);
   const [listLoading, setListLoading] = useState(false);
   const searchParams = useSearchParams();
@@ -45,23 +50,24 @@ const UserListPage = () => {
   if (pageNumber) {
     setPage(pageNumber);
   }
-  const getusersList = async (page) => {
+  const getpythonExecutorIssueListsList = async (page) => {
     dispatchUserData({ type: 'checkLogin' });
     const config = {
       method: 'GET',
-      url: 'api/user',
+      url: 'api/analytics',
       headers: {
         Authorization: `Bearer ${getToken('token')}`,
       },
       params: {
         pageNumber: page,
-        select: 'userName email permission',
+        codingActivity: params.codingActivityId,
+        select: ' description',
       },
     };
     setListLoading(true);
     try {
       const response = await api.request(config);
-      setUserList(response.data);
+      setPythonExecutorIssueListList(response.data);
       console.log(response.data);
       setListLoading(false);
     } catch (error) {
@@ -79,24 +85,27 @@ const UserListPage = () => {
       }
     }
   };
-  const createSampleUser = async () => {
+  const createSamplePythonExecutorIssueList = async () => {
     dispatchUserData({ type: 'checkLogin' });
     const config = {
       method: 'post',
-      url: 'api/user',
+      url: 'api/analytics',
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${getToken('token')}`,
       },
-      data: {},
+      data: {
+        description: 'Sample Description',
+        codingActivity: params.codingActivityId
+      },
     };
     setCreateLoading(true);
     try {
       const response = await api.request(config);
       console.log(response.data);
       setCreateLoading(false);
-      router.push('/dashboard/user/' + response.data._id);
-      toast.success('Sample User Created Successfully!', {
+      router.push(`/dashboard/coding-activity/${params.codingActivityId}/code-executor-issue-list/${response.data._id}`);
+      toast.success('Sample Python executor issue list Created Successfully!', {
         position: 'top-center',
       });
     } catch (error) {
@@ -114,90 +123,88 @@ const UserListPage = () => {
       setCreateLoading(false);
     }
   };
+  const apiDeleteByIdHook = useDeleteByIds("/api/analytics");
+  const handleDelete = async () => {
+    apiDeleteByIdHook.deleteByIds(deleteList,
+      () => {
+        // success callback
+        setDeletePopup(false);
+        getpythonExecutorIssueListsList(page);
+      },
+      () => {
+        // error callback
+        setDeletePopup(false);
+      })
+  }
+
   const deleteConfirmDialog = (id) => {
     setDeleteId(id);
     setDeletePopup(true);
   };
-  const deleteUser = async () => {
-    dispatchUserData({ type: 'checkLogin' });
-    const config = {
-      method: 'delete',
-      url: 'api/user/' + deleteId,
-      headers: {
-        Authorization: `Bearer ${getToken('token')}`,
-      },
-    };
-    try {
-      await api.request(config);
-      getusersList();
-      setDeletePopup(false);
-      toast.success('Deleted successfully!', {
-        position: 'top-center',
-      });
-    } catch (error) {
-      setDeletePopup(false);
-      if (error?.response?.status == 401) {
-        toast.error(error.response.data.message + '. Login to try again.', {
-          position: 'top-center',
-        });
-        router.push('/');
-      } else {
-        toast.error(error.message, {
-          position: 'top-center',
-        });
-      }
-      console.error(error);
-    }
-  };
+
   const onpageChange = (e) => {
     setPage(Number(e));
     // router.push({ query: { page: e } });
   };
   useEffect(() => {
-    getusersList(page);
+    getpythonExecutorIssueListsList(page);
   }, [page]);
+
+
+  const toggleAddToDeleteList = (id) => {
+    if (deleteList.includes(id)) {
+      setDeleteList(deleteList.filter((item) => item !== id));
+    } else {
+      setDeleteList([...deleteList, id]);
+    }
+  }
+  const toggleSelectAll = () => {
+    if (deleteList.length === pythonExecutorIssueListList?.results?.length) {
+      setDeleteList([]);
+    } else {
+      setDeleteList(pythonExecutorIssueListList?.results?.map((item) => item._id));
+    }
+  }
   return (
+    <>
+    <Sidebar />
+    <div className="p-4 sm:ml-64 bg-gray-700 min-h-screen">
+        <div className="p-4 border-2 border-dashed rounded-lg border-gray-600">
+           
     <div className="container mx-auto py-4 px-4 md:px-0">
       <div>
-        <div className="w-full flex justify-end pb-3">
-          <button
-            type="button"
-            className="px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white  bg-gradient-to-r from-green-700 to-green-600 hover:bg-gradient-to-bl rounded-lg focus:ring-4 focus:outline-none bg-green-600 hover:bg-green-700 focus:ring-green-800"
-            onClick={() => createSampleUser()}
-            disabled={createLoading}
-          >
-            {!createLoading && (
-              <svg
-                className="w-3 h-3 mr-1 text-white"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M10 5.757v8.486M5.757 10h8.486M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                />
-              </svg>
-            )}
-            {createLoading ? 'Creating...' : 'New User'}
-          </button>
+        <div className="w-full flex justify-end pb-3 -m-1">
+          <div className={`p-1 ${deleteList.length > 0 ? "block" : "hidden"}`}>
+            <button
+              type="button"
+              className="delete_button"
+              onClick={() => deleteConfirmDialog()}
+              disabled={apiDeleteByIdHook.loading}
+            >
+              Delete Selected
+            </button>
+          </div>
         </div>
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
           <table className="w-full text-sm text-left text-gray-400">
             <thead className="text-xs uppercase bg-gray-900 text-gray-400">
               <tr>
                 <th scope="col" className="px-6 py-3">
-                  Email
+                  <button
+                    className={`${pythonExecutorIssueListList?.results?.length == 0 ? 'pointer-events-none' : ''}`}
+                    onClick={() => toggleSelectAll()}
+                  >
+                    {deleteList.length === pythonExecutorIssueListList?.results?.length ?
+                      <span className="text-ui-purple"><MdCheckBox /> </span> :
+                      <MdCheckBoxOutlineBlank />
+                    }
+                  </button>
                 </th>
                 <th scope="col" className="px-6 py-3">
-                  UserName
+                  Time
                 </th>
                 <th scope="col" className="px-6 py-3">
-                Permission
+                  Total Duration In Seconds
                 </th>
                 <th scope="col" className="px-6 py-3 text-right">
                   Actions
@@ -206,76 +213,63 @@ const UserListPage = () => {
             </thead>
             {!listLoading && (
               <tbody>
-                {userList?.users?.map((item, index) => (
-                  <tr
-                    className="border-b bg-gray-800 border-gray-700 hover:bg-gray-600"
-                    key={index}
-                  >
-                    <td className="px-6 py-4">
-                      {item?.email}
-                    </td>
-                    <td className="px-6 py-4">
-                      {item?.userName}
-                    </td>
-                    <td className="px-6 py-4">
-                      {item?.permission}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="inline-flex space-x-1 items-center text-base font-semibold text-white">
+                {pythonExecutorIssueListList?.results?.map(
+                  (item, index) => (
+                    <tr
+                      className="border-b bg-gray-800 border-gray-700 hover:bg-gray-600"
+                      key={index}
+                    >
+                      <td className="px-6 py-4">
                         <button
-                          type="button"
-                          className="px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white rounded-lg focus:ring-4 focus:outline-none bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-800"
-                          onClick={() =>
-                            router.push('/dashboard/user/' + item._id)
+                          onClick={() => toggleAddToDeleteList(item._id)}
+                        >
+                          {deleteList.includes(item._id) ?
+                            <span className="text-ui-purple"><MdCheckBox /> </span> :
+                            <MdCheckBoxOutlineBlank />
                           }
-                        >
-                          <svg
-                            className="w-3 h-3 mr-1 text-white"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 21 21"
-                          >
-                            <path
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M7.418 17.861 1 20l2.139-6.418m4.279 4.279 10.7-10.7a3.027 3.027 0 0 0-2.14-5.165c-.802 0-1.571.319-2.139.886l-10.7 10.7m4.279 4.279-4.279-4.279m2.139 2.14 7.844-7.844m-1.426-2.853 4.279 4.279"
-                            />
-                          </svg>
-                          Edit
                         </button>
-                        <button
-                          type="button"
-                          className="px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white rounded-lg focus:ring-4 focus:outline-none bg-red-600 hover:bg-red-700 focus:ring-red-800"
-                          onClick={() => deleteConfirmDialog(item._id)}
-                        >
-                          <svg
-                            className="w-3 h-3 mr-1 text-white"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 18 20"
+                      </td>
+                      <td className="px-6 py-4">
+                        {item?.time[0]},
+                        {item?.time[item.time.length - 1]}
+                      </td>
+                      <td className="px-6 py-4">
+                        {item?.totalDurationInSeconds}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="inline-flex space-x-1 items-center text-base font-semibold text-white">
+                          <button
+                            type="button"
+                            className="px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white rounded-lg focus:ring-4 focus:outline-none bg-red-600 hover:bg-red-700 focus:ring-red-800"
+                            onClick={() => deleteConfirmDialog(item._id)}
                           >
-                            <path
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z"
-                            />
-                          </svg>
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                            <svg
+                              className="w-3 h-3 mr-1 text-white"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 18 20"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z"
+                              />
+                            </svg>
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             )}
           </table>
-          {userList?.users?.length == 0 ? (
+          {pythonExecutorIssueListList?.results?.length ==
+            0 ? (
             <div className="text-white text-center">
               No data to show
             </div>
@@ -311,10 +305,10 @@ const UserListPage = () => {
             </div>
           )}
         </div>
-        {userList.pages > 0 && (
+        {pythonExecutorIssueListList.pages > 0 && (
           <Pagination
             activePage={page}
-            pageLength={userList?.pages}
+            pageLength={pythonExecutorIssueListList?.pages}
             onpageChange={onpageChange}
           />
         )}
@@ -363,20 +357,20 @@ const UserListPage = () => {
                   />
                 </svg>
                 <h3 className="mb-5 text-lg font-normal text-gray-400">
-                  Are you sure you want to delete this user?
+                  Are you sure you want to delete this analytics?
                 </h3>
                 <button
                   data-modal-hide="popup-modal"
                   type="button"
-                  className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
-                  onClick={() => deleteUser()}
+                  className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
+                  onClick={() => handleDelete()}
                 >
                   Yes, I&apos;m sure
                 </button>
                 <button
                   data-modal-hide="popup-modal"
                   type="button"
-                  className="focus:ring-4 focus:outline-nonerounded-lg border text-sm font-medium px-5 py-2.5 focus:z-10 bg-gray-700 text-gray-300 border-gray-500 hover:text-white hover:bg-gray-600 focus:ring-gray-600"
+                  className="focus:ring-4 focus:outline-none rounded-lg border text-sm font-medium px-5 py-2.5 focus:z-10 bg-gray-700 text-gray-300 border-gray-500 hover:text-white hover:bg-gray-600 focus:ring-gray-600"
                   onClick={() => {
                     setDeletePopup(false);
                   }}
@@ -389,6 +383,10 @@ const UserListPage = () => {
         </div>
       )}
     </div>
+        </div>
+    </div>
+</>
+
   );
 };
-export default UserListPage
+export default Page;

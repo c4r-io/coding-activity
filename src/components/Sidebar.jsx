@@ -5,12 +5,22 @@ import { removeToken } from '@/utils/token';
 import Link from 'next/link';
 import { useContext, useEffect, useState, createContext } from 'react';
 import { usePathname } from 'next/navigation';
+import { path } from 'animejs';
 
-const pathnameObjectList = [
+const pathnameObjectListp = [
   { path: '/dashboard/user', name: 'User', children: [] },
-  { path: '/dashboard/code-executor-activity', name: 'code executor activity', children: [] },
+  { path: '/dashboard/coding-activity', name: 'coding activity', children: [] },
 ];
-export default function Sidebar({ children }) {
+export default function Sidebar({ children, data }) {
+  if(data){
+    pathnameObjectListp[1].children = data.results.map((item) => {
+      return { path: `/dashboard/coding-activity/${item._id}`, name: item.activityTitle, children: [] }
+    
+    });
+  }
+  const [pathnameObjectList, setPathnameObjectList] = useState([
+  ...pathnameObjectListp
+  ])
   const [sidebarLeft, setSidebarLeft] = useState(true);
   const { userData, dispatchUserData } = useContext(UserContext);
   const pathname = usePathname();
@@ -56,13 +66,13 @@ export default function Sidebar({ children }) {
         } fixed top-0 left-0 z-40 w-64 h-screen transition-transform sm:translate-x-0`}
         aria-label="Sidebar"
       >
-        <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+        <div className="h-full px-3 py-4 overflow-y-auto bg-gray-800">
           <div
             className="absolute right-1 top-2 sm:hidden block"
             onClick={sidebarLeftToggle}
           >
             <svg
-              className="w-4 h-4 text-gray-800 dark:text-white"
+              className="w-4 h-4 text-white"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -79,10 +89,10 @@ export default function Sidebar({ children }) {
           </div>
           <ul className="space-y-2 font-medium mt-3 mb-10">
             <li>
-              <div className="flex flex-col justify-center items-center p-2 rounded-lg text-gray-900 dark:text-white group bg-gray-300 dark:bg-gray-900">
-                <div className="rounded-full bg-gray-200 dark:bg-gray-600 p-4">
+              <div className="flex flex-col justify-center items-center p-2 rounded-lg text-white group bg-gray-900">
+                {/* <div className="rounded-full bg-gray-600 p-4">
                   <svg
-                    className="w-5 h-5  text-gray-900 dark:text-white"
+                    className="w-5 h-5text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
@@ -90,9 +100,9 @@ export default function Sidebar({ children }) {
                   >
                     <path d="M7 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm2 1H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
                   </svg>
-                </div>
+                </div> */}
                 <div className="mt-1 text-center">
-                  <p>Signin as ({userData?.userInfo?.email})</p>
+                  <p>Signed as ({userData?.userInfo?.email})</p>
                 </div>
               </div>
             </li>
@@ -103,7 +113,7 @@ export default function Sidebar({ children }) {
             </li>
           </ul>
           <button
-            className="absolute bottom-0 left-0 w-full flex justify-between items-center p-2 ps-6 rounded-t-lg text-white bg-red-500 hover:bg-red-600 group dark:text-white dark:bg-red-900 dark:hover:bg-red-700"
+            className="absolute bottom-0 left-0 w-full flex justify-between items-center p-2 ps-6 rounded-t-lg group text-white bg-red-900 hover:bg-red-700"
             onClick={signout}
           >
             <span>Log Out </span>
@@ -160,6 +170,10 @@ const LiList = ({ navigationPath, item, index }) => {
       setIsOpen(false);
     }
   }, [currentPath]);
+  useEffect(() => {
+   setIsOpen(pathname.startsWith(navigationPath))
+  }, [pathname]);
+  
   const updatePathname = () => {
     setCurrentPath(navigationPath);
     setIsOpen(!isOpen);
@@ -167,22 +181,22 @@ const LiList = ({ navigationPath, item, index }) => {
   return (
     <li
       key={navigationPath + String(index)}
-      className="ml-1 border-l border-gray-300/50 dark:border-gray-500/50 relative overflow-hidden"
+      className="ml-1 border-l dark:border-gray-500/50 relative overflow-hidden"
     >
       <Link
         href={navigationPath}
         onClick={() => updatePathname()}
-        className={`relative z-50 flex items-center justify-between p-2 text-gray-900 rounded-tr-lg rounded-br-lg  dark:hover:bg-gray-700 ${
+        className={`relative z-50 flex items-center justify-between p-2 text-gray-900 rounded-tr-lg rounded-br-lg hover:bg-gray-700 ${
           pathname == navigationPath
-            ? 'bg-blue-100 dark:bg-blue-700'
-            : 'dark:text-white hover:bg-gray-100'
+            ? 'bg-blue-700'
+            : 'text-white hover:bg-gray-100'
         } group `}
       >
         <span className="ml-3 capitalize">{item?.name}</span>
         {item.children.length > 0 ? (
-          pathname.startsWith(navigationPath) ? (
+          isOpen ? (
             <svg
-              className="w-6 h-6 text-gray-800 dark:text-white"
+              className="w-6 h-6 text-white"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -198,7 +212,7 @@ const LiList = ({ navigationPath, item, index }) => {
             </svg>
           ) : (
             <svg
-              className="w-6 h-6 text-gray-800 dark:text-white"
+              className="w-6 h-6 text-white"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

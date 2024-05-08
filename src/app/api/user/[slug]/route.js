@@ -1,6 +1,6 @@
 import connectMongoDB from '@/config/connectMongoDB.js';
 import User from '@/models/userModel.js';
-import { admin, protect } from '@/middleware/authMiddleware';
+import { admin, adminOrSuperAdmin, protect } from '@/middleware/authMiddleware';
 import filehandler from '@/lib/filehandler';
 // @desc Get user by id
 // @route GET api/users/:id
@@ -29,6 +29,10 @@ export async function PUT(req, context) {
   if (!(await protect(req))) {
     return Response.json({ mesg: 'Not authorized' });
   }
+  const adminAvailable = await User.find({ permission: { $in: ['admin', 'super admin'] } });
+  if (!(adminOrSuperAdmin(req)) && adminAvailable.length > 0) {
+    return Response.json({ mesg: 'Not authorized as admin or super admin' });
+  }
   const { params } = context;
   connectMongoDB();
   const user = await User.findById(params.slug);
@@ -44,6 +48,9 @@ export async function PUT(req, context) {
     }
     if (body.get('password')) {
       user.password = body.get('password');
+    }
+    if (body.get('permission')) {
+      user.permission = body.get('permission').toLowerCase();
     }
     const updatedUser = await user.save();
     return Response.json({ ...updatedUser._doc, password: null });
