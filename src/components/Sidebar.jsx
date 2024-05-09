@@ -13,7 +13,7 @@ const pathnameObjectListp = [
 ];
 export default function Sidebar({ data }) {
   if(data){
-    pathnameObjectListp[1].children = data.results.map((item) => {
+    pathnameObjectListp[1].children = data?.results?.map((item) => {
       return { path: `/dashboard/coding-activity/${item._id}`, name: item.activityTitle, children: [] }
     
     });
@@ -193,7 +193,7 @@ const LiList = ({ navigationPath, item, index }) => {
         } group `}
       >
         <span className="ml-3 capitalize">{item?.name}</span>
-        {item.children.length > 0 ? (
+        {item?.children?.length > 0 ? (
           isOpen ? (
             <svg
               className="w-6 h-6 text-white"
