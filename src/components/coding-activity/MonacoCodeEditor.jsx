@@ -209,7 +209,7 @@ export default function MonacoCodeEditor({ onChange, value, height, width, langu
         decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, newRange);
         // scroll to the line 
         scrollToLine(markRange[0].startLineNumber)
-        console.log('decorationsRef.current', decorationsRef.current, newRange);
+        // console.log('decorationsRef.current', decorationsRef.current, newRange);
     }
 
     const [highlightVisible, setHighlightVisible] = useState(true);
@@ -245,7 +245,7 @@ export default function MonacoCodeEditor({ onChange, value, height, width, langu
             const match = model.findMatches("."+e, false, false, false, null, true);
             if(match.length > 0) matches.push(...match);
         });
-        console.log('matches', matches);
+        // console.log('matches', matches);
         if (matches.length > 0) {
             // const { range } = matches[0];
             return matches;

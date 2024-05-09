@@ -54,7 +54,7 @@ const Page = ({ params }) => {
     dispatchUserData({ type: 'checkLogin' });
     const config = {
       method: 'GET',
-      url: 'api/chat-feedback',
+      url: '/api/chat-feedback',
       headers: {
         Authorization: `Bearer ${getToken('token')}`,
       },
@@ -89,7 +89,7 @@ const Page = ({ params }) => {
     dispatchUserData({ type: 'checkLogin' });
     const config = {
       method: 'post',
-      url: 'api/chat-feedback',
+      url: '/api/chat-feedback',
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${getToken('token')}`,
@@ -148,7 +148,7 @@ const Page = ({ params }) => {
       dispatchUserData({ type: 'checkLogin' });
       const config = {
         method: 'GET',
-        url: 'api/chat-feedback',
+        url: '/api/chat-feedback',
         headers: {
           Authorization: `Bearer ${getToken('token')}`,
         },

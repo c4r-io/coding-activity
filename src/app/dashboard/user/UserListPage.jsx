@@ -49,7 +49,7 @@ const UserListPage = () => {
     dispatchUserData({ type: 'checkLogin' });
     const config = {
       method: 'GET',
-      url: 'api/user',
+      url: '/api/user',
       headers: {
         Authorization: `Bearer ${getToken('token')}`,
       },
@@ -83,7 +83,7 @@ const UserListPage = () => {
     dispatchUserData({ type: 'checkLogin' });
     const config = {
       method: 'post',
-      url: 'api/user',
+      url: '/api/user',
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${getToken('token')}`,
@@ -119,7 +119,7 @@ const UserListPage = () => {
     dispatchUserData({ type: 'checkLogin' });
     const config = {
       method: 'delete',
-      url: 'api/user/' + deleteId,
+      url: '/api/user/' + deleteId,
       headers: {
         Authorization: `Bearer ${getToken('token')}`,
       },

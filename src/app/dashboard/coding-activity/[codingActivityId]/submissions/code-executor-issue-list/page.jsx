@@ -54,7 +54,7 @@ const Page = ({ params }) => {
     dispatchUserData({ type: 'checkLogin' });
     const config = {
       method: 'GET',
-      url: 'api/code-executor-issue-list',
+      url: '/api/code-executor-issue-list',
       headers: {
         Authorization: `Bearer ${getToken('token')}`,
       },
@@ -89,7 +89,7 @@ const Page = ({ params }) => {
     dispatchUserData({ type: 'checkLogin' });
     const config = {
       method: 'post',
-      url: 'api/code-executor-issue-list',
+      url: '/api/code-executor-issue-list',
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${getToken('token')}`,
