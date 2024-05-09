@@ -7,7 +7,7 @@ import isValidEmail from '@/utils/isValidEmail.js';
 // @acess Privet
 export async function POST(req, context) {
   const body = await req.formData();
-  connectMongoDB();
+  await connectMongoDB();
   if (!isValidEmail(body.get('email'))) {
     return Response.json(
       { message: 'Please enter valid email' },

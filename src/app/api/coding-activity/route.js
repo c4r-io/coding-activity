@@ -27,7 +27,7 @@ export async function GET(req, res) {
   // if (req.nextUrl.searchParams.get('select')) {
   //   select = req.nextUrl.searchParams.get('select').split(',')
   // }
-  connectMongoDB();
+  await connectMongoDB();
   const pageSize = Number(req.nextUrl.searchParams.get('pageSize')) || 30;
   const page = Number(req.nextUrl.searchParams.get('pageNumber')) || 1;
   const count = await CodingActivity.countDocuments({ $or: [{ ...orKeywords, ...keywords }] });
@@ -62,7 +62,7 @@ export async function POST(req) {
     return Response.json({ mesg: "Not authorized" }, { status: 401 })
   }
   const body = await req.json();
-  connectMongoDB();
+  await connectMongoDB();
   const createdvideoClipList = await CodingActivity.create({
     activityTitle: body.activityTitle,
     activityDefaultCode: body.activityDefaultCode,
@@ -78,7 +78,7 @@ export async function POST(req) {
 // @acess Privet
 export async function DELETE(req, context) {
   const body = await req.json();
-  connectMongoDB();
+  await connectMongoDB();
   const deleteIdList = body.ids;
   const codeExecutorActivityList = await CodingActivity.find({ _id: { $in: deleteIdList } });
   if (codeExecutorActivityList) {

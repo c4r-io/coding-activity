@@ -15,7 +15,7 @@ export async function GET(req, res) {
   // ) {
   //   return Response.json({ mesg: "Not authorized" })
   // }
-  connectMongoDB();
+  await connectMongoDB();
   const pageSize = Number(req.nextUrl.searchParams.get('pageSize')) || 30;
   const page = Number(req.nextUrl.searchParams.get('pageNumber')) || 1;
   const count = await User.countDocuments({ ...keywords });
@@ -36,7 +36,7 @@ export async function GET(req, res) {
 // @route POST api/users
 // @acess Privet
 export async function POST(req, context) {
-  connectMongoDB();
+  await connectMongoDB();
   const user = {};
   // start if
   if (user) {
