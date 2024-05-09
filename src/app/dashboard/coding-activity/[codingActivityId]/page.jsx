@@ -12,6 +12,7 @@ const Page = ({ params }) => {
   const { userData, dispatchUserData } = useContext(UserContext);
   const router = useRouter();
   const [editAdditionalInfo, setEditAdditionalInfo] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
   const [activityTitle, setActivityTitle] = useState(null);
   const [activityDefaultCode, setActivityDefaultCode] = useState(null);
   const [activityCodeExecutor, setActivityCodeExecutor] = useState(null);
@@ -68,7 +69,7 @@ const Page = ({ params }) => {
 
   // update user data
   // content type form data
-  const updateUser = async (e) => {
+  const updateInfo = async (e) => {
     dispatchUserData({ type: "checkLogin" });
     const data = {};
     if (activityTitle && codingActivityListResponse?.activityTitle !== activityTitle) {
@@ -84,14 +85,9 @@ const Page = ({ params }) => {
       data.activityCodeRuntime = activityCodeRuntime;
     }
     if (Object.keys(data).length <= 0) {
-      toast.error(
-        "Empty Form Submission Not Allowed, Try after changing data.",
-        {
-          position: "top-center",
-        }
-      );
       return;
     }
+    setUpdateLoading(true);
     const config = {
       method: "put",
       url: "/api/coding-activity/" + params.codingActivityId,
@@ -105,6 +101,7 @@ const Page = ({ params }) => {
     try {
       const response = await api.request(config);
       getVideoClipList();
+      setUpdateLoading(false);
     } catch (error) {
       if (error?.response?.status == 401) {
         toast.error(error.response.data.message + ". Login to try again.", {
@@ -116,6 +113,7 @@ const Page = ({ params }) => {
           position: "top-center",
         });
       }
+      setUpdateLoading(false);
       console.error(error);
     }
   };
@@ -133,7 +131,7 @@ const Page = ({ params }) => {
   }
   return (
     <>
-      <Sidebar/>
+      <Sidebar />
       <div className="p-4 sm:ml-64 bg-gray-700 min-h-screen">
         <div className="p-4 border-2 border-dashed rounded-lg border-gray-600">
           <div className="container mx-auto py-4 px-4 md:px-0">
@@ -194,10 +192,10 @@ const Page = ({ params }) => {
               </div>
               <div>
                 <button
-                  onClick={updateUser}
+                  onClick={updateInfo}
                   className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                 >
-                  Update Additional Info
+                  {updateLoading ? "Updating..." : "Update Additional Info"}
                 </button>
                 <button
                   className="text-white bg-gradient-to-r from-red-500 to-yellow-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"

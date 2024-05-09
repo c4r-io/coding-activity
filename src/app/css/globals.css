@@ -150,18 +150,20 @@ body {
     "slnt" 0;
 }
 
-.cropper-container{
+.cropper-container {
   width: 750px;
 }
 
 .ͼ2 .cm-gutters {
   border-right: 0px solid #ddd !important;
 }
+
 /* disable show autocomplete */
-.cm-tooltip-autocomplete.cm-tooltip.cm-tooltip-below{
-opacity: 0;
-display: none;
+.cm-tooltip-autocomplete.cm-tooltip.cm-tooltip-below {
+  opacity: 0;
+  display: none;
 }
+
 .highlight {
   background-color: #854ABE99;
 }
@@ -173,6 +175,7 @@ display: none;
   line-height: 1.6;
   white-space: break-spaces;
 }
+
 /* 
 
 .annotation .title {
@@ -364,7 +367,8 @@ textarea.html-editor {
   font-size: 16px !important;
   text-align: center;
 }
-.html-upload-editor{
+
+.html-upload-editor {
   min-width: 100px;
   min-height: 100px;
   color: #ffffff;
@@ -377,7 +381,7 @@ textarea.html-editor {
 
 
 /* mystop css */
-.attach-screenshot-button-input{
+.attach-screenshot-button-input {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   width: 100%;
@@ -387,3 +391,50 @@ textarea.html-editor {
   align-items: center;
   text-align: center;
 }
+/* 
+.drawer-view-plot-left-label-visible {
+  width: 105px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 20px;
+  padding: 2px;
+  height: 100%;
+}
+.drawer-view-plot-left-label-hidden{
+  margin-left: 20px;
+  display: none;
+}
+.drawer-view-plot-right-label-visible {
+  width: 105px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 20px;
+  padding: 2px;
+  height: 100%;
+}
+.drawer-view-plot-right-label-hidden{
+  margin-right: 20px;
+  display: none;
+}
+.drawer-view-plot-bottom-label {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px;
+  height: 100%;
+}
+.drawer-view-plot-bottom-label {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px;
+  height: 100%;
+} */
