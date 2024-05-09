@@ -106,9 +106,6 @@ const Page = ({ params }) => {
       setCreateLoading(false);
 
       router.push(`/dashboard/coding-activity/${params.codingActivityId}/chat-feedback/${response.data._id}`);
-      toast.success('Sample Python executor issue list Created Successfully!', {
-        position: 'top-center',
-      });
     } catch (error) {
       if (error?.response?.status == 401) {
         toast.error(error.response.data.message + '. Login to try again.', {

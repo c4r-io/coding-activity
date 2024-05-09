@@ -96,9 +96,6 @@ const UserListPage = () => {
       console.log(response.data);
       setCreateLoading(false);
       router.push('/dashboard/user/' + response.data._id);
-      toast.success('Sample User Created Successfully!', {
-        position: 'top-center',
-      });
     } catch (error) {
       if (error?.response?.status == 401) {
         toast.error(error.response.data.message + '. Login to try again.', {
@@ -131,9 +128,6 @@ const UserListPage = () => {
       await api.request(config);
       getusersList();
       setDeletePopup(false);
-      toast.success('Deleted successfully!', {
-        position: 'top-center',
-      });
     } catch (error) {
       setDeletePopup(false);
       if (error?.response?.status == 401) {

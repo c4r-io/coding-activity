@@ -93,10 +93,7 @@ const Page = ({ params }) => {
     try {
       const response = await api.request(config);
       router.push('/dashboard/user');
-      getUser;
-      toast.success('Updated Successfully!', {
-        position: 'top-center',
-      });
+      getUser();
     } catch (error) {
       if (error?.response?.status == 401) {
         toast.error(error.response.data.message + '. Login to try again.', {

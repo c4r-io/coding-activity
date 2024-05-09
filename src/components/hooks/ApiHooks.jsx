@@ -149,9 +149,6 @@ export const useCreateDefault = (url, data) => {
         try {
             const response = await api.request(config);
             setLoading(false);
-            toast.success("Sample Created Successfully!", {
-                position: "top-center",
-            });
             if (callbackSuccess) {
                 callbackSuccess(response.data)
             }
@@ -196,9 +193,6 @@ export const useUpdateUiContents = () => {
         try {
             const response = await api.request(config);
             setLoading(false);
-            toast.success("Updated Successfully!", {
-                position: "top-center",
-            });
             if (callbackSuccess) {
                 callbackSuccess(response.data)
             }
@@ -244,9 +238,6 @@ export const useChatFeedback = () => {
         try {
             const response = await api.request(config);
             setLoading(false);
-            toast.success("Updated Successfully!", {
-                position: "top-center",
-            });
             if (callbackSuccess) {
                 callbackSuccess(response.data)
             }
@@ -302,9 +293,6 @@ export const useAnalytics = () => {
         try {
             const response = await api.request(config);
             setLoading(false);
-            toast.success("Updated Successfully!", {
-                position: "top-center",
-            });
             sessionStorage.setItem('auth-user-analytics-session', response.data._id)
             if (callbackSuccess) {
                 callbackSuccess(response.data)

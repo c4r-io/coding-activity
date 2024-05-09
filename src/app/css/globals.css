@@ -164,6 +164,13 @@ display: none;
   background-color: #854ABE99;
 }
 
+.runtime-output {
+  font-size: 12px;
+  font-weight: normal;
+  font-family: "Inter";
+  line-height: 1.6;
+  white-space: break-spaces;
+}
 /* 
 
 .annotation .title {

@@ -105,9 +105,6 @@ const Page = ({ params }) => {
       console.log(response.data);
       setCreateLoading(false);
       router.push(`/dashboard/coding-activity/${params.codingActivityId}/code-executor-issue-list/${response.data._id}`);
-      toast.success('Sample Python executor issue list Created Successfully!', {
-        position: 'top-center',
-      });
     } catch (error) {
       if (error?.response?.status == 401) {
         toast.error(error.response.data.message + '. Login to try again.', {

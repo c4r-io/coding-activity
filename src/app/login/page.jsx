@@ -49,9 +49,6 @@ const Page = ({ params }) => {
         userInfo: JSON.stringify(response.data),
       });
       router.push('/dashboard');
-      toast.success('Welcome back!', {
-        position: 'top-center',
-      });
     } catch (error) {
       if (error?.response?.status == 401) {
         toast.error(error.response.data.message + '. Try again.', {
@@ -112,9 +109,6 @@ const Page = ({ params }) => {
         userInfo: JSON.stringify(response.data),
       });
       router.push('/dashboard');
-      toast.success('Registration Successfully!', {
-        position: 'top-center',
-      });
     } catch (error) {
       if (error?.response?.status == 403) {
         toast.error(error.response.data.message + '. Try again.', {

@@ -66,7 +66,7 @@ const MainView = ({ devmode, codingActivityId, uiDataFromDb }) => {
     return (
       <div>
         <CodeEditorView />
-        <ChatView />
+        {/* <ChatView /> */}
       </div>
     )
   }
@@ -77,9 +77,9 @@ const MainView = ({ devmode, codingActivityId, uiDataFromDb }) => {
           <LoginPopup />
           <CodeEditorView />
         </div>
-        <div style={{ display: `${uiData.screen === 'chat' ? 'block' : 'none'}` }}>
+        {/* <div style={{ display: `${uiData.screen === 'chat' ? 'block' : 'none'}` }}>
           <ChatView />
-        </div>
+        </div> */}
       </div>
     )
   }

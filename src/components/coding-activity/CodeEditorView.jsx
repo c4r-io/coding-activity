@@ -24,6 +24,7 @@ import EditTextElementWrapper from "./editors/EditTextElementWrapper.jsx";
 import DrawerArround from "./DrawerArround.jsx";
 import { WebR } from 'webr';
 import { useAnalytics } from "../hooks/ApiHooks.jsx";
+import ChatView from "./ChatView.jsx";
 
 const demoCode = `
 # Python code demo
@@ -449,9 +450,6 @@ print(opdt)
       const response = await api.request(config);
       console.log(response.data);
       setIsIssueSubmitting(false);
-      toast.success("Your Issue Submitted Successfully!", {
-        position: "top-center",
-      });
       setIssueDiscription(null);
       setIssueAttachment(null);
     } catch (error) {
@@ -524,13 +522,13 @@ print(opdt)
         onDragEnd={takeScreenshotHanlder}
       >
         <div id="elementToCrop" className="cropper-container">
-          <div className={`${messages.takeScreenshot ? 'hidden' : 'block'}`}>
+          <div>
             <EditorViewTopCardUi />
           </div>
-          <div className={`${!messages.takeScreenshot ? 'hidden' : 'block'}`}>
+          {/* <div className={`${!messages.takeScreenshot ? 'hidden' : 'block'}`}>
             <ChatPromptTopCardUi headerText={"Take Screenshot"} />
-          </div>
-          <div className={`${!messages.takeScreenshot ? 'ps-4 pe-14 widget' : 'ps-12 pe-10 widget'}`}>
+          </div> */}
+          <div className={`ps-4 pe-14 widget `}>
             <div className="mx-3 p-1 pb-0 border-x-2 space-y-3 border-ui-violet rounded-xl bg-[#171819] text-white">
               <div className="p-3 pb-0 mt-3 relative group">
 
@@ -639,19 +637,17 @@ print(opdt)
                       id="codeoutput-bg"
                     >
                       {(typeof executedCodeOutput?.output == "string" || executedCodeOutput?.error) &&
-                        <textarea
-                          type="textarea"
-                          disabled
-                          className={`h-64 w-full codeoutput-bg ${!executedCodeOutput?.error
+                        <div
+                          className={`w-full codeoutput-bg runtime-output ${!executedCodeOutput?.error
                             ? "text-white"
                             : "text-red-600"
                             }`}
-                          value={
-                            executedCodeOutput?.error ||
+                        >
+                          {executedCodeOutput?.error ||
                             executedCodeOutput?.output?.toString() ||
-                            "No output found"
-                          }
-                        />}
+                            "No output found"}
+                        </div>
+                      }
                       {executedCodeOutput?.images && executedCodeOutput?.images.length > 0 &&
                         <DrawerArround>
                           {executedCodeOutput?.images.map((img, index) => (
@@ -740,6 +736,11 @@ print(opdt)
                   </div>
                 </div>
               )}
+              {/* <div className="px-3 space-y-3">
+                <div style={{ display: `${uiData.devmode || uiData.screen === 'chat' ? 'block' : 'none'}` }}>
+                  <ChatView />
+                </div>
+              </div> */}
               <div className="pb-2"></div>
             </div>
             {/* expansion btn */}
