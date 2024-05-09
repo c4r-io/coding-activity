@@ -13,7 +13,7 @@ const pathnameObjectListp = [
 ];
 export default function Sidebar({ data }) {
   if(data){
-    pathnameObjectListp[1].children = data.results.map((item) => {
+    pathnameObjectListp[1].children = data?.results?.map((item) => {
       return { path: `/dashboard/coding-activity/${item._id}`, name: item.activityTitle, children: [] }
     
     });
