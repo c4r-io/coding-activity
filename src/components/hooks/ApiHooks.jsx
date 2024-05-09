@@ -6,126 +6,126 @@ import { api } from '@/utils/apibase';
 import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider';
 
 export const useDeleteByIds = (url) => {
-    const { dispatchUserData } = useContext(UserContext);
-    const [loading, setLoading] = React.useState(false);
-    const deleteByIds = async (ids, callbackSuccess, callbackError) => {
-        dispatchUserData({ type: "checkLogin" });
-        const config = {
-            method: "delete",
-            url: url,
-            headers: {
-                Authorization: `Bearer ${getToken("token")}`,
-            },
-            data: {
-                ids
-            }
-        };
-        setLoading(true);
-        try {
-            const response = await api.request(config);
-            setLoading(false);
-            if (callbackSuccess) {
-                callbackSuccess(response.data)
-            }
-        } catch (error) {
-            setLoading(false);
-            if (error?.response?.status == 401) {
-                toast.error(error.response.data.message + ". Login to try again.", {
-                    position: "top-center",
-                });
-            } else {
-                toast.error(error.message, {
-                    position: "top-center",
-                });
-            }
-            if (callbackError) {
-                callbackError(error)
-            }
-            console.error(error);
-        }
+  const { dispatchUserData } = useContext(UserContext);
+  const [loading, setLoading] = React.useState(false);
+  const deleteByIds = async (ids, callbackSuccess, callbackError) => {
+    dispatchUserData({ type: "checkLogin" });
+    const config = {
+      method: "delete",
+      url: url,
+      headers: {
+        Authorization: `Bearer ${getToken("token")}`,
+      },
+      data: {
+        ids
+      }
     };
-    return {
-        deleteByIds,
-        loading
+    setLoading(true);
+    try {
+      const response = await api.request(config);
+      setLoading(false);
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      setLoading(false);
+      if (error?.response?.status == 401) {
+        toast.error(error.response.data.message + ". Login to try again.", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+        });
+      }
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
     }
+  };
+  return {
+    deleteByIds,
+    loading
+  }
 }
 const uiCOntentDefault = {
-    "chatprompt": {
-        "headerElement": "# Office Hours \n\n # are in!",
-        "footerElement": "Everyone needs help sometimes! Rigorous Raven is here to \\\n help. **Click on the part of the activity you need help with.**",
-        "userMessageTitle": "**You** asked:",
-        "assistantMessageHeaderTitle": "**Rigorous Raven** says:",
-        "chatprompotFollowUpTitle": "**Rigorous Raven** says:",
-        "followupReportBtn": "Report",
-        "followupSatisfiedBtn": "Thanks, That's all!",
-        "followupAskMoreBtn": "Ask Follow-Up",
-        "followupAskCustomQuestionBtn": "Ask Regorous Raven",
-        "followUpReviewTitle": "**Thank you for asking for help** Did you find this useful?",
-        "predefineQuestionList": [
-            "What dose this do?",
-            "Teach me more!",
-            "Show an example?",
-            "sdfsdf",
-            "sadfsdfsdf"
-        ],
-        "sample": ""
-    },
-    "editorview": {
-        "headerTitle": "# Let’s visualize block randomization\n\nBlock randomization is as simple as hitting a button! Free software packages such as **blockrand**, **randomizR**, or **psych** in R can block randomize your study.\n\\\nBut what is happening under the hood? Hit “Run” on this R code to see a visualization of a block randomized study with 4 treatments.",
-        "headerBodyTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-        "headerFooterTitle": "### Custom footer",
-        "editorPep8Btn": "PEP8",
-        "editorNeedHelpBtn": "I need help with this!",
-        "editorActionBtn": "Execute",
-        "editorActionAttachScreenshot": "Attach Screenshot",
-        "editorActionSubmitAttachment": "Submit",
-        "sample": "",
-        "plotLeftLabel": "This axis shows you how many blocks into which your patients have been randomized",
-        "plotBottomLabel": "This axis shows you the sequence of the treatments within each block",
-        "plotRightLabel": "This legend shows a different color for each treatment"
-    },
-    "codeEditorTopCardImage": {
-        "data": null,
-        "styles": {
-            "top": -2,
-            "left": 595,
-            "width": 127,
-            "height": 179,
-            "rotateAngle": 0
-        }
-    },
-    "chatPromptTopCardAvater": {
-        "styles": {
-            "top": 19,
-            "left": 24,
-            "width": 207,
-            "height": 162,
-            "rotateAngle": 0
-        }
-    },
-    "feedbackReviewUnLikeImage": {
-        "styles": {
-            "top": -47,
-            "left": 139,
-            "width": 110,
-            "height": 94,
-            "rotateAngle": 0
-        }
-    },
-    "feedbackReviewLikeImage": {
-        "styles": {
-            "top": -29,
-            "left": 100,
-            "width": 200,
-            "height": 173,
-            "rotateAngle": 0
-        }
-    },
-    "defaults": {
-        "code": "print(\"hello from default!\")"
-    },
-    "cssdata": {
-        "all": `
+  "chatprompt": {
+    "headerElement": "# Office Hours \n\n # are in!",
+    "footerElement": "Everyone needs help sometimes! Rigorous Raven is here to \\\n help. **Click on the part of the activity you need help with.**",
+    "userMessageTitle": "**You** asked:",
+    "assistantMessageHeaderTitle": "**Rigorous Raven** says:",
+    "chatprompotFollowUpTitle": "**Rigorous Raven** says:",
+    "followupReportBtn": "Report",
+    "followupSatisfiedBtn": "Thanks, That's all!",
+    "followupAskMoreBtn": "Ask Follow-Up",
+    "followupAskCustomQuestionBtn": "Ask Regorous Raven",
+    "followUpReviewTitle": "**Thank you for asking for help** Did you find this useful?",
+    "predefineQuestionList": [
+      "What dose this do?",
+      "Teach me more!",
+      "Show an example?",
+      "sdfsdf",
+      "sadfsdfsdf"
+    ],
+    "sample": ""
+  },
+  "editorview": {
+    "headerTitle": "# Let’s visualize block randomization\n\nBlock randomization is as simple as hitting a button! Free software packages such as **blockrand**, **randomizR**, or **psych** in R can block randomize your study.\n\\\nBut what is happening under the hood? Hit “Run” on this R code to see a visualization of a block randomized study with 4 treatments.",
+    "headerBodyTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+    "headerFooterTitle": "### Custom footer",
+    "editorPep8Btn": "PEP8",
+    "editorNeedHelpBtn": "I need help with this!",
+    "editorActionBtn": "Execute",
+    "editorActionAttachScreenshot": "Attach Screenshot",
+    "editorActionSubmitAttachment": "Submit",
+    "sample": "",
+    "plotLeftLabel": "This axis shows you how many blocks into which your patients have been randomized",
+    "plotBottomLabel": "This axis shows you the sequence of the treatments within each block",
+    "plotRightLabel": "This legend shows a different color for each treatment"
+  },
+  "codeEditorTopCardImage": {
+    "data": null,
+    "styles": {
+      "top": -2,
+      "left": 595,
+      "width": 127,
+      "height": 179,
+      "rotateAngle": 0
+    }
+  },
+  "chatPromptTopCardAvater": {
+    "styles": {
+      "top": 19,
+      "left": 24,
+      "width": 207,
+      "height": 162,
+      "rotateAngle": 0
+    }
+  },
+  "feedbackReviewUnLikeImage": {
+    "styles": {
+      "top": -47,
+      "left": 139,
+      "width": 110,
+      "height": 94,
+      "rotateAngle": 0
+    }
+  },
+  "feedbackReviewLikeImage": {
+    "styles": {
+      "top": -29,
+      "left": 100,
+      "width": 200,
+      "height": 173,
+      "rotateAngle": 0
+    }
+  },
+  "defaults": {
+    "code": "print(\"hello from default!\")"
+  },
+  "cssdata": {
+    "all": `
         :root {
           --ui-violet: #854ABE;
           --ui-dark: #171819;
@@ -945,196 +945,239 @@ const uiCOntentDefault = {
         }
         
   `
-    }
+  }
 };
 export const useCreateDefault = (url, data) => {
-    const { dispatchUserData } = useContext(UserContext);
-    const [loading, setLoading] = React.useState(false);
-    const create = async (callbackSuccess, callbackError) => {
-        dispatchUserData({ type: "checkLogin" });
-        const config = {
-            method: "post",
-            url: url,
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${getToken("token")}`,
-            },
-            data: {
-                ...data,
-                uiContent: uiCOntentDefault
-            }
-        };
-        setLoading(true);
-        try {
-            const response = await api.request(config);
-            setLoading(false);
-            if (callbackSuccess) {
-                callbackSuccess(response.data)
-            }
-        } catch (error) {
-            if (error?.response?.status == 401) {
-                toast.error(error.response.data.message + ". Login to try again.", {
-                    position: "top-center",
-                });
-            } else {
-                toast.error(error.message, {
-                    position: "top-center",
-                });
-            }
-            if (callbackError) {
-                callbackError(error)
-            }
-            console.error(error);
-            setLoading(false);
-        }
+  const { dispatchUserData } = useContext(UserContext);
+  const [loading, setLoading] = React.useState(false);
+  const create = async (callbackSuccess, callbackError) => {
+    dispatchUserData({ type: "checkLogin" });
+    const config = {
+      method: "post",
+      url: url,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken("token")}`,
+      },
+      data: {
+        ...data,
+        uiContent: uiCOntentDefault
+      }
     };
-    return {
-        create,
-        loading
+    setLoading(true);
+    try {
+      const response = await api.request(config);
+      setLoading(false);
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      if (error?.response?.status == 401) {
+        toast.error(error.response.data.message + ". Login to try again.", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+        });
+      }
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
+      setLoading(false);
     }
+  };
+  return {
+    create,
+    loading
+  }
 }
 
 export const useUpdateUiContents = () => {
-    const { dispatchUserData } = useContext(UserContext);
-    const [loading, setLoading] = React.useState(false);
-    const update = async (url, data, callbackSuccess, callbackError) => {
-        dispatchUserData({ type: "checkLogin" });
-        const config = {
-            method: "put",
-            url: url,
-            headers: {
-                "Content-Type": "multipart/form-data",
-                Authorization: `Bearer ${getToken("token")}`,
-            },
-            data
-        };
-        setLoading(true);
-        try {
-            const response = await api.request(config);
-            setLoading(false);
-            if (callbackSuccess) {
-                callbackSuccess(response.data)
-            }
-        } catch (error) {
-            if (error?.response?.status == 401) {
-                toast.error(error.response.data.message + ". Login to try again.", {
-                    position: "top-center",
-                });
-            } else {
-                toast.error(error.message, {
-                    position: "top-center",
-                });
-            }
-            if (callbackError) {
-                callbackError(error)
-            }
-            console.error(error);
-            setLoading(false);
-        }
+  const { dispatchUserData } = useContext(UserContext);
+  const [loading, setLoading] = React.useState(false);
+  const update = async (url, data, callbackSuccess, callbackError) => {
+    dispatchUserData({ type: "checkLogin" });
+    const config = {
+      method: "put",
+      url: url,
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${getToken("token")}`,
+      },
+      data
     };
-    return {
-        update,
-        loading
+    setLoading(true);
+    try {
+      const response = await api.request(config);
+      setLoading(false);
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      if (error?.response?.status == 401) {
+        toast.error(error.response.data.message + ". Login to try again.", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+        });
+      }
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
+      setLoading(false);
     }
+  };
+  return {
+    update,
+    loading
+  }
+}
+export const useUploadImage = () => {
+  const { dispatchUserData } = useContext(UserContext);
+  const [loading, setLoading] = React.useState(false);
+  const upload = async (data, callbackSuccess, callbackError) => {
+    dispatchUserData({ type: "checkLogin" });
+    const config = {
+      method: "post",
+      url: "/api/upload",
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${getToken("token")}`,
+      },
+      data
+    };
+    setLoading(true);
+    try {
+      const response = await api.request(config);
+      setLoading(false);
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      if (error?.response?.status == 401) {
+        toast.error(error.response.data.message + ". Login to try again.", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+        });
+      }
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
+      setLoading(false);
+    }
+  };
+  return {
+    upload,
+    loading
+  }
 }
 export const useChatFeedback = () => {
-    const [loading, setLoading] = React.useState(false);
-    const send = async (data, callbackSuccess, callbackError) => {
-        const authUserExist = localStorage.getItem('auth-user');
-        const authUser = authUserExist ? JSON.parse(authUserExist) : null;
-        const config = {
-            method: "post",
-            url: "/api/chat-feedback",
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-            data: {
-                ...data,
-                user: authUser._id
-            }
-        };
-        setLoading(true);
-        try {
-            const response = await api.request(config);
-            setLoading(false);
-            if (callbackSuccess) {
-                callbackSuccess(response.data)
-            }
-        } catch (error) {
-            if (error?.response?.status == 401) {
-                toast.error(error.response.data.message + ". Login to try again.", {
-                    position: "top-center",
-                });
-            } else {
-                toast.error(error.message, {
-                    position: "top-center",
-                });
-            }
-            if (callbackError) {
-                callbackError(error)
-            }
-            console.error(error);
-            setLoading(false);
-        }
+  const [loading, setLoading] = React.useState(false);
+  const send = async (data, callbackSuccess, callbackError) => {
+    const authUserExist = localStorage.getItem('auth-user');
+    const authUser = authUserExist ? JSON.parse(authUserExist) : null;
+    const config = {
+      method: "post",
+      url: "/api/chat-feedback",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      data: {
+        ...data,
+        user: authUser._id
+      }
     };
-    return {
-        send,
-        loading
+    setLoading(true);
+    try {
+      const response = await api.request(config);
+      setLoading(false);
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      if (error?.response?.status == 401) {
+        toast.error(error.response.data.message + ". Login to try again.", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+        });
+      }
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
+      setLoading(false);
     }
+  };
+  return {
+    send,
+    loading
+  }
 }
 export const useAnalytics = () => {
-    const { uiData } = React.useContext(UiDataContext);
-    const [loading, setLoading] = React.useState(false);
-    const send = async (callbackSuccess, callbackError) => {
-        const data = {}
-        const authUserExist = localStorage.getItem('auth-user');
-        const authUser = authUserExist ? JSON.parse(authUserExist) : null;
-        if (authUser) {
-            data['user'] = authUser._id;
-            data['time'] = Date.now();
-            data['codingActivity'] = uiData._id;
-            const authUserAnalyticsSessionExist = sessionStorage.getItem('auth-user-analytics-session');
-            if (authUserAnalyticsSessionExist) {
-                data['session'] = authUserAnalyticsSessionExist;
-            }
-        } else {
-            return;
-        }
-        const config = {
-            method: "post",
-            url: "/api/analytics",
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-            data
-        };
-        setLoading(true);
-        try {
-            const response = await api.request(config);
-            setLoading(false);
-            sessionStorage.setItem('auth-user-analytics-session', response.data._id)
-            if (callbackSuccess) {
-                callbackSuccess(response.data)
-            }
-        } catch (error) {
-            if (error?.response?.status == 401) {
-                toast.error(error.response.data.message + ". Login to try again.", {
-                    position: "top-center",
-                });
-            } else {
-                toast.error(error.message, {
-                    position: "top-center",
-                });
-            }
-            if (callbackError) {
-                callbackError(error)
-            }
-            console.error(error);
-            setLoading(false);
-        }
-    };
-    return {
-        send,
-        loading
+  const { uiData } = React.useContext(UiDataContext);
+  const [loading, setLoading] = React.useState(false);
+  const send = async (callbackSuccess, callbackError) => {
+    const data = {}
+    const authUserExist = localStorage.getItem('auth-user');
+    const authUser = authUserExist ? JSON.parse(authUserExist) : null;
+    if (authUser) {
+      data['user'] = authUser._id;
+      data['time'] = Date.now();
+      data['codingActivity'] = uiData._id;
+      const authUserAnalyticsSessionExist = sessionStorage.getItem('auth-user-analytics-session');
+      if (authUserAnalyticsSessionExist) {
+        data['session'] = authUserAnalyticsSessionExist;
+      }
+    } else {
+      return;
     }
+    const config = {
+      method: "post",
+      url: "/api/analytics",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      data
+    };
+    setLoading(true);
+    try {
+      const response = await api.request(config);
+      setLoading(false);
+      sessionStorage.setItem('auth-user-analytics-session', response.data._id)
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      if (error?.response?.status == 401) {
+        toast.error(error.response.data.message + ". Login to try again.", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+        });
+      }
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
+      setLoading(false);
+    }
+  };
+  return {
+    send,
+    loading
+  }
 }
