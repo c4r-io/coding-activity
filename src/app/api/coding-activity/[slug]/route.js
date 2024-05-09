@@ -2,7 +2,7 @@ import connectMongoDB from '@/config/connectMongoDB.js';
 
 import CodingActivity from '@/models/codingActivityModel.js';
 import filehandler from '@/lib/filehandler';
-import { admin, protect } from '@/middleware/authMiddleware';
+import { admin, protect } from '@/authorizationMiddlewares/authMiddleware';
 import User from '@/models/userModel';
 
 // @desc Get codeExecutorActivity by id

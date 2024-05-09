@@ -1,6 +1,6 @@
 import connectMongoDB from '@/config/connectMongoDB.js';
 import User from '@/models/userModel.js';
-import { admin, adminOrSuperAdmin, protect } from '@/middleware/authMiddleware';
+import { admin, adminOrSuperAdmin, protect } from '@/authorizationMiddlewares/authMiddleware';
 import filehandler from '@/lib/filehandler';
 // @desc Get user by id
 // @route GET api/users/:id

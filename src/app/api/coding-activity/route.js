@@ -1,5 +1,5 @@
 import connectMongoDB from '@/config/connectMongoDB.js';
-import { admin, protect } from '@/middleware/authMiddleware';
+import { admin, protect } from '@/authorizationMiddlewares/authMiddleware';
 import CodingActivity from '@/models/codingActivityModel.js';
 // @desc Get all videoClipLists
 // @route GET api/videoClipLists

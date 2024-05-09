@@ -1,6 +1,6 @@
 import connectMongoDB from '@/config/connectMongoDB.js';
 import CodeExecutorIssueList from '@/models/codeExecutorIssueListModel.js';
-import { admin, protect } from '@/middleware/authMiddleware';
+import { admin, protect } from '@/authorizationMiddlewares/authMiddleware';
 import filehandler from '@/lib/filehandler';
 // @desc Get all codeExecutorIssueLists
 // @route GET api/codeExecutorIssueLists
