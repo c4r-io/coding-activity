@@ -7,5 +7,3 @@ import axios, { Axios } from 'axios';
 // for each client)
 export const api = axios.create({ baseURL: 'https://coding-activity.vercel.app' });
 // export const api = axios.create({ baseURL: 'http://localhost:3000' });
-// export const authorDaashboardApi = axios.create({ baseURL: "http://localhost:3000/" });
-export const authorDaashboardApi = axios.create({ baseURL: "https://author-dashboard-theta.vercel.app" });
