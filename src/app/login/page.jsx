@@ -33,7 +33,7 @@ const Page = ({ params }) => {
     }
     const config = {
       method: 'post',
-      url: '/api/login/',
+      url: '/api/login',
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -93,7 +93,7 @@ const Page = ({ params }) => {
     }
     const config = {
       method: 'post',
-      url: '/api/register/',
+      url: '/api/register',
       headers: {
         'Content-Type': 'multipart/form-data',
       },
