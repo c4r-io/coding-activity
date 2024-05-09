@@ -193,7 +193,7 @@ const LiList = ({ navigationPath, item, index }) => {
         } group `}
       >
         <span className="ml-3 capitalize">{item?.name}</span>
-        {item.children.length > 0 ? (
+        {item?.children?.length > 0 ? (
           isOpen ? (
             <svg
               className="w-6 h-6 text-white"
