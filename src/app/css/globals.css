@@ -150,7 +150,9 @@ body {
     "slnt" 0;
 }
 
-
+.cropper-container{
+  width: 750px;
+}
 
 .ͼ2 .cm-gutters {
   border-right: 0px solid #ddd !important;

@@ -6,7 +6,7 @@ import User from '@/models/userModel.js';
 // @acess Privet
 export async function POST(req, context) {
   const body = await req.formData();
-  connectMongoDB();
+  await connectMongoDB();
   let user = await User.findOne({ email: body.get('email') });
   if (user && (await user.matchPassword(body.get('password')))) {
     return Response.json({

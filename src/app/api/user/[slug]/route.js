@@ -1,6 +1,6 @@
 import connectMongoDB from '@/config/connectMongoDB.js';
 import User from '@/models/userModel.js';
-import { admin, adminOrSuperAdmin, protect } from '@/middleware/authMiddleware';
+import { admin, adminOrSuperAdmin, protect } from '@/authorizationMiddlewares/authMiddleware';
 import filehandler from '@/lib/filehandler';
 // @desc Get user by id
 // @route GET api/users/:id
@@ -12,7 +12,7 @@ export async function GET(req, context) {
   //   return Response.json({ mesg: "Not authorized" })
   // }
   const { params } = context;
-  connectMongoDB();
+  await connectMongoDB();
   const apiFunction = User.findById(params.slug);
   let selectedString = '-password';
   if (req.nextUrl.searchParams.get('select')) {
@@ -34,7 +34,7 @@ export async function PUT(req, context) {
     return Response.json({ mesg: 'Not authorized as admin or super admin' });
   }
   const { params } = context;
-  connectMongoDB();
+  await connectMongoDB();
   const user = await User.findById(params.slug);
   // start if
   if (user) {
@@ -62,7 +62,7 @@ export async function PUT(req, context) {
 // @acess Privet
 export async function DELETE(req, context) {
   const { params } = context;
-  connectMongoDB();
+  await connectMongoDB();
   const users = await User.findById(params.slug);
   if (users) {
     await users.deleteOne();

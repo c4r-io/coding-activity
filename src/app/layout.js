@@ -1,8 +1,8 @@
 import './css/globals.css';
 // import { Inter } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';
-import { Analytics } from '@vercel/analytics/react'; 
-import { SpeedInsights } from '@vercel/speed-insights/next'; 
+// import { Analytics } from '@vercel/analytics/react'; 
+// import { SpeedInsights } from '@vercel/speed-insights/next'; 
 import 'react-toastify/dist/ReactToastify.css';
 import Link from 'next/link';
 import { AllContextProviders } from '@/contextapi/AllContextProviders';
@@ -19,8 +19,8 @@ export default function RootLayout({ children }) {
           {children}
           <ToastContainer />
         </AllContextProviders>
-        <Analytics />
-        <SpeedInsights />
+        {/* <Analytics />
+        <SpeedInsights /> */}
       </body>
     </html>
   );

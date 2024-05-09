@@ -21,7 +21,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
   const [page, setPage] = useState(pageNumber);
   const [deleteList, setDeleteList] = useState([]);
   const getvideoClipListsList = async (page) => {
-    dispatchUserData({ type: "checkLogin" });
+    // dispatchUserData({ type: "checkLogin" });
     const userdata = localStorage.getItem("auth-user");
     const config = {
       method: "GET",

@@ -4,7 +4,7 @@ import filehandler from '@/lib/filehandler';
 import UploadedFile from '@/models/uploadedFileModel';
 
 export async function POST(req, context) {
-  connectMongoDB();
+  await connectMongoDB();
   // start if
   const body = await req.formData();
   if (!body.get('image')) {

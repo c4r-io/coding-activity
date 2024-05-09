@@ -1,6 +1,6 @@
 import connectMongoDB from '@/config/connectMongoDB.js';
 import CodeExecutorIssueList from '@/models/codeExecutorIssueListModel.js';
-import { admin, protect } from '@/middleware/authMiddleware';
+import { admin, protect } from '@/authorizationMiddlewares/authMiddleware';
 import filehandler from '@/lib/filehandler';
 // @desc Get all codeExecutorIssueLists
 // @route GET api/codeExecutorIssueLists
@@ -16,7 +16,7 @@ export async function GET(req, res) {
   // ) {
   //   return Response.json({ mesg: "Not authorized" })
   // }
-  connectMongoDB();
+  await connectMongoDB();
   const pageSize = Number(req.nextUrl.searchParams.get('pageSize')) || 30;
   const page = Number(req.nextUrl.searchParams.get('pageNumber')) || 1;
   const count = await CodeExecutorIssueList.countDocuments({ ...keywords });
@@ -39,7 +39,7 @@ export async function GET(req, res) {
 // @route POST api/codeExecutorIssueLists
 // @acess Privet
 export async function POST(req, context) {
-  connectMongoDB();
+  await connectMongoDB();
   const codeExecutorIssueList = {};
   // start if
   const body = await req.formData();
@@ -85,7 +85,7 @@ export async function POST(req, context) {
 // @acess Privet
 export async function DELETE(req, context) {
   const body = await req.json();
-  connectMongoDB();
+  await connectMongoDB();
   const deleteIdList = body.ids;
   const codeExecutorIssueList = await CodeExecutorIssueList.find({ _id: { $in: deleteIdList } });
   if (codeExecutorIssueList) {

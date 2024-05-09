@@ -7,7 +7,7 @@ import isValidEmail from '@/utils/isValidEmail.js';
 // @acess Privet
 export async function POST(req, context) {
   const body = await req.formData();
-  connectMongoDB();
+  await connectMongoDB();
   let user = await User.findOne({ userName: body.get('userName') });
   if (user) {
     let user2 = await User.findOne({ userName: body.get('userName') });

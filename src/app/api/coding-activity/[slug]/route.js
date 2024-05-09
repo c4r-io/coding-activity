@@ -2,7 +2,7 @@ import connectMongoDB from '@/config/connectMongoDB.js';
 
 import CodingActivity from '@/models/codingActivityModel.js';
 import filehandler from '@/lib/filehandler';
-import { admin, protect } from '@/middleware/authMiddleware';
+import { admin, protect } from '@/authorizationMiddlewares/authMiddleware';
 import User from '@/models/userModel';
 
 // @desc Get codeExecutorActivity by id
@@ -10,7 +10,7 @@ import User from '@/models/userModel';
 // @acess Privet
 export async function GET(req, context) {
   const { params } = context;
-  connectMongoDB();
+  await connectMongoDB();
   const results = await CodingActivity.findById(params.slug);
   return Response.json({ results }, {
     status: 200,
@@ -33,7 +33,7 @@ export async function PUT(req, context) {
     return Response.json({ mesg: "Not authorized" })
   }
   const { params } = context;
-  connectMongoDB();
+  await connectMongoDB();
   const codeExecutorActivity = await CodingActivity.findById(params.slug);
   // const user = await User.findById(codeExecutorActivity.user)
   // console.log(req?.user?.userName == user.userName)
@@ -93,7 +93,7 @@ export async function POST(req, context) {
     return Response.json({ mesg: "Not authorized" })
   }
   const { params } = context;
-  connectMongoDB();
+  await connectMongoDB();
   const codeExecutorActivity = await CodingActivity.findById(params.slug);
   // const user = await User.findById(codeExecutorActivity.user)
   // console.log(req?.user?.userName == user.userName)
@@ -126,7 +126,7 @@ export async function DELETE(req, context) {
     return Response.json({ mesg: "Not authorized" })
   }
   const { params } = context;
-  connectMongoDB();
+  await connectMongoDB();
   const codeExecutorActivitys = await CodingActivity.findById(params.slug);
 
   if (codeExecutorActivitys) {

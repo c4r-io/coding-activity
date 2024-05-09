@@ -26,7 +26,7 @@ const LoginPopup = () => {
         }
         const config = {
             method: 'post',
-            url: 'api/student-authorization',
+            url: '/api/student-authorization',
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

@@ -1,5 +1,5 @@
 import connectMongoDB from '@/config/connectMongoDB.js';
-import { admin, protect } from '@/middleware/authMiddleware';
+import { admin, protect } from '@/authorizationMiddlewares/authMiddleware';
 import ChatFeedback from '@/models/chatFeedbackModel';
 // @desc Get all videoClipLists
 // @route GET api/videoClipLists
@@ -14,7 +14,7 @@ export async function GET(req, res) {
     keywords.feedback = req.nextUrl.searchParams.get('feedback');
   }
 
-  connectMongoDB();
+  await connectMongoDB();
   const pageSize = Number(req.nextUrl.searchParams.get('pageSize')) || 30;
   const page = Number(req.nextUrl.searchParams.get('pageNumber')) || 1;
   const count = await ChatFeedback.countDocuments({ $or: [{ ...orKeywords, ...keywords }] });
@@ -45,7 +45,7 @@ export async function GET(req, res) {
 // @acess Privet
 export async function POST(req) {
   const body = await req.formData();
-  connectMongoDB();
+  await connectMongoDB();
   const createdvideoClipList = await ChatFeedback.create({
     codingActivity: body.get('codingActivity'),
     feedback: body.get('feedback'),
@@ -59,7 +59,7 @@ export async function POST(req) {
 // @acess Privet
 export async function DELETE(req, context) {
   const body = await req.json();
-  connectMongoDB();
+  await connectMongoDB();
   const deleteIdList = body.ids;
   const codeExecutorActivityList = await ChatFeedback.find({ _id: { $in: deleteIdList } });
   if (codeExecutorActivityList) {

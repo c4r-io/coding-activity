@@ -20,7 +20,7 @@ const Page = ({ params }) => {
     dispatchUserData({ type: 'checkLogin' });
     const config = {
       method: 'GET',
-      url: 'api/user/' + params.slug,
+      url: '/api/user/' + params.slug,
       headers: {
         Authorization: `Bearer ${getToken('token')}`,
       },
@@ -82,7 +82,7 @@ const Page = ({ params }) => {
     }
     const config = {
       method: 'put',
-      url: 'api/user/' + params.slug,
+      url: '/api/user/' + params.slug,
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${getToken('token')}`,

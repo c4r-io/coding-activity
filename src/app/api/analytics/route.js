@@ -1,5 +1,5 @@
 import connectMongoDB from '@/config/connectMongoDB.js';
-import { admin, protect } from '@/middleware/authMiddleware';
+import { admin, protect } from '@/authorizationMiddlewares/authMiddleware';
 import Analytics from '@/models/analyticsModel';
 // @desc Get all videoClipLists
 // @route GET api/videoClipLists
@@ -12,7 +12,7 @@ export async function GET(req, res) {
   if (req.nextUrl.searchParams.get('codingActivity')) {
     keywords.codingActivity = req.nextUrl.searchParams.get('codingActivity');
   }
-  connectMongoDB();
+  await connectMongoDB();
   const pageSize = Number(req.nextUrl.searchParams.get('pageSize')) || 30;
   const page = Number(req.nextUrl.searchParams.get('pageNumber')) || 1;
   const count = await Analytics.countDocuments({ ...keywords });
@@ -53,7 +53,7 @@ function calculateTimeDifference(activity) {
 }
 export async function POST(req) {
   const body = await req.formData();
-  connectMongoDB();
+  await connectMongoDB();
   if (body.get('session')) {
     const analyticsById = await Analytics.findById(body.get('session'));
     analyticsById.time.push(body.get('time'));
@@ -75,7 +75,7 @@ export async function POST(req) {
 // @acess Privet
 export async function DELETE(req, context) {
   const body = await req.json();
-  connectMongoDB();
+  await connectMongoDB();
   const deleteIdList = body.ids;
   const codeExecutorActivityList = await Analytics.find({ _id: { $in: deleteIdList } });
   if (codeExecutorActivityList) {

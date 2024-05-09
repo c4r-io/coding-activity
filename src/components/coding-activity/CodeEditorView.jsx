@@ -434,7 +434,7 @@ print(opdt)
     const authUser = authUserExist ? JSON.parse(authUserExist) : null;
     const config = {
       method: "post",
-      url: "api/code-executor-issue-list",
+      url: "/api/code-executor-issue-list",
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -496,7 +496,7 @@ print(opdt)
     }).then((canvas) => {
       // Convert the canvas content to base64 image data
       const base64ImageData = canvas.toDataURL("image/png");
-
+      
       // Log or use the base64ImageData as needed
       // console.log(base64ImageData);
       dispatchMessages({ type: "setImage", payload: base64ImageData });
@@ -736,11 +736,11 @@ print(opdt)
                   </div>
                 </div>
               )}
-              {/* <div className="px-3 space-y-3">
+              <div className="px-3 space-y-3">
                 <div style={{ display: `${uiData.devmode || uiData.screen === 'chat' ? 'block' : 'none'}` }}>
                   <ChatView />
                 </div>
-              </div> */}
+              </div>
               <div className="pb-2"></div>
             </div>
             {/* expansion btn */}

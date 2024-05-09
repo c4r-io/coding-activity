@@ -1,6 +1,6 @@
 import connectMongoDB from '@/config/connectMongoDB.js';
 import CodeExecutorIssueList from '@/models/codeExecutorIssueListModel.js';
-import { admin, protect } from '@/middleware/authMiddleware';
+import { admin, protect } from '@/authorizationMiddlewares/authMiddleware';
 import filehandler from '@/lib/filehandler';
 // @desc Get pythonExecutorIssueList by id
 // @route GET api/pythonExecutorIssueLists/:id
@@ -12,7 +12,7 @@ export async function GET(req, context) {
   //   return Response.json({ mesg: "Not authorized" })
   // }
   const { params } = context;
-  connectMongoDB();
+  await connectMongoDB();
   const apiFunction = CodeExecutorIssueList.findById(params.slug);
   if (req.nextUrl.searchParams.get('select')) {
     apiFunction.select(req.nextUrl.searchParams.get('select'));
@@ -28,7 +28,7 @@ export async function PUT(req, context) {
     return Response.json({ mesg: 'Not authorized' });
   }
   const { params } = context;
-  connectMongoDB();
+  await connectMongoDB();
   const codeExecutorIssueList = await CodeExecutorIssueList.findById(
     params.slug,
   );
@@ -65,7 +65,7 @@ export async function PUT(req, context) {
 // @acess Privet
 export async function DELETE(req, context) {
   const { params } = context;
-  connectMongoDB();
+  await connectMongoDB();
   const pythonExecutorIssueLists = await CodeExecutorIssueList.findById(
     params.slug,
   );
