@@ -88,9 +88,9 @@ const uiCOntentDefault = {
         "data": null,
         "styles": {
             "top": -2,
-            "left": 572,
-            "width": 150,
-            "height": 211,
+            "left": 595,
+            "width": 127,
+            "height": 179,
             "rotateAngle": 0
         }
     },
