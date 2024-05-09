@@ -93,7 +93,7 @@ const DrawerArround = ({ children }) => {
                     className={`drawer-view-plot-bottom-label`}
                     path={"editorview.plotBottomLabel"}
                 >
-                    <div className={`${openBottom ? '' : 'hidden'} drawer-view-plot-bottom-label`}>
+                    <div className={`${openBottom ? 'drawer-view-plot-bottom-label' : 'hidden'} `}>
                     {uiData?.uiContent?.editorview?.plotBottomLabel}
                     </div>
                 </EditTextContentElementWrapper>
