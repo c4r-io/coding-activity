@@ -155,6 +155,9 @@ dependencies:
   rehype-raw:
     specifier: ^7.0.0
     version: 7.0.0
+  request-ip:
+    specifier: ^3.3.0
+    version: 3.3.0
   storybook:
     specifier: ^8.0.9
     version: 8.0.9(react-dom@18.3.1)(react@18.3.1)
@@ -15324,6 +15327,10 @@ packages:
       mdast-util-to-hast: 13.1.0
       unified: 11.0.4
       vfile: 6.0.1
+    dev: false
+
+  /request-ip@3.3.0:
+    resolution: {integrity: sha512-cA6Xh6e0fDBBBwH77SLJaJPBmD3nWVAcF9/XAcsrIHdjhFzFiB5aNQFytdjCGPezU3ROwrR11IddKAM08vohxA==}
     dev: false
 
   /require-directory@2.1.1:

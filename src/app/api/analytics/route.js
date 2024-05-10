@@ -1,13 +1,15 @@
 import connectMongoDB from '@/config/connectMongoDB.js';
 import { admin, protect } from '@/authorizationMiddlewares/authMiddleware';
 import Analytics from '@/models/analyticsModel';
+import { getClientIp } from 'request-ip';
+import axios from 'axios';
 // @desc Get all videoClipLists
 // @route GET api/videoClipLists
 // @acess Privet
 export async function GET(req, res) {
   let keywords = {};
-  if (req.nextUrl.searchParams.get('user')) {
-    keywords.user = req.nextUrl.searchParams.get('user');
+  if (req.nextUrl.searchParams.get('clientid')) {
+    keywords.clientid = req.nextUrl.searchParams.get('clientid');
   }
   if (req.nextUrl.searchParams.get('codingActivity')) {
     keywords.codingActivity = req.nextUrl.searchParams.get('codingActivity');
@@ -61,7 +63,26 @@ export async function POST(req) {
     await analyticsById.save();
     return Response.json({ ...analyticsById._doc });
   }
+
+  const ip = req?.ip || getClientIp(req) || req.headers.get('X-Forwarded-For')
+  const ipData = await axios.get(`https://ipinfo.io/${ip}/json?token=${process.env.NEXT_PUBLIC_IP_IPINFO_TOKEN}`);
+
   const createdvideoClipList = await Analytics.create({
+    ip: ip,
+    ipinfo: ipData?.data || {
+      city: req.geo.city,
+      country: req.geo.country,
+      region: req.geo.region,
+      loc: 'unknown',
+      org: 'unknown',
+      postal: 'unknown',
+      timezone: 'unknown',
+    },
+    uid: body.get('uid'),
+    device: body.get('device')|| req.headers.get("sec-ch-ua-platform"),
+    browser: body.get('browser') || req.headers.get("sec-ch-ua"),
+    screenWidth: body.get('screenWidth'),
+    screenHeight: body.get('screenHeight'),
     user: body.get('user'),
     codingActivity: body.get('codingActivity'),
     time: [body.get('time')],

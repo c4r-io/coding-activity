@@ -61,7 +61,7 @@ const Page = ({ params }) => {
       params: {
         pageNumber: page,
         codingActivity: params.codingActivityId,
-        select: ' description',
+        select: '',
       },
     };
     setListLoading(true);

@@ -23,8 +23,9 @@ import CodeMirrorEidtor from "./CodeMirrorEidtor.jsx";
 import EditTextElementWrapper from "./editors/EditTextElementWrapper.jsx";
 import DrawerArround from "./DrawerArround.jsx";
 import { WebR } from 'webr';
-import { useAnalytics } from "../hooks/ApiHooks.jsx";
+import { useAnalytics, useInitClientAnalytics } from "../hooks/ApiHooks.jsx";
 import ChatView from "./ChatView.jsx";
+import { useDebounceEffect } from "../hooks/useDebounceEffect.jsx";
 
 const demoCode = `
 # Python code demo
@@ -94,7 +95,12 @@ export default function CodeEditorView() {
     }
     setCode(uiData?.uiContent?.defaults?.code || "")
   }, [uiData.devmode, uiData?.uiContent?.defaults?.code])
-
+  const initClientAnalytics = useInitClientAnalytics()
+  useEffect(() => {
+    if (!uiData.devmode) {
+      initClientAnalytics.create()
+    }
+  },[uiData.devmode,uiData._id]);
 
   const getReadyWebR = useCallback(async function getReadyWebR() {
     await webR?.init();
@@ -488,16 +494,16 @@ print(opdt)
     }).then((canvas) => {
       // Convert the canvas content to base64 image data
       const base64ImageData = canvas.toDataURL("image/png");
-      
+
       // check whether the screenshot is for issue attachment
-      if(isTakingIssueAttachScreenshot){
+      if (isTakingIssueAttachScreenshot) {
         setIssueAttachment(base64ImageData);
         setIsTakingIssueAttachScreenshot(false);
         setCrop(null);
         dispatchMessages({ type: "setTakeScreenshot", payload: false });
         return;
       }
-      if(isTakingHelpAttachScreenshot){
+      if (isTakingHelpAttachScreenshot) {
         // Log or use the base64ImageData as needed
         // console.log(base64ImageData);
         dispatchMessages({ type: "setImage", payload: base64ImageData });
@@ -524,7 +530,7 @@ print(opdt)
         disabled={!messages.takeScreenshot}
         onDragEnd={takeScreenshotHanlder}
       >
-        <div id="elementToCrop" className={`${messages.takeScreenshot?"all-child-crosshair-while-taking-screenshot":""} cropper-container`}>
+        <div id="elementToCrop" className={`${messages.takeScreenshot ? "all-child-crosshair-while-taking-screenshot" : ""} cropper-container`}>
           <div>
             <EditorViewTopCardUi />
           </div>
@@ -712,11 +718,11 @@ print(opdt)
                           <button
                             className={`${issueAttachment || isTakingIssueAttachScreenshot ? "buttons passive clicked" : "buttons passive unclicked"
                               } py-2 px-3 w-full h-20`}
-                              onClick={()=>{
-                                dispatchMessages({ type: "setTakeScreenshot", payload: true });
-                                setIsTakingIssueAttachScreenshot(true);
-                              }
-                              }
+                            onClick={() => {
+                              dispatchMessages({ type: "setTakeScreenshot", payload: true });
+                              setIsTakingIssueAttachScreenshot(true);
+                            }
+                            }
                           >
                             {uiData?.uiContent?.editorview?.editorActionAttachScreenshot}
                           </button>
