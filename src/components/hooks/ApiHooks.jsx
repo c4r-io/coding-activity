@@ -736,7 +736,7 @@ const uiCOntentDefault = {
           /* background-color: var(--ui-purple); */
           padding-bottom: 10px;
           padding-top: 10px;
-          padding-left:45px ;
+          padding-left:20px ;
           padding-right:20px ;
           filter: drop-shadow(0px 4px 0px rgb(145 123 154))
                    drop-shadow(0px 4px 0px rgb(83 38 136));
