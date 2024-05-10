@@ -14,6 +14,8 @@ const Page = ({ params }) => {
   const [editAdditionalInfo, setEditAdditionalInfo] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [activityTitle, setActivityTitle] = useState(null);
+  const [gptModel, setGptModel] = useState(null);
+  const [systemPrompt, setSystemPrompt] = useState(null);
   const [activityDefaultCode, setActivityDefaultCode] = useState(null);
   const [activityCodeExecutor, setActivityCodeExecutor] = useState(null);
   const [activityCodeRuntime, setActivityCodeRuntime] = useState(null);
@@ -32,6 +34,7 @@ const Page = ({ params }) => {
     try {
       const response = await api.request(config);
       setCodingActivityListResponse(response.data.results);
+      setGptModel(response.data?.results?.gptModel);
       console.log("response", response.data.results);
     } catch (error) {
       if (error?.response?.status == 401) {
@@ -72,6 +75,12 @@ const Page = ({ params }) => {
   const updateInfo = async (e) => {
     dispatchUserData({ type: "checkLogin" });
     const data = {};
+    if (gptModel && codingActivityListResponse?.gptModel !== gptModel) {
+      data.gptModel = gptModel;
+    }
+    if (systemPrompt && codingActivityListResponse?.systemPrompt !== systemPrompt) {
+      data.systemPrompt = systemPrompt;
+    }
     if (activityTitle && codingActivityListResponse?.activityTitle !== activityTitle) {
       data.activityTitle = activityTitle;
     }
@@ -154,23 +163,6 @@ const Page = ({ params }) => {
                   onInput={(e) => setActivityTitle(e.target.value)}
                 />
               </div>
-              {/* <div className="mb-6">
-                <label
-                  htmlFor="activityCodeExecutor"
-                  className="block mb-2 text-sm font-medium text-white"
-                >
-                  {" "}
-                  Activity Code Executor
-                </label>
-                <input
-                  type="text"
-                  id="activityCodeExecutor"
-                  className="shadow-sm border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
-                  placeholder="Activity Code Executor"
-                  defaultValue={codingActivityListResponse?.activityCodeExecutor}
-                  onInput={(e) => setActivityCodeExecutor(e.target.value)}
-                />
-              </div> */}
               <div className="mb-6">
                 <label
                   htmlFor="activityCodeRuntime"
@@ -189,6 +181,58 @@ const Page = ({ params }) => {
                   <option value="Python Aws Api">Python Aws Api</option>
                   <option value="Web-R">Web-R</option>
                 </select>
+              </div>
+              <div className="mb-6">
+                <label
+                  htmlFor="gptModel"
+                  className="block mb-2 text-sm font-medium text-white"
+                >
+                  {" "}
+                  Gpt Model
+                </label>
+                <select
+                  value={gptModel}
+                  onChange={(e) => setGptModel(e.target.value)}
+                  id="gptModel"
+                  className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option>Choose a Model</option>                 
+                  <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                  <option value="gpt-4-turbo-2024-04-09">GPT-4 Turbo (2024-04-09)</option>
+                  <option value="gpt-4-turbo-preview">GPT-4 Turbo Preview</option>
+                  <option value="gpt-4-0125-preview">GPT-4 (0125 Preview)</option>
+                  <option value="gpt-4-1106-preview">GPT-4 (1106 Preview)</option>
+                  <option value="gpt-4-vision-preview">GPT-4 Vision Preview</option>
+                  <option value="gpt-4-1106-vision-preview">GPT-4 (1106 Vision Preview)</option>
+                  <option value="gpt-4">GPT-4</option>
+                  <option value="gpt-4-0613">GPT-4 (0613)</option>
+                  <option value="gpt-4-32k">GPT-4 (32k)</option>
+                  <option value="gpt-4-32k-0613">GPT-4 (32k 0613)</option>
+                  <option value="gpt-3.5-turbo-0125">GPT-3.5 Turbo (0125)</option>
+                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                  <option value="gpt-3.5-turbo-1106">GPT-3.5 Turbo (1106)</option>
+                  <option value="gpt-3.5-turbo-instruct">GPT-3.5 Turbo Instruct</option>
+                  <option value="gpt-3.5-turbo-16k">GPT-3.5 Turbo (16k)</option>
+                  <option value="gpt-3.5-turbo-0613">GPT-3.5 Turbo (0613)</option>
+                  <option value="gpt-3.5-turbo-16k-0613">GPT-3.5 Turbo (16k 0613)</option>
+                </select>
+
+              </div>
+              <div className="mb-6">
+                <label
+                  htmlFor="systemPrompt"
+                  className="block mb-2 text-sm font-medium text-white"
+                >
+                  {" "}
+                  System Prompt
+                </label>
+                <textarea
+                  id="systemPrompt"
+                  className="shadow-sm border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
+                  placeholder="System prompt"
+                  defaultValue={codingActivityListResponse?.systemPrompt}
+                  onInput={(e) => setSystemPrompt(e.target.value)}
+                />
               </div>
               <div>
                 <button

@@ -499,18 +499,20 @@ print(opdt)
       if (isTakingIssueAttachScreenshot) {
         setIssueAttachment(base64ImageData);
         setIsTakingIssueAttachScreenshot(false);
-        setCrop(null);
-        dispatchMessages({ type: "setTakeScreenshot", payload: false });
-        return;
+        setIsTakingHelpAttachScreenshot(false);
+        setTimeout(() => {
+          dispatchMessages({ type: "setTakeScreenshot", payload: false });
+          setCrop(null);
+        }, 200);
       }
       if (isTakingHelpAttachScreenshot) {
         // Log or use the base64ImageData as needed
         // console.log(base64ImageData);
         dispatchMessages({ type: "setImage", payload: base64ImageData });
         dispatchUiData({ type: "setChatScreenStatus", payload: "followUpAskQuestion" });
+        setIsTakingIssueAttachScreenshot(false);
         setIsTakingHelpAttachScreenshot(false);
         setTimeout(() => {
-          // dispatchMessages({type: "setTakeScreenshot", payload: false});
           dispatchUiData({ type: "setScreen", payload: "chat" });
           setCrop(null);
         }, 200);
@@ -527,10 +529,10 @@ print(opdt)
       <ReactCrop
         crop={crop}
         onChange={(c) => setCrop(c)}
-        disabled={!messages.takeScreenshot}
+        disabled={!(isTakingIssueAttachScreenshot || isTakingHelpAttachScreenshot)}
         onDragEnd={takeScreenshotHanlder}
       >
-        <div id="elementToCrop" className={`${messages.takeScreenshot ? "all-child-crosshair-while-taking-screenshot" : ""} cropper-container`}>
+        <div id="elementToCrop" className={`${(isTakingIssueAttachScreenshot || isTakingHelpAttachScreenshot) ? "all-child-crosshair-while-taking-screenshot" : ""} cropper-container`}>
           <div>
             <EditorViewTopCardUi />
           </div>
