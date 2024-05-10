@@ -80,7 +80,7 @@ export const PieChart = ({ width= 500, height=500, data=defaultData }) => {
           fontSize={14}
           style={{ fill: "#ffffff",  }}
         >
-          {label}
+          {label}-({data[i].value})
         </text>
       </g>
     );
