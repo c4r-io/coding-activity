@@ -40,6 +40,7 @@ function countIdenticalValues(array, key) {
 
 export async function GET(req, res) {
   let keywords = {};
+  let keywordsAnalytics = {};
   let analyticsKey = "device"
   if (req.nextUrl.searchParams.get('analyticsKey')) {
     analyticsKey = req.nextUrl.searchParams.get('analyticsKey');
@@ -49,12 +50,13 @@ export async function GET(req, res) {
   }
   if (req.nextUrl.searchParams.get('codingActivity')) {
     keywords.codingActivity = req.nextUrl.searchParams.get('codingActivity');
+    keywordsAnalytics.codingActivity = req.nextUrl.searchParams.get('codingActivity');
   }
   await connectMongoDB();
   const pageSize = Number(req.nextUrl.searchParams.get('pageSize')) || 30;
   const page = Number(req.nextUrl.searchParams.get('pageNumber')) || 1;
   const count = await Analytics.countDocuments({ ...keywords });
-  const analyticsForChart = await Analytics.find({});
+  const analyticsForChart = await Analytics.find({...keywordsAnalytics});
   const findFromDbApi = Analytics.find({ ...keywords })
     .limit(pageSize)
     .skip(pageSize * (page - 1))
