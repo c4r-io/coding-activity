@@ -10,6 +10,7 @@ import { UserContext } from '@/contextapi/UserProvider';
 import { MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md';
 import { useDeleteByIds } from '@/components/hooks/ApiHooks';
 import Sidebar from '@/components/Sidebar';
+import { PieChart } from '@/components/coding-activity/chart/PieChart';
 const Page = ({ params }) => {
   function getTrimedString(str, len = 50) {
     const arStr = str?.split(' ');
@@ -170,6 +171,9 @@ const Page = ({ params }) => {
            
     <div className="container mx-auto py-4 px-4 md:px-0">
       <div>
+        <div className="flex justify-between items-center">
+          <PieChart/>
+          </div>
         <div className="w-full flex justify-end pb-3 -m-1">
           <div className={`p-1 ${deleteList.length > 0 ? "block" : "hidden"}`}>
             <button

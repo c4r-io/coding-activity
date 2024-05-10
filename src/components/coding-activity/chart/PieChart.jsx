@@ -6,20 +6,19 @@ const MARGIN_X = 150;
 const MARGIN_Y = 50;
 const INFLEXION_PADDING = 20; // space between donut and label inflexion point
 
-const colors = [
-  "#e0ac2b",
-  "#e85252",
-  "#6689c6",
-  "#9a6fb0",
-  "#a53253",
-  "#69b3a2",
-];
+const colors = d3.schemeCategory10;
 
-export const PieChart = ({ width, height, data }) => {
+const defaultData = [
+  { name: "Android", value: 10 },
+  { name: "Windows", value: 30 },
+  { name: "Mac os", value: 60 },
+];
+export const PieChart = ({ width= 500, height=500, data=defaultData }) => {
+
   const radius = Math.min(width - 2 * MARGIN_X, height - 2 * MARGIN_Y) / 2;
 
   const pie = useMemo(() => {
-    const pieGenerator = d3.pie().value((d) => d.value);
+    const pieGenerator = d3.pie().value((d) => d?.value);
     return pieGenerator(data);
   }, [data]);
 
@@ -55,23 +54,23 @@ export const PieChart = ({ width, height, data }) => {
 
     return (
       <g key={i}>
-        <path d={slicePath} fill={"none"} />
+        <path d={slicePath} fill={colors[i % colors.length]} />
         <circle cx={centroid[0]} cy={centroid[1]} r={2} />
         <line
           x1={centroid[0]}
           y1={centroid[1]}
           x2={inflexionPoint[0]}
           y2={inflexionPoint[1]}
-          stroke={"currentColor"}
-          fill={"currentColor"}
+          stroke={"#ffffff"}
+          fill={"#ffffff"}
         />
         <line
           x1={inflexionPoint[0]}
           y1={inflexionPoint[1]}
           x2={labelPosX}
           y2={inflexionPoint[1]}
-          stroke={"currentColor"}
-          fill={"current-color"}
+          stroke={"#ffffff"}
+          fill={"#ffffff"}
         />
         <text
           x={labelPosX + (isRightLabel ? 2 : -2)}
@@ -79,7 +78,7 @@ export const PieChart = ({ width, height, data }) => {
           textAnchor={textAnchor}
           dominantBaseline="middle"
           fontSize={14}
-          style={{ fill: "currentColor",  }}
+          style={{ fill: "#ffffff",  }}
         >
           {label}
         </text>
