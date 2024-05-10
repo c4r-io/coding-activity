@@ -74,13 +74,23 @@ export const PieChart = ({ width= 500, height=500, data=defaultData }) => {
         />
         <text
           x={labelPosX + (isRightLabel ? 2 : -2)}
-          y={inflexionPoint[1]}
+          y={inflexionPoint[1]-10}
           textAnchor={textAnchor}
           dominantBaseline="middle"
-          fontSize={14}
+          fontSize={10}
           style={{ fill: "#ffffff",  }}
         >
-          {label}-({data[i].value})
+          {label}
+        </text>
+        <text
+          x={labelPosX + (isRightLabel ? 2 : -2)}
+          y={inflexionPoint[1] + 10}
+          textAnchor={textAnchor}
+          dominantBaseline="middle"
+          fontSize={10}
+          style={{ fill: "#ffffff",  }}
+        >
+          ({data[i].value.toFixed(0)})
         </text>
       </g>
     );

@@ -174,7 +174,7 @@ const Page = ({ params }) => {
 
           <div className="container mx-auto py-4 px-4 md:px-0">
             <div>
-              <div className="w-full flex justify-center items-center">
+              <div className="w-full flex-col md:flex-row flex justify-center items-center">
                 <PieChart data={analyticsList?.analytics || []} />
 
                 <div className="mb-6">
@@ -192,6 +192,7 @@ const Page = ({ params }) => {
                   >
                     <option>Choose a analytics key</option>
                     <option value="totalDurationInSeconds">totalDurationInSeconds</option>
+                    <option value="uid">uid</option>
                     <option value="ip">ip</option>
                     <option value="ipinfo.city">city</option>
                     <option value="ipinfo.region">region</option>
@@ -202,6 +203,8 @@ const Page = ({ params }) => {
                     <option value="ipinfo.timezone">timezone</option>
                     <option value="browser">browser</option>
                     <option value="device">device</option>
+                    <option value="screenWidth">screenWidth</option>
+                    <option value="screenHeight">screenHeight</option>
                   </select>
                 </div>
               </div>
@@ -231,6 +234,9 @@ const Page = ({ params }) => {
                             <MdCheckBoxOutlineBlank />
                           }
                         </button>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        UID
                       </th>
                       <th scope="col" className="px-6 py-3">
                         Time
@@ -268,6 +274,12 @@ const Page = ({ params }) => {
                       <th scope="col" className="px-6 py-3">
                         device
                       </th>
+                      <th scope="col" className="px-6 py-3">
+                        screenWidth
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        screenHeight
+                      </th>
                       <th scope="col" className="px-6 py-3 text-right">
                         Actions
                       </th>
@@ -290,6 +302,9 @@ const Page = ({ params }) => {
                                   <MdCheckBoxOutlineBlank />
                                 }
                               </button>
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.uid}
                             </td>
                             <td className="px-6 py-4">
                               {item?.time[0]},
@@ -327,6 +342,12 @@ const Page = ({ params }) => {
                             </td>
                             <td className="px-6 py-4">
                               {item?.device}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.screenWidth}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.screenHeight}
                             </td>
                             <td className="px-6 py-4 text-right">
                               <div className="inline-flex space-x-1 items-center text-base font-semibold text-white">
