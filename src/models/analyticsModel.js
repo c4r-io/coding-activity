@@ -5,14 +5,38 @@ const analyticsSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'CodingActivity',
     },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
     time: [{
       type: Number,
     }],
     totalDurationInSeconds: {
+      type: Number,
+    },
+    ip: {
+      type: String,
+    },
+    ipinfo: {
+      // ip: { type: String },
+      city: { type: String },
+      region: { type: String },
+      country: { type: String },
+      loc: { type: String },
+      org: { type: String },
+      postal: { type: String },
+      timezone: { type: String },
+    },
+    uid: {
+      type: String,
+    },
+    browser: {
+      type: String,
+    },
+    device: {
+      type: String,
+    },
+    screenWidth: {
+      type: Number,
+    },
+    screenHeight: {
       type: Number,
     },
   },

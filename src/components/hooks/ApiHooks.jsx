@@ -4,7 +4,8 @@ import { getToken } from '@/utils/token';
 import { toast } from 'react-toastify';
 import { api } from '@/utils/apibase';
 import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider';
-
+import { v4 as uuidv4 } from 'uuid';
+import { UAParser } from '@/lib/UAParser';
 export const useDeleteByIds = (url) => {
   const { dispatchUserData } = useContext(UserContext);
   const [loading, setLoading] = React.useState(false);
@@ -736,7 +737,7 @@ const uiCOntentDefault = {
           /* background-color: var(--ui-purple); */
           padding-bottom: 10px;
           padding-top: 10px;
-          padding-left:45px ;
+          padding-left:20px ;
           padding-right:20px ;
           filter: drop-shadow(0px 4px 0px rgb(145 123 154))
                    drop-shadow(0px 4px 0px rgb(83 38 136));
@@ -1130,18 +1131,11 @@ export const useAnalytics = () => {
   const [loading, setLoading] = React.useState(false);
   const send = async (callbackSuccess, callbackError) => {
     const data = {}
-    const authUserExist = localStorage.getItem('auth-user');
-    const authUser = authUserExist ? JSON.parse(authUserExist) : null;
-    if (authUser) {
-      data['user'] = authUser._id;
-      data['time'] = Date.now();
-      data['codingActivity'] = uiData._id;
-      const authUserAnalyticsSessionExist = sessionStorage.getItem('auth-user-analytics-session');
-      if (authUserAnalyticsSessionExist) {
-        data['session'] = authUserAnalyticsSessionExist;
-      }
-    } else {
-      return;
+    data['time'] = Date.now();
+    data['codingActivity'] = uiData._id;
+    const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
+    if (clientAnalyticsSessionExist) {
+      data['session'] = clientAnalyticsSessionExist;
     }
     const config = {
       method: "post",
@@ -1155,7 +1149,7 @@ export const useAnalytics = () => {
     try {
       const response = await api.request(config);
       setLoading(false);
-      sessionStorage.setItem('auth-user-analytics-session', response.data._id)
+      sessionStorage.setItem('client-analytics-session-id', response.data._id)
       if (callbackSuccess) {
         callbackSuccess(response.data)
       }
@@ -1178,6 +1172,67 @@ export const useAnalytics = () => {
   };
   return {
     send,
+    loading
+  }
+}
+export const useInitClientAnalytics = () => {
+  const { uiData } = React.useContext(UiDataContext);
+  const [loading, setLoading] = React.useState(false);
+  const uaparser = UAParser()
+  const create = async (callbackSuccess, callbackError) => {
+    if(!uiData._id){
+      if(callbackError){
+        callbackError({message: "Ui data not found"})
+      }
+      return;
+    }
+    const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
+    if (clientAnalyticsSessionExist) {
+      return
+    }
+    const data = {}
+    data.time = Date.now();
+    data.codingActivity = uiData._id;
+    const uidIdExist = localStorage.getItem('analytics-uid-id');
+    if (uidIdExist) {
+      data['uid'] = uidIdExist;
+    } else {
+      const uidId = uuidv4();
+      localStorage.setItem('analytics-uid-id', uidId);
+      data['uid'] = uidId;
+    }
+    if (uaparser) {
+      data['device'] = uaparser.os.name + "-" + uaparser.os.version
+      data['browser'] = uaparser.browser.name + "-" + uaparser.browser.major
+      data['screenWidth'] = window.innerWidth
+      data['screenHeight'] = window.innerHeight
+    }
+    const config = {
+      method: "post",
+      url: "/api/analytics",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      data
+    };
+    setLoading(true);
+    try {
+      const response = await api.request(config);
+      setLoading(false);
+      sessionStorage.setItem('client-analytics-session-id', response.data._id)
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
+      setLoading(false);
+    }
+  };
+  return {
+    create,
     loading
   }
 }

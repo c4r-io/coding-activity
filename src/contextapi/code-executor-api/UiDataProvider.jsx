@@ -566,7 +566,7 @@ margin-right: 20px;
   /* background-color: var(--ui-purple); */
   padding-bottom: 10px;
   padding-top: 10px;
-  padding-left:45px ;
+  padding-left:20px ;
   padding-right:20px ;
   filter: drop-shadow(0px 4px 0px rgb(145 123 154))
            drop-shadow(0px 4px 0px rgb(83 38 136));
@@ -944,6 +944,8 @@ export const UiDataProvider = ({ children }) => {
       }
     },
     _id: null,
+    gptModel: "gpt-4-turbo-2024-04-09",
+    systemPrompt: "You are a helpful assistant. You are helping a student with their homework. The student is asking you to explain a concept to them.",
     activityTitle: "Activity Title",
     activityDefaultCode: "",
     activityCodeExecutor: "Pyodide",

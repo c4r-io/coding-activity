@@ -438,3 +438,13 @@ textarea.html-editor {
   padding: 2px;
   height: 100%;
 } */
+
+.all-child-crosshair-while-taking-screenshot,
+.all-child-crosshair-while-taking-screenshot input,
+.all-child-crosshair-while-taking-screenshot textarea,
+.all-child-crosshair-while-taking-screenshot button,
+.all-child-crosshair-while-taking-screenshot div,
+.all-child-crosshair-while-taking-screenshot span,
+.all-child-crosshair-while-taking-screenshot>*{
+  cursor: crosshair !important;
+}

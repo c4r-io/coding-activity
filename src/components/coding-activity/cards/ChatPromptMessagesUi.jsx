@@ -238,18 +238,30 @@ const FollowUpAskQuestionUi = () => {
     const submitHandler = async () => {
         setIsLoading(true);
         const msg = messages.messageList.length <= 1 ? "Here's whole code. " + "\n " + messages.code : ''
+        const systemPrompt = {
+            role: "system",
+            content: [
+                { type: "text", text: uiData.systemPrompt },
+            ],
+        }
         const newMessage = {
             role: "user",
             content: [
                 { type: "text", text: prompt + "\n " + msg },
-                {
-                    type: "image_url",
-                    image_url: {
-                        url: messages?.image,
-                    },
-                },
             ],
         };
+        if (messages?.image) {
+            newMessage.content.push({
+                type: "image_url",
+                image_url: {
+                    url: messages?.image,
+                },
+            })
+        }
+        const model = {}
+        if (uiData.gptModel) {
+            model.gptModel = uiData.gptModel;
+        }
         try {
             // remove feeling key from messages if it exists
 
@@ -260,7 +272,7 @@ const FollowUpAskQuestionUi = () => {
                 return message;
             });
             const messagesFormated = [...newMessageList, newMessage]
-
+            messagesFormated.unshift(systemPrompt)
             // const messagesFormated = [...messages.messageList, newMessage]
             const url = 'https://author-dashboard-theta.vercel.app/api/chatgpt/gpt_4_vision_preview';
             // const url = 'http://localhost:3030/api/chatgpt/gpt_4_vision_preview';
@@ -269,7 +281,7 @@ const FollowUpAskQuestionUi = () => {
                 headers: { // multipart form data
                     'Content-Type': 'multipart/form-data',
                 },
-                body: JSON.stringify({ messages: messagesFormated })
+                body: JSON.stringify({ messages: messagesFormated, ...model })
             });
             const response = await request.json();
 
@@ -299,6 +311,7 @@ const FollowUpAskQuestionUi = () => {
 
             dispatchMessages({ type: "setMessage", payload: [newMessage, { ...response?.message, feeling: feelingResponse?.message?.content }] });
             dispatchMessages({ type: "setTakeScreenshot", payload: false });
+            dispatchMessages({ type: "setImage", payload: "" });
             dispatchUiData({ type: 'setChatScreenStatus', payload: '' })
             console.log(response);
 
@@ -410,7 +423,7 @@ const FollowUpAskQuestionUi = () => {
                             >
                                 <button className={`unclicked ask-followup-button`}
                                     style={{ pointerEvents: isLoading ? 'none' : 'auto' }}
-                                    onClick={()=>{
+                                    onClick={() => {
                                         submitHandler();
                                         analytics.send();
                                     }}

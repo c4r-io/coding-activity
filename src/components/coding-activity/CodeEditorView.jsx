@@ -23,8 +23,9 @@ import CodeMirrorEidtor from "./CodeMirrorEidtor.jsx";
 import EditTextElementWrapper from "./editors/EditTextElementWrapper.jsx";
 import DrawerArround from "./DrawerArround.jsx";
 import { WebR } from 'webr';
-import { useAnalytics } from "../hooks/ApiHooks.jsx";
+import { useAnalytics, useInitClientAnalytics } from "../hooks/ApiHooks.jsx";
 import ChatView from "./ChatView.jsx";
+import { useDebounceEffect } from "../hooks/useDebounceEffect.jsx";
 
 const demoCode = `
 # Python code demo
@@ -79,6 +80,8 @@ export default function CodeEditorView() {
   const [isCodeFormating, setIsCodeFormating] = React.useState(false);
   const [isIssueSubmitting, setIsIssueSubmitting] = React.useState(false);
   const [issueDiscription, setIssueDiscription] = React.useState(null);
+  const [isTakingIssueAttachScreenshot, setIsTakingIssueAttachScreenshot] = React.useState(false);
+  const [isTakingHelpAttachScreenshot, setIsTakingHelpAttachScreenshot] = React.useState(false);
   const [issueAttachment, setIssueAttachment] = React.useState(null);
   const [executedCodeOutput, setExecutedCodeOutput] = React.useState(null);
   const [isWebRImage, setIsWebRImage] = React.useState(false);
@@ -92,7 +95,12 @@ export default function CodeEditorView() {
     }
     setCode(uiData?.uiContent?.defaults?.code || "")
   }, [uiData.devmode, uiData?.uiContent?.defaults?.code])
-
+  const initClientAnalytics = useInitClientAnalytics()
+  useEffect(() => {
+    if (!uiData.devmode) {
+      initClientAnalytics.create()
+    }
+  },[uiData.devmode,uiData._id]);
 
   const getReadyWebR = useCallback(async function getReadyWebR() {
     await webR?.init();
@@ -313,7 +321,7 @@ ${executableCode}`)
       const op = await pyodide.current.runPython(`
 ${fc}
         `);
-      setCode(op);
+      setCode(op.trim());
       setIsCodeFormating(false);
     } catch (error) {
       if (apiCallCount <= 3) {
@@ -469,7 +477,7 @@ print(opdt)
   };
 
   // implement take screenshot functionality
-  const [crop, setCrop] = useState();
+  const [crop, setCrop] = useState(null);
 
   const takeScreenshotHanlder = () => {
     const { x, y, width, height } = crop;
@@ -477,16 +485,6 @@ print(opdt)
     if (width == 0 || height == 0) return;
     // Select the HTML element to be cropped
     const elementToCrop = document.getElementById("elementToCrop");
-    // const body = document.getElementById("root");
-
-    // // Create a temporary canvas element
-    // const canvas = document.createElement("canvas");
-    // canvas.width = width;
-    // canvas.height = height;
-
-    // Calculate the offset of the element
-    // const rect = elementToCrop.getBoundingClientRect();
-
     // Draw the cropped area onto the canvas
     html2canvas(elementToCrop, {
       x: x,
@@ -496,16 +494,29 @@ print(opdt)
     }).then((canvas) => {
       // Convert the canvas content to base64 image data
       const base64ImageData = canvas.toDataURL("image/png");
-      
-      // Log or use the base64ImageData as needed
-      // console.log(base64ImageData);
-      dispatchMessages({ type: "setImage", payload: base64ImageData });
-      dispatchUiData({ type: "setChatScreenStatus", payload: "followUpAskQuestion" });
-      setTimeout(() => {
-        // dispatchMessages({type: "setTakeScreenshot", payload: false});
-        dispatchUiData({ type: "setScreen", payload: "chat" });
-        setCrop();
-      }, 300);
+
+      // check whether the screenshot is for issue attachment
+      if (isTakingIssueAttachScreenshot) {
+        setIssueAttachment(base64ImageData);
+        setIsTakingIssueAttachScreenshot(false);
+        setIsTakingHelpAttachScreenshot(false);
+        setTimeout(() => {
+          dispatchMessages({ type: "setTakeScreenshot", payload: false });
+          setCrop(null);
+        }, 200);
+      }
+      if (isTakingHelpAttachScreenshot) {
+        // Log or use the base64ImageData as needed
+        // console.log(base64ImageData);
+        dispatchMessages({ type: "setImage", payload: base64ImageData });
+        dispatchUiData({ type: "setChatScreenStatus", payload: "followUpAskQuestion" });
+        setIsTakingIssueAttachScreenshot(false);
+        setIsTakingHelpAttachScreenshot(false);
+        setTimeout(() => {
+          dispatchUiData({ type: "setScreen", payload: "chat" });
+          setCrop(null);
+        }, 200);
+      }
     });
   };
 
@@ -518,10 +529,10 @@ print(opdt)
       <ReactCrop
         crop={crop}
         onChange={(c) => setCrop(c)}
-        disabled={!messages.takeScreenshot}
+        disabled={!(isTakingIssueAttachScreenshot || isTakingHelpAttachScreenshot)}
         onDragEnd={takeScreenshotHanlder}
       >
-        <div id="elementToCrop" className="cropper-container">
+        <div id="elementToCrop" className={`${(isTakingIssueAttachScreenshot || isTakingHelpAttachScreenshot) ? "all-child-crosshair-while-taking-screenshot" : ""} cropper-container`}>
           <div>
             <EditorViewTopCardUi />
           </div>
@@ -571,10 +582,11 @@ print(opdt)
                     buttonEditor={true}
                   >
                     <button
-                      className={`${messages.takeScreenshot ? "clicked" : "unclicked"
+                      className={`${isTakingHelpAttachScreenshot ? "clicked" : "unclicked"
                         } py-2 px-3 w-full !text-sm `}
                       onClick={() => {
                         dispatchMessages({ type: "setTakeScreenshot", payload: true });
+                        setIsTakingHelpAttachScreenshot(true);
                         analytics.send();
                       }
                       }
@@ -687,6 +699,7 @@ print(opdt)
                   >
                     <Fragment>
                       <div className="mt-0 w-full h-20 relative">
+                        {/*
                         <label
                           className="opacity-0 w-full h-20 absolute"
                           htmlFor="issueFile"
@@ -702,10 +715,16 @@ print(opdt)
                             setIssueAttachment(e.target.files[0]);
                           }}
                         />
+                        */}
                         <div className="">
                           <button
-                            className={`${issueAttachment ? "buttons passive clicked" : "buttons passive unclicked"
+                            className={`${issueAttachment || isTakingIssueAttachScreenshot ? "buttons passive clicked" : "buttons passive unclicked"
                               } py-2 px-3 w-full h-20`}
+                            onClick={() => {
+                              dispatchMessages({ type: "setTakeScreenshot", payload: true });
+                              setIsTakingIssueAttachScreenshot(true);
+                            }
+                            }
                           >
                             {uiData?.uiContent?.editorview?.editorActionAttachScreenshot}
                           </button>

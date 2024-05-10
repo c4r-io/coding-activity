@@ -7,7 +7,7 @@ import filehandler from '@/lib/filehandler';
 // @acess Privet
 export async function GET(req, res) {
   const keywords = {};
-  if(req.nextUrl.searchParams.get('codingActivity')) {
+  if (req.nextUrl.searchParams.get('codingActivity')) {
     keywords['codingActivity'] = req.nextUrl.searchParams.get('codingActivity');
   }
   // in case if the query is not js object
@@ -57,12 +57,18 @@ export async function POST(req, context) {
     body.get('attachment') &&
     codeExecutorIssueList.attachment !== body.get('attachment')
   ) {
-    const filename = await filehandler.saveFileAsBinary(
-      body.get('attachment'),
-    );
-    // const filename = await filehandler.saveFile(body.get("attachment"))
-    // filehandler.deleteFile(codeExecutorIssueList.attachment)
-    codeExecutorIssueList['attachment'] = filename;
+    if (typeof body.get('attachment') == 'string' && body.get('attachment').startsWith("data:")) {
+      codeExecutorIssueList['attachment'] = {
+        data: body.get('attachment'),
+      };
+    } else {
+      const filename = await filehandler.saveFileAsBinary(
+        body.get('attachment'),
+      );
+      // const filename = await filehandler.saveFile(body.get("attachment"))
+      // filehandler.deleteFile(codeExecutorIssueList.attachment)
+      codeExecutorIssueList['attachment'] = filename;
+    }
   }
   if (codeExecutorIssueList) {
     console.log("codeExecutorIssueList", codeExecutorIssueList)

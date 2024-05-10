@@ -74,7 +74,7 @@ const MainView = ({ devmode, codingActivityId, uiDataFromDb }) => {
     return (
       <div>
         <div style={{ display: `block` }} className='relative'>
-          <LoginPopup />
+          {/* <LoginPopup /> */}
           <CodeEditorView />
         </div>
         {/* <div style={{ display: `${uiData.screen === 'chat' ? 'block' : 'none'}` }}>

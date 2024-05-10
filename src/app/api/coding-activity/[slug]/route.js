@@ -47,6 +47,12 @@ export async function PUT(req, context) {
       if (body.get('activityTitle')) {
         codeExecutorActivity.activityTitle = body.get('activityTitle');
       }
+      if (body.get('gptModel')) {
+        codeExecutorActivity.gptModel = body.get('gptModel');
+      }
+      if (body.get('systemPrompt')) {
+        codeExecutorActivity.systemPrompt = body.get('systemPrompt');
+      }
       if (body.get('activityDefaultCode')) {
         codeExecutorActivity.activityDefaultCode = body.get('activityDefaultCode');
       }
@@ -85,6 +91,7 @@ export async function PUT(req, context) {
 // @desc POST codeExecutorActivity
 // @route POST api/codeExecutorActivitys/:id
 // @acess Privet
+// duplicate codeExecutorActivity
 export async function POST(req, context) {
   if (
     !(await protect(req))

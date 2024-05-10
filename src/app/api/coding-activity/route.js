@@ -7,6 +7,12 @@ import CodingActivity from '@/models/codingActivityModel.js';
 export async function GET(req, res) {
   let keywords = {};
   const orKeywords = {};
+  if (req.nextUrl.searchParams.get('gptModel')) {
+    keywords.gptModel = req.nextUrl.searchParams.get('gptModel');
+  }
+  if (req.nextUrl.searchParams.get('systemPrompt')) {
+    keywords.systemPrompt = req.nextUrl.searchParams.get('systemPrompt');
+  }
   if (req.nextUrl.searchParams.get('activityTitle')) {
     keywords.activityTitle = req.nextUrl.searchParams.get('activityTitle');
   }
@@ -69,6 +75,8 @@ export async function POST(req) {
     activityCodeExecutor: body.activityCodeExecutor,
     activityCodeRuntime: body.activityCodeRuntime,
     uiContent: body.uiContent,
+    gptModel: body.gptModel || "gpt-4-turbo-2024-04-09",
+    systemPrompt: body.systemPrompt || "You are a helpful assistant.",
   });
   return Response.json({ ...createdvideoClipList._doc });
 }

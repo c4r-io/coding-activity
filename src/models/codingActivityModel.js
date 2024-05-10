@@ -21,6 +21,12 @@ const codeExecutorActivitySchema = mongoose.Schema(
     uiContent: {
       type: Object,
     },
+    gptModel: {
+      type: String,
+    },
+    systemPrompt: {
+      type: String,
+    },
   },
   {
     timestamps: true,
