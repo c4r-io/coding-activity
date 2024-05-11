@@ -20,6 +20,50 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Pages
+
+```
+path:
+/login
+
+Login and registration
+
+path:
+/coding-activity/:activityid
+
+Coding activity output
+
+path:
+/dashboard/coding-activity/
+
+List of coding activity
+
+path:
+/dashboard/coding-activity/:activityid
+
+Edit coding activity
+
+path:
+/dashboard/coding-activity/:activityid/analytics
+
+Analytics preview for each instance of coding activity
+
+path:
+/dashboard/coding-activity/:activityid/submissions
+
+Feedback and issue navigator page
+
+path:
+/dashboard/coding-activity/:activityid/submissions/chat-feedback
+
+Like dislike feedback page
+
+path:
+/dashboard/coding-activity/:activityid/submissions/code-executor-issue-list
+
+Submitted issue list for each instance of coding activity
+```
+
 ## Apis
 ```
 path:

@@ -131,6 +131,7 @@ const Page = ({ params }) => {
         // success callback
         setDeletePopup(false);
         getpythonExecutorIssueListsList(page);
+        setDeleteList([]);
       },
       () => {
         // error callback
@@ -166,6 +167,23 @@ const Page = ({ params }) => {
       setDeleteList(analyticsList?.results?.map((item) => item._id));
     }
   }
+  const optionsArray = [
+    { key: "totalDurationInSeconds", value: "Total Duration In Seconds" },
+    { key: "uid", value: "UID" },
+    { key: "ip", value: "IP" },
+    { key: "ipinfo.city", value: "City" },
+    { key: "ipinfo.region", value: "Region" },
+    { key: "ipinfo.country", value: "Country" },
+    { key: "ipinfo.loc", value: "Loc" },
+    { key: "ipinfo.org", value: "Org" },
+    { key: "ipinfo.postal", value: "Postal" },
+    { key: "ipinfo.timezone", value: "Timezone" },
+    { key: "browser", value: "Browser" },
+    { key: "device", value: "Device" },
+    { key: "screenWidth", value: "Screen Width" },
+    { key: "screenHeight", value: "Screen Height" }
+  ];
+
   return (
     <>
       <Sidebar />
@@ -182,7 +200,7 @@ const Page = ({ params }) => {
                     htmlFor="analyticsKey"
                     className="block mb-2 text-sm font-medium text-white"
                   >
-                    Select a key ({analyticsKey})
+                    Select a key ({optionsArray.find(e => e.key === analyticsKey)?.value})
                   </label>
                   <select
                     value={analyticsKey}
@@ -191,20 +209,23 @@ const Page = ({ params }) => {
                     className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option>Choose a analytics key</option>
-                    <option value="totalDurationInSeconds">totalDurationInSeconds</option>
-                    <option value="uid">uid</option>
-                    <option value="ip">ip</option>
-                    <option value="ipinfo.city">city</option>
-                    <option value="ipinfo.region">region</option>
-                    <option value="ipinfo.country">country</option>
-                    <option value="ipinfo.loc">loc</option>
-                    <option value="ipinfo.org">org</option>
-                    <option value="ipinfo.postal">postal</option>
-                    <option value="ipinfo.timezone">timezone</option>
-                    <option value="browser">browser</option>
-                    <option value="device">device</option>
-                    <option value="screenWidth">screenWidth</option>
-                    <option value="screenHeight">screenHeight</option>
+                    {optionsArray.map((item, index) =>
+                      <option key={index} value={item.key}>{item.value}</option>
+                    )}
+                    {/* <option value="totalDurationInSeconds">Total Duration In Seconds</option>
+                    <option value="uid">UID</option>
+                    <option value="ip">IP</option>
+                    <option value="ipinfo.city">City</option>
+                    <option value="ipinfo.region">Region</option>
+                    <option value="ipinfo.country">Country</option>
+                    <option value="ipinfo.loc">Loc</option>
+                    <option value="ipinfo.org">Org</option>
+                    <option value="ipinfo.postal">Postal</option>
+                    <option value="ipinfo.timezone">Timezone</option>
+                    <option value="browser">Browser</option>
+                    <option value="device">Device</option>
+                    <option value="screenWidth">Screen Width</option>
+                    <option value="screenHeight">Screen Height</option> */}
                   </select>
                 </div>
               </div>
@@ -245,40 +266,40 @@ const Page = ({ params }) => {
                         Total Duration In Seconds
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        ip
+                        IP
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        ipinfo.city
+                        City
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        ipinfo.region
+                        Region
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        ipinfo.country
+                        Country
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        ipinfo.loc
+                        Loc
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        ipinfo.org
+                        Org
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        ipinfo.postal
+                        Postal
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        ipinfo.timezone
+                        Timezone
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        browser
+                        Browser
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        device
+                        Device
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        screenWidth
+                        Screen Width
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        screenHeight
+                        Screen Height
                       </th>
                       <th scope="col" className="px-6 py-3 text-right">
                         Actions
@@ -354,7 +375,7 @@ const Page = ({ params }) => {
                                 <button
                                   type="button"
                                   className="px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white rounded-lg focus:ring-4 focus:outline-none bg-red-600 hover:bg-red-700 focus:ring-red-800"
-                                  onClick={() => deleteConfirmDialog(item._id)}
+                                  onClick={() => {deleteConfirmDialog();setDeleteList([item._id])}}
                                 >
                                   <svg
                                     className="w-3 h-3 mr-1 text-white"

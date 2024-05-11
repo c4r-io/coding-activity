@@ -3,22 +3,21 @@ import MainView from "./MainView.jsx";
 import { AllContextProviders } from "@/contextapi/code-executor-api/AllContextProviders";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import CssEditorView from "./CssEditorView.jsx";
 import CustomCssInjector from "./CustomCssInjector.jsx";
-import UpdateCustomizedDataButton from "./UpdateCustomizedDataButton.jsx";
-import { RiCloseCircleFill } from "react-icons/ri";
-import { MdKeyboardArrowLeft } from "react-icons/md";
-import { useState } from "react";
-export default function CodeExecutorAppView({codingActivityId, uiDataFromDb}) {
-  const [cssEditor, setCssEditor] = useState(false)
+export default function CodeExecutorActivityView({codingActivityId, uiDataFromDb}) {
   return (
     <div className="overflow-x-hidden max-h-max pb-2">
+      {/* coding activity providers/stores */}
       <AllContextProviders>
+        {/* innerHTML css which is being edited by author from /dashboard/coding-activity/:activityid */}
         <CustomCssInjector />
         <div
           className={`flex justify-center`}
         >
           <div className={`annotation max-w-[750px]`}>
+            {/* we have 2 modes one for editable ui and other for output ui */}
+            {/* editable ui for author */}
+            {/* output ui for students */}
             <MainView  devmode={false} codingActivityId={codingActivityId} uiDataFromDb={uiDataFromDb} />
             <ToastContainer />
           </div>
