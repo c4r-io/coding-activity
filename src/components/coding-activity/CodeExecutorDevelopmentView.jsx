@@ -8,7 +8,8 @@ import UpdateCustomizedDataButton from "./UpdateCustomizedDataButton.jsx";
 import { RiCloseCircleFill } from "react-icons/ri";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import { useState } from "react";
-export default function CodeExecutorAppView({ codingActivityId, uiDataFromDb, children }) {
+// development mode
+export default function CodeExecutorDevelopmentView({ codingActivityId, uiDataFromDb, children }) {
   const [cssEditor, setCssEditor] = useState(true)
   return (
     <div className="max-h-max min-w-[1200px] pb-2">

@@ -3,6 +3,7 @@ import { setToken } from '@/utils/token';
 import React from 'react';
 import { toast } from 'react-toastify';
 
+// Login popup had beed created to get student login details
 const LoginPopup = () => {
     const [isLoginPopupOpen, setIsLoginPopupOpen] = React.useState(true);
     const usernameRef = React.useRef(null);

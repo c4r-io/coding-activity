@@ -5,9 +5,10 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from "@/contextapi/UserProvider";
-import CodeExecutorAppView from "@/components/coding-activity/CodeExecutorAppView";
+import CodeExecutorDevelopmentView from "@/components/coding-activity/CodeExecutorDevelopmentView";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
+import * as changeCase from "change-case";
 const Page = ({ params }) => {
   const { userData, dispatchUserData } = useContext(UserContext);
   const router = useRouter();
@@ -64,6 +65,39 @@ const Page = ({ params }) => {
 
     });
   }, [activityCodeRuntime])
+  const [gptModelList, setGptModelList] = useState([]);
+  const getGPTModels = async () => {
+    const url = 'https://author-dashboard-theta.vercel.app/api/chatgpt/gpt_4_vision_preview';
+    // const url = 'http://localhost:3030/api/chatgpt/gpt_4_vision_preview';
+    const modelsFromSessionStorage = sessionStorage.getItem('gptModels');
+    if(modelsFromSessionStorage){
+      const models = JSON.parse(modelsFromSessionStorage);
+      setGptModelList(models);
+      return;
+    }
+    try {
+      const request = await fetch(url, {
+        method: 'GET',
+        headers: { // multipart form data
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      const response = await request.json();
+      console.log("gpt models", response.data);
+      if (response?.body?.data) {
+        setGptModelList(response.body.data);
+        sessionStorage.setItem('gptModels', JSON.stringify(response.body.data));
+      } else {
+        setGptModelList(response.data);
+        sessionStorage.setItem('gptModels', JSON.stringify(response.data));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  useEffect(() => {
+    getGPTModels();
+  }, [])
   function extractQueryParam(url, param) {
     const urlObj = new URL(url);
     const searchParams = new URLSearchParams(urlObj.search);
@@ -196,8 +230,11 @@ const Page = ({ params }) => {
                   id="gptModel"
                   className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option>Choose a Model</option>                 
-                  <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                  <option>Choose a Model</option>
+                  {gptModelList.map((model, index) => {
+                    return <option key={index} value={model.id}>{changeCase.capitalCase(model.id)}</option>
+                  })}
+                  {/* <option value="gpt-4-turbo">GPT-4 Turbo</option>
                   <option value="gpt-4-turbo-2024-04-09">GPT-4 Turbo (2024-04-09)</option>
                   <option value="gpt-4-turbo-preview">GPT-4 Turbo Preview</option>
                   <option value="gpt-4-0125-preview">GPT-4 (0125 Preview)</option>
@@ -214,7 +251,7 @@ const Page = ({ params }) => {
                   <option value="gpt-3.5-turbo-instruct">GPT-3.5 Turbo Instruct</option>
                   <option value="gpt-3.5-turbo-16k">GPT-3.5 Turbo (16k)</option>
                   <option value="gpt-3.5-turbo-0613">GPT-3.5 Turbo (0613)</option>
-                  <option value="gpt-3.5-turbo-16k-0613">GPT-3.5 Turbo (16k 0613)</option>
+                  <option value="gpt-3.5-turbo-16k-0613">GPT-3.5 Turbo (16k 0613)</option> */}
                 </select>
 
               </div>
@@ -247,7 +284,7 @@ const Page = ({ params }) => {
                 >Close additional Info</button>
               </div>
             </div>
-            <CodeExecutorAppView codingActivityId={params.codingActivityId} uiDataFromDb={codingActivityListResponse} >
+            <CodeExecutorDevelopmentView codingActivityId={params.codingActivityId} uiDataFromDb={codingActivityListResponse} >
               <Link href={`/dashboard/coding-activity/${params.codingActivityId}/submissions`}>
                 <button className="me-2 px-4 py-2 bg-yellow-500 text-white rounded-md mb-4 "
                 >Submissions</button>
@@ -266,7 +303,7 @@ const Page = ({ params }) => {
                   onClick={() => setEditAdditionalInfo(true)}
                 >Settings</button>
               </div>
-            </CodeExecutorAppView>
+            </CodeExecutorDevelopmentView>
           </div>
         </div>
       </div>

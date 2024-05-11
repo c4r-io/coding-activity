@@ -3,10 +3,14 @@ import CodeEditorView from './CodeEditorView'
 import ChatView from "./ChatView.jsx";
 import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider.jsx';
 import { ChatMessagesContext } from '@/contextapi/code-executor-api/ChatMessagesProvider';
-import MystPreviewTwContainer from '../mystmdpreview/MystPreviewTwContainer';
 import LoginPopup from './LoginPopup';
 
+// default preview message for devmode
 const devModeMessages = [
+  // {
+  //   role: 'system',
+  //   content: [{ text: 'You are a helpful assistant.' }]
+  // },
   {
     role: 'user',
     content: [{ text: 'What is an iterator?' }]
