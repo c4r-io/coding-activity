@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Nextjs app',
-  description: 'Nextjs app description',
+  title: 'Coding Activity',
+  description: 'Coding Activity app description',
 };
 export default function RootLayout({ children }) {
   return (
