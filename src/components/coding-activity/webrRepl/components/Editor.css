@@ -97,6 +97,7 @@
 .editor-container {
   min-width: 0;
   min-height: 0;
+  max-height: 200px;
 }
 
 .cm-editor {

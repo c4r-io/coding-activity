@@ -17,35 +17,35 @@ const tabSize = new Compartment();
 const myTheme = createTheme({
   theme: "light",
   settings: {
-    background: "#242525",
-    backgroundImage: "",
-    foreground: "#ffffff",
-    caret: "#fff",
-    selection: "#036dd626",
-    selectionMatch: "#036dd626",
-    lineHighlight: "#8a91991a",
-    gutterBackground: "#854ABE6f",
-    gutterForeground: "#fff",
+      background: "#242525",
+      backgroundImage: "",
+      foreground: "#ffffff",
+      caret: "#fff",
+      selection: "#036dd626",
+      selectionMatch: "#036dd626",
+      lineHighlight: "#8a91991a",
+      gutterBackground: "#854ABE",
+      gutterForeground: "#fff",
   },
   styles: [
-    { tag: t.comment, color: "#858585" },
-    { tag: t.variableName, color: "#ffffff" },
-    { tag: [t.string, t.special(t.brace)], color: "#a4a4a4" },
-    { tag: t.number, color: "#907b9a" },
-    { tag: t.bool, color: "#A46932" },
-    { tag: t.null, color: "#A46932" },
-    { tag: t.keyword, color: "#854ABE" },
-    { tag: t.operator, color: "#A46932" },
-    { tag: t.className, color: "#DD8B3C" },
-    { tag: t.definition(t.typeName), color: "#A46932" },
-    { tag: t.typeName, color: "#A46932" },
-    { tag: t.angleBracket, color: "#A46932" },
-    { tag: t.paren, color: "#fff" },
-    { tag: t.brace, color: "#fff" },
-    { tag: t.squareBracket, color: "#fff" },
-    { tag: t.tagName, color: "#A46932" },
-    { tag: t.attributeName, color: "#532688" },
-    { tag: [t.function(t.variableName)], color: "#DD8B3C" },
+      { tag: t.comment, color: "#858585" },
+      { tag: t.variableName, color: "#ffffff" },
+      { tag: [t.string, t.special(t.brace)], color: "#a4a4a4" },
+      { tag: t.number, color: "#907b9a" },
+      { tag: t.bool, color: "#A46932" },
+      { tag: t.null, color: "#A46932" },
+      { tag: t.keyword, color: "#854ABE" },
+      { tag: t.operator, color: "#A46932" },
+      { tag: t.className, color: "#DD8B3C" },
+      { tag: t.definition(t.typeName), color: "#A46932" },
+      { tag: t.typeName, color: "#A46932" },
+      { tag: t.angleBracket, color: "#A46932" },
+      { tag: t.paren, color: "#fff" },
+      { tag: t.brace, color: "#fff" },
+      { tag: t.squareBracket, color: "#fff" },
+      { tag: t.tagName, color: "#A46932" },
+      { tag: t.attributeName, color: "#532688" },
+      { tag: [t.function(t.variableName)], color: "#DD8B3C" },
   ],
 });
 
@@ -169,7 +169,8 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
         },
       ])
     ),
-    autocompletion({ override: [completion] }),myTheme
+    autocompletion({ override: [completion] }),
+    myTheme
   ];
 
   const closeFile = (e, index) => {
@@ -251,7 +252,7 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
     if (!editorRef.current) {
       return;
     }
-    const state = EditorState.create({ extensions: editorExtensions, doc: codeFromParent || "Hello" });
+    const state = EditorState.create({ extensions: editorExtensions, doc: codeFromParent || "Hello", styles:{height: 300} });
     const view = new EditorView({
       state,
       parent: editorRef.current,
@@ -266,10 +267,12 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
       }
     }]);
 
+    editorRef.current.style.maxHeight = `${codeFromParent?.split("\n").length * 19.5 + 20}px`
     return function cleanup() {
       view.destroy();
     };
-  }, []);
+  }, [codeFromParent]);
+
 
   React.useEffect(() => {
     filesInterface.openFileInEditor = (name, path, readOnly) => {

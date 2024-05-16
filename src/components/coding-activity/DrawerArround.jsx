@@ -14,9 +14,9 @@ const DrawerArround = ({ children }) => {
     const [openRight, setOpenRight] = React.useState(uiData.devmode)
     const [openBottom, setOpenBottom] = React.useState(uiData.devmode)
     return (
-        <div>
-            <div className='flex'>
-                <div className={`relative ${openLeft ? 'w-[125px]' : 'w-[36px]'}`}>
+        <div className='w-full'>
+            <div className='w-full relative flex justify-stretch'>
+                <div className={`relative ${openLeft ? 'w-[125px]' : 'w-[20px]'}`}>
                     <button className='expando absolute py-2 left-0 top-0 w-5 h-full bg-ui-violet text flex flex-col justify-between'
                         onClick={() => {
                             if (!uiData.devmode) {
@@ -49,8 +49,8 @@ const DrawerArround = ({ children }) => {
                         </div>
                     </EditTextContentElementWrapper>
                 </div>
-                <div>{children}</div>
-                <div className={`relative ${openRight ? 'w-[125px]' : 'w-[36px]'}`}>
+                <div >{children}</div>
+                <div className={`relative ${openRight ? 'w-[125px]' : 'w-[20px]'}`}>
                     <button className='expando absolute py-2 right-0 top-0 w-5 h-full bg-ui-violet text flex flex-col justify-between'
                         onClick={() => {
                             if (!uiData.devmode) {

@@ -6,15 +6,15 @@ import "react-toastify/dist/ReactToastify.css";
 import CustomCssInjector from "./CustomCssInjector.jsx";
 export default function CodeExecutorActivityView({codingActivityId, uiDataFromDb}) {
   return (
-    <div className="overflow-x-hidden max-h-max pb-2">
+    <div className="overflow-x-auto max-w-[750px] max-h-max pb-2">
       {/* coding activity providers/stores */}
       <AllContextProviders>
         {/* innerHTML css which is being edited by author from /dashboard/coding-activity/:activityid */}
         <CustomCssInjector />
         <div
-          className={`flex justify-center`}
+          className={`flex justify-center  w-[750px]`}
         >
-          <div className={`annotation max-w-[750px]`}>
+          <div className={`annotation`}>
             {/* we have 2 modes one for editable ui and other for output ui */}
             {/* editable ui for author */}
             {/* output ui for students */}
