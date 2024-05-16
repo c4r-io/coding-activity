@@ -1,0 +1,36 @@
+body {
+  padding: 0;
+  margin: 0;
+  font-family: sans-serif;
+}
+
+:root {
+  --bg-primary: #FFF;
+  --bg-secondary: #EEE;
+  --bg-dark: #AAA;
+  --primary: #111;
+  --secondary: #777;
+  --disabled: #AAA;
+}
+
+.repl {
+  width: 100%;
+}
+
+.editor {
+  width: 100%;
+}
+
+.term {
+  width: 100%;
+}
+
+
+
+.files {
+
+}
+
+.plot {
+ width: 100%;
+}

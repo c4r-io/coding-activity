@@ -71,11 +71,11 @@ const allCss = `
 }
 
 .code-editor-top-card-container .card-image {
-  width: 270px;
-  height: 270px;
+  width: 127px;
+  height: 179px;
   position: absolute;
-  right: -74px;
-  top: -61px;
+  top: -2px;
+  left: 595px;
   z-index: 50;
 }
 
@@ -150,7 +150,7 @@ const allCss = `
 
 /* chat prompt top bar css start */
 .chat-prompt-top-card-container {
-  width: 730px;
+  width: 100%;
   /* height: 190px; */
   /* background-color: var(--ui-purple); */
   padding-top: 23px;
@@ -210,7 +210,7 @@ const allCss = `
 
 /* chat prompt user message top bar css start */
 .chat-prompt-user-message-container {
-  width: 730px;
+  width: 100%;
   /* background-color: var(--ui-purple); */
   padding-bottom: 10px;
   padding-top: 10px;
@@ -268,7 +268,7 @@ const allCss = `
 
 /* chat prompt assistant message top bar css start */
 .chat-prompt-assistant-message-container {
-  width: 730px;
+  width: 100%;
   /* background-color: var(--ui-purple); */
   padding-bottom: 10px;
   padding-top: 10px;
@@ -323,7 +323,7 @@ margin-right: 20px;
 
 /* chat prompt assistant message top bar css start */
 .chat-prompt-assistant-message-follow-up-container {
-  width: 730px;
+  width: 100%;
   /* background-color: var(--ui-purple); */
   margin-top: 5px;
   padding-top: 5px;
@@ -399,7 +399,7 @@ margin-right: 20px;
 
 /* chat prompt ask-followup-question top bar css start */
 .chat-prompt-ask-followup-question-container {
-  width: 730px;
+  width: 100%;
   padding-bottom: 10px;
   padding-top: 10px;
   filter: drop-shadow(0px 4px 0px rgb(145 123 154))
@@ -509,7 +509,7 @@ margin-right: 20px;
 
 /* chat prompt user review-action top bar css start */
 .chat-prompt-user-review-action-container {
-  width: 730px;
+  width: 100%;
   /* background-color: var(--ui-purple); */
   padding-bottom: 10px;
   padding-top: 10px;
@@ -562,7 +562,7 @@ margin-right: 20px;
 
 
 .chat-prompt-user-screenshot-container{
-  width: 730px;
+  width: 100%;
   /* background-color: var(--ui-purple); */
   padding-bottom: 10px;
   padding-top: 10px;
