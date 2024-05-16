@@ -88,7 +88,7 @@ export default function CodeEditorView() {
     if (!uiData.devmode) {
       initClientAnalytics.create()
     }
-  },[uiData.devmode,uiData._id]);
+  }, [uiData.devmode, uiData._id]);
 
   const graphicsCode = ["plot", "barplot", "pie"]
   const [triggerWebRRun, setTriggerWebRRun] = useState(false)
@@ -443,17 +443,17 @@ print(opdt)
           <div className={`ps-4 pe-14 widget `}>
             <div className="mx-3 p-1 pb-0 border-x-2 space-y-3 border-ui-violet rounded-xl bg-[#171819] text-white">
               <div className="p-3 pb-0 mt-3 relative group">
-                {uiData.activityCodeRuntime === "Web-R" ? 
-              <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />
-              :
-                <CodeMirrorEidtor
-                  value={code}
-                  onChange={(e) => {
-                    handleOnChange(e);
-                  }}
-                  height={`${uiData?.uiContent?.defaults?.code?.split("\n").length * 19.5 + 20}px`}
-                />
-              }
+                {uiData.activityCodeRuntime === "Web-R" ?
+                  <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />
+                  :
+                  <CodeMirrorEidtor
+                    value={code}
+                    onChange={(e) => {
+                      handleOnChange(e);
+                    }}
+                    height={`${uiData?.uiContent?.defaults?.code?.split("\n").length * 19.5 + 20}px`}
+                  />
+                }
                 {(uiData.activityCodeRuntime === "Pyodide" || uiData.activityCodeRuntime === "Python Aws Api") &&
                   <div className="buttons absolute top-[10px] right-[10px]">
                     <div className="progressive">
@@ -539,9 +539,11 @@ print(opdt)
               {(!uiData.devmode && uiData.activityCodeRuntime === "Web-R") ?
                 <div className="px-3">
                   <WebRApp.Terminal />
-                  <WebRApp.Plot />
+                  <DrawerArround>
+                    <WebRApp.Plot />
+                  </DrawerArround>
 
-                </div>:""
+                </div> : ""
               }
               {!uiData?.openReportUi && executedCodeOutput && (
                 <div className="px-3 space-y-3">

@@ -51,22 +51,26 @@ async function handlePagerMessage(msg) {
   }
 }
 
-const WebRApp=({children})=> {
+const WebRApp = ({ children }) => {
   return (
     <div className='repl'>
       {children}
     </div>
   );
 }
-WebRApp.Editor = ({triggerRun, codeFromParent})=>{
+WebRApp.Editor = ({ triggerRun, codeFromParent }) => {
   return <Editor triggerRun={triggerRun} codeFromParent={codeFromParent} webR={webR} terminalInterface={terminalInterface} filesInterface={filesInterface} />;
 }
-WebRApp.Terminal = ()=>{
+WebRApp.Editor.displayName = 'WebRApp.Editor';
+WebRApp.Terminal = () => {
   return <Terminal webR={webR} terminalInterface={terminalInterface} />;
 }
-WebRApp.Plot = ()=>{
+WebRApp.Terminal.displayName = 'WebRApp.Terminal';
+WebRApp.Plot = () => {
   return <Plot plotInterface={plotInterface} />;
 }
+WebRApp.Plot.displayName = 'WebRApp.Plot';
+WebRApp.displayName = 'WebRApp';
 export default WebRApp;
 
 void (async () => {
@@ -83,7 +87,7 @@ void (async () => {
 
   terminalInterface.write('\x1b[2K\r');
 
-  for (;;) {
+  for (; ;) {
     const output = await webR.read();
     switch (output.type) {
       case 'stdout':
