@@ -22,10 +22,10 @@ import Script from "next/script.js";
 import CodeMirrorEidtor from "./CodeMirrorEidtor.jsx";
 import EditTextElementWrapper from "./editors/EditTextElementWrapper.jsx";
 import DrawerArround from "./DrawerArround.jsx";
-import { WebR } from 'webr';
 import { useAnalytics, useInitClientAnalytics } from "../hooks/ApiHooks.jsx";
 import ChatView from "./ChatView.jsx";
 import { useDebounceEffect } from "../hooks/useDebounceEffect.jsx";
+import WebRApp from "./webrRepl/WebRApp.jsx";
 
 const demoCode = `
 # Python code demo
@@ -63,18 +63,6 @@ export default function CodeEditorView() {
   const { messages, dispatchMessages } = React.useContext(ChatMessagesContext);
   let pyodide = useRef(null);
   let pyodideLoaded = useRef(null);
-  let webRLoaded = useRef(false);
-  const webRRef = useRef(null);
-  const webR2Ref = useRef(null);
-  useEffect(() => {
-    if (!uiData.devmode) {
-      webRRef.current = new WebR()
-      webR2Ref.current = new WebR()
-    }
-  }, [uiData.devmode])
-  const webR = webRRef.current;
-  const webR2 = webR2Ref.current;
-
   const [code, setCode] = React.useState("");
   const [isCodeExecuting, setIsCodeExecuting] = React.useState(false);
   const [isCodeFormating, setIsCodeFormating] = React.useState(false);
@@ -102,95 +90,8 @@ export default function CodeEditorView() {
     }
   },[uiData.devmode,uiData._id]);
 
-  const getReadyWebR = useCallback(async function getReadyWebR() {
-    await webR?.init();
-
-    // Set the default graphics device and pager
-    await webR?.evalRVoid('webr::pager_install()');
-    await webR?.evalRVoid('webr::canvas_install()');
-
-    // shim function from base R with implementations for webR
-    // see ?webr::shim_install for details.
-    await webR?.evalRVoid('webr::shim_install()');
-
-  }, [])
-  useEffect(() => {
-    if (!webRLoaded.current && !uiData.devmode) {
-      getReadyWebR();
-      webRLoaded.current = true;
-      console.log("R added");
-    }
-  }, [webRLoaded.current, uiData.devmode]);
   const graphicsCode = ["plot", "barplot", "pie"]
-  const runWebRCode = async (apiCallCount = 1) => {
-    if (code == "") {
-      toast.error("Please enter code to execute");
-      return;
-    }
-    // const nc = code.replaceAll("plt.show()", pltshow);
-    // const nc2 = nc.replaceAll(/print\((.*?)\)/g, "$1");
-    setIsCodeExecuting(true);
-    console.log("code   ", code);
-    try {
-      const canvas = document.getElementById('plot-canvas');
-      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-      if (graphicsCode.some((gc) => code.includes(gc))) {
-        setIsWebRImage(true);
-        const res = await webR2.evalRVoid(`
-        webr::shim_install()
-        webr::canvas()
-        ${code}
-        dev.off()
-      `);
-
-        const output2 = await webR2.read();
-        console.log("output type 2 ", output2.type);
-        const msgs = await webR2.flush();
-        msgs.forEach(async (msg) => {
-          if (msg?.type === 'canvas' && msg?.data.event === 'canvasImage') {
-            console.log(JSON.stringify(msg.data.image));
-            canvas.getContext('2d').drawImage(msg.data.image, 0, 0);
-
-          } else {
-            console.log(msg);
-          }
-        });
-        // webR2?.destroy(res);
-      } else {
-        let result = await webR.evalR(`
-        webr::shim_install()
-        ${code}
-        `);
-        let output = await result.toArray();
-        const output1 = await webR.read();
-
-        console.log("output type 1 ", output1.type, output1.data);
-        console.log('Result of running `rnorm` from webR: ', output);
-        webR.destroy(result);
-        setExecutedCodeOutput({
-          output: output,
-          error: null,
-        });
-      }
-
-      setIsCodeExecuting(false);
-    } catch (error) {
-      if (apiCallCount <= 3) {
-        setTimeout(() => {
-          console.log("running count", apiCallCount);
-          runWebRCode(apiCallCount + 1);
-        }, 500 * apiCallCount);
-      } else {
-        setExecutedCodeOutput({
-          output: null,
-          error: error,
-        });
-        setIsCodeExecuting(false);
-      }
-      getReadyWebR()
-      console.error(error);
-    }
-  };
+  const [triggerWebRRun, setTriggerWebRRun] = useState(false)
 
   async function getReadyPyodide() {
     if (uiData.devmode) {
@@ -542,7 +443,9 @@ print(opdt)
           <div className={`ps-4 pe-14 widget `}>
             <div className="mx-3 p-1 pb-0 border-x-2 space-y-3 border-ui-violet rounded-xl bg-[#171819] text-white">
               <div className="p-3 pb-0 mt-3 relative group">
-
+                {uiData.activityCodeRuntime === "Web-R" ? 
+              <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />
+              :
                 <CodeMirrorEidtor
                   value={code}
                   onChange={(e) => {
@@ -550,6 +453,7 @@ print(opdt)
                   }}
                   height={`${uiData?.uiContent?.defaults?.code?.split("\n").length * 19.5 + 20}px`}
                 />
+              }
                 {(uiData.activityCodeRuntime === "Pyodide" || uiData.activityCodeRuntime === "Python Aws Api") &&
                   <div className="buttons absolute top-[10px] right-[10px]">
                     <div className="progressive">
@@ -615,7 +519,7 @@ print(opdt)
                           runCodeAws()
                         }
                         else if (uiData.activityCodeRuntime === "Web-R") {
-                          runWebRCode()
+                          setTriggerWebRRun(!triggerWebRRun)
                         }
                         analytics.send()
                       }}
@@ -631,6 +535,13 @@ print(opdt)
                     <canvas id="plot-canvas" className="bg-white w-full" width="1008" height="1008"></canvas>
                   </DrawerArround>
                 </div>
+              }
+              {(!uiData.devmode && uiData.activityCodeRuntime === "Web-R") ?
+                <div className="px-3">
+                  <WebRApp.Terminal />
+                  <WebRApp.Plot />
+
+                </div>:""
               }
               {!uiData?.openReportUi && executedCodeOutput && (
                 <div className="px-3 space-y-3">

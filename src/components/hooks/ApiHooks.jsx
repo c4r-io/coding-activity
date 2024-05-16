@@ -195,11 +195,11 @@ const uiCOntentDefault = {
         }
         
         .code-editor-top-card-container .card-image {
-          width: 270px;
-          height: 270px;
+          width: 127px;
+          height: 179px;
           position: absolute;
-          right: -74px;
-          top: -61px;
+          top: -2px;
+          left: 595px;
           z-index: 50;
         }
         
