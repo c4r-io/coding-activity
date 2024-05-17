@@ -25,7 +25,7 @@ const Page = async ({ params }) => {
   }
 
   return (
-    <div className="container mx-auto py-4 px-4 md:px-0">
+    <div className="w-full flex justify-center py-4">
       <CodeExecutorActivityView codingActivityId={params.codingActivityId} uiDataFromDb={data} />
     </div>
   );

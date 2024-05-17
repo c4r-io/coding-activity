@@ -537,11 +537,9 @@ print(opdt)
                 </div>
               }
               {(!uiData.devmode && uiData.activityCodeRuntime === "Web-R") ?
-                <div className="px-3">
+                <div className="px-3 w-full">
                   <WebRApp.Terminal />
-                  <DrawerArround>
                     <WebRApp.Plot />
-                  </DrawerArround>
 
                 </div> : ""
               }

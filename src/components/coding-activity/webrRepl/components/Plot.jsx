@@ -2,6 +2,7 @@ import React from 'react';
 import './Plot.css';
 import { FaArrowCircleLeft, FaArrowCircleRight, FaRegSave, FaTrashAlt } from 'react-icons/fa';
 import { MdClear } from 'react-icons/md';
+import DrawerArround from '../../DrawerArround';
 
 export function Plot({ plotInterface }) {
   const plotContainerRef = React.useRef(null);
@@ -39,6 +40,7 @@ export function Plot({ plotInterface }) {
       const canvas = canvasElements.current[selectedCanvas];
       plotContainerRef.current.replaceChildren(canvas);
     }
+    console.log("selected canvas, ", selectedCanvas);
   }, [selectedCanvas]);
 
   const saveImage = React.useCallback(() => {
@@ -59,50 +61,54 @@ export function Plot({ plotInterface }) {
   const prevPlot = () => setSelectedCanvas((selectedCanvas === null) ? null : selectedCanvas - 1);
 
   return (
-    <div role="region" aria-label="Plotting Pane" className="plot">
-      <div className="plot-header">
-        <div role="toolbar" aria-label="Plotting Toolbar" className="plot-actions">
-          <button
-            aria-label="Previous Plot"
-            disabled={!selectedCanvas}
-            onClick={prevPlot}
-          >
-            <FaArrowCircleLeft aria-hidden="true" className="icon" />
-          </button>
-          <button
-            aria-label="Next Plot"
-            disabled={
-              selectedCanvas === null || selectedCanvas === canvasElements.current.length - 1
-            }
-            onClick={nextPlot}
-          >
-            <FaArrowCircleRight aria-hidden="true" className="icon" />
-          </button>
-          {/* <button
+    <div className={`${selectedCanvas !== null ? "block" : "hidden"}`}>
+      <DrawerArround>
+        <div role="region" aria-label="Plotting Pane" className="plot">
+          <div className="plot-header">
+            <div role="toolbar" aria-label="Plotting Toolbar" className="plot-actions">
+              <button
+                aria-label="Previous Plot"
+                disabled={!selectedCanvas}
+                onClick={prevPlot}
+              >
+                <FaArrowCircleLeft aria-hidden="true" className="icon" />
+              </button>
+              <button
+                aria-label="Next Plot"
+                disabled={
+                  selectedCanvas === null || selectedCanvas === canvasElements.current.length - 1
+                }
+                onClick={nextPlot}
+              >
+                <FaArrowCircleRight aria-hidden="true" className="icon" />
+              </button>
+              {/* <button
             aria-label="Save Plot"
             disabled={selectedCanvas === null}
             onClick={saveImage}
           >
             <FaRegSave aria-hidden="true" className="icon" /> Save Plot
           </button> */}
-          <button
-            aria-label="Clear Plots"
-            disabled={selectedCanvas === null}
-            onClick={(e) => {
-              if (confirm('Clear all plots?')) {
-                clearPlots();
-              } else {
-                e.stopPropagation();
-              }
-            }}
-          >
-            <MdClear aria-hidden="true" className="icon" /> 
-          </button>
+              <button
+                aria-label="Clear Plots"
+                disabled={selectedCanvas === null}
+                onClick={(e) => {
+                  clearPlots();
+                  // if (confirm('Clear all plots?')) {
+                  // } else {
+                  //   e.stopPropagation();
+                  // }
+                }}
+              >
+                <MdClear aria-hidden="true" className="icon" />
+              </button>
+            </div>
+          </div>
+          <div className='plot-background'>
+            <div ref={plotContainerRef} className="plot-container"></div>
+          </div>
         </div>
-      </div>
-      <div className='plot-background'>
-        <div ref={plotContainerRef} className="plot-container"></div>
-      </div>
+      </DrawerArround>
     </div>
   );
 }
