@@ -1,5 +1,4 @@
 ## Live link
-ping
 Main: [https://coding-activity.vercel.app](https://coding-activity.vercel.app)
 
 Preview: [https://coding-activity-git-dev-c4r-io.vercel.app](https://coding-activity-git-dev-c4r-io.vercel.app)
