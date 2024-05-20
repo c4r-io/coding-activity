@@ -994,6 +994,92 @@ export const useCreateDefault = (url, data) => {
     loading
   }
 }
+export const useCreateChild = () => {
+  const { dispatchUserData } = useContext(UserContext);
+  const [loading, setLoading] = React.useState(false);
+  const create = async (id, callbackSuccess, callbackError) => {
+    dispatchUserData({ type: "checkLogin" });
+    const config = {
+      method: "post",
+      url: `/api/coding-activity/${id}/child-activity`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken("token")}`,
+      },
+    };
+    setLoading(true);
+    try {
+      const response = await api.request(config);
+      setLoading(false);
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      if (error?.response?.status == 401) {
+        toast.error(error.response.data.message + ". Login to try again.", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+        });
+      }
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
+      setLoading(false);
+    }
+  };
+  return {
+    create,
+    loading
+  }
+}
+export const useResetChild = () => {
+  const { dispatchUserData } = useContext(UserContext);
+  const [loading, setLoading] = React.useState(false);
+  const reset = async (id, parentActivity, callbackSuccess, callbackError) => {
+    dispatchUserData({ type: "checkLogin" });
+    const config = {
+      method: "post",
+      url: `/api/coding-activity/${id}/child-activity`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken("token")}`,
+      }, data: {
+        parentActivity
+      }
+    };
+    setLoading(true);
+    try {
+      const response = await api.request(config);
+      setLoading(false);
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      if (error?.response?.status == 401) {
+        toast.error(error.response.data.message + ". Login to try again.", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+        });
+      }
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
+      setLoading(false);
+    }
+  };
+  return {
+    reset,
+    loading
+  }
+}
 
 export const useUpdateUiContents = () => {
   const { dispatchUserData } = useContext(UserContext);
@@ -1180,9 +1266,9 @@ export const useInitClientAnalytics = () => {
   const [loading, setLoading] = React.useState(false);
   const uaparser = UAParser()
   const create = async (callbackSuccess, callbackError) => {
-    if(!uiData._id){
-      if(callbackError){
-        callbackError({message: "Ui data not found"})
+    if (!uiData._id) {
+      if (callbackError) {
+        callbackError({ message: "Ui data not found" })
       }
       return;
     }

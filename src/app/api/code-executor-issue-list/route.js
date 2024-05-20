@@ -43,8 +43,8 @@ export async function POST(req, context) {
   const codeExecutorIssueList = {};
   // start if
   const body = await req.formData();
-  if (body.get('user')) {
-    codeExecutorIssueList['user'] = body.get('user');
+  if (body.get('analytics')) {
+    codeExecutorIssueList['analytics'] = body.get('analytics');
   }
   if (body.get('codingActivity')) {
     codeExecutorIssueList['codingActivity'] = body.get('codingActivity');

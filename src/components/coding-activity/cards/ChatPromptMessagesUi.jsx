@@ -3,7 +3,7 @@ import React, { Fragment } from 'react'
 import { UiDataContext } from "@/contextapi/code-executor-api/UiDataProvider.jsx";
 import { ChatMessagesContext } from "@/contextapi/code-executor-api/ChatMessagesProvider.jsx";
 import MarkdownRenderer from './MardownRenderer.jsx';
-import { useAnalytics, useChatFeedback } from '@/components/hooks/ApiHooks.jsx';
+import { useChatFeedback } from '@/components/hooks/ApiHooks.jsx';
 import UploadImageWrapper from '../editors/EditUploadImageWrapper.jsx';
 import EditTextElementWrapper from '../editors/EditTextElementWrapper.jsx';
 import EditMystMdElementWrapper from '../editors/EditMystMdElementWrapper.jsx';
@@ -121,7 +121,6 @@ const AssistantMessageUi = ({ prompt }) => {
     )
 }
 const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
-    const analytics = useAnalytics();
     const { uiData, dispatchUiData } = React.useContext(UiDataContext);
     // remove fullstop from feeling if it exists and convert it to lowercase
     feeling = feeling.replace(/\./g, '').toLowerCase();
@@ -183,7 +182,6 @@ const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
                                     <button className='unclicked btn'
                                         onClick={() => {
                                             dispatchUiData({ type: 'setOpenReportUi', payload: true });
-                                            analytics.send();
                                         }}
                                     >{uiData?.uiContent?.chatprompt?.followupReportBtn}</button>
                                 </EditTextElementWrapper>
@@ -197,7 +195,6 @@ const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
                                     <button className='unclicked btn btn-big-x-padding'
                                         onClick={() => {
                                             dispatchUiData({ type: 'setChatScreenStatus', payload: 'followUpReviewAction' });
-                                            analytics.send();
                                         }}
                                     >{uiData?.uiContent?.chatprompt?.followupSatisfiedBtn}</button>
                                 </EditTextElementWrapper>
@@ -213,7 +210,6 @@ const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
                                     <button className='unclicked btn btn-big-x-padding'
                                         onClick={() => {
                                             dispatchUiData({ type: 'setChatScreenStatus', payload: 'followUpAskQuestion' });
-                                            analytics.send();
                                         }}
                                     >{uiData?.uiContent?.chatprompt?.followupAskMoreBtn}</button>
                                 </EditTextElementWrapper>
@@ -226,7 +222,6 @@ const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
     )
 }
 const FollowUpAskQuestionUi = () => {
-    const analytics = useAnalytics();
     const predefineQuestionListRef = React.useRef(null);
     const { uiData, dispatchUiData } = React.useContext(UiDataContext);
     const [editorFocused, setEditorFocused] = React.useState('');
@@ -397,7 +392,6 @@ const FollowUpAskQuestionUi = () => {
                         <button className='premade-question-scroller-action-btn'
                             onClick={() => {
                                 scrollRight();
-                                analytics.send();
                             }}
                         >
                             <img src='/images/right-arrow.svg' />
@@ -425,7 +419,6 @@ const FollowUpAskQuestionUi = () => {
                                     style={{ pointerEvents: isLoading ? 'none' : 'auto' }}
                                     onClick={() => {
                                         submitHandler();
-                                        analytics.send();
                                     }}
                                 >
                                     {isLoading ?
@@ -443,14 +436,12 @@ const FollowUpAskQuestionUi = () => {
     )
 }
 const FollowUpReviewActionUi = () => {
-    const analytics = useAnalytics();
     const { uiData, dispatchUiData } = React.useContext(UiDataContext);
     const chatFeedbackHook = useChatFeedback();
     const handleLike = () => {
         if (uiData.devmode) {
             return;
         }
-        analytics.send();
         chatFeedbackHook.send({
             feedback: "liked",
             codingActivity: uiData.codingActivityId,
@@ -465,7 +456,6 @@ const FollowUpReviewActionUi = () => {
         if (uiData.devmode) {
             return;
         }
-        analytics.send();
         chatFeedbackHook.send({
             feedback: "disliked",
             codingActivity: uiData.codingActivityId,
