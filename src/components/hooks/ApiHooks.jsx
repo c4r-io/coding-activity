@@ -1043,7 +1043,7 @@ export const useResetChild = () => {
     dispatchUserData({ type: "checkLogin" });
     const config = {
       method: "post",
-      url: `/api/coding-activity/${id}/child-activity`,
+      url: `/api/coding-activity/${id}/reset`,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${getToken("token")}`,

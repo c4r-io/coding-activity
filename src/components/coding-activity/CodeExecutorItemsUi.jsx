@@ -105,6 +105,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
         // success callback
         setDeletePopup(false);
         getvideoClipListsList(page);
+        setDeleteList([]);
       },
       () => {
         // error callback
@@ -178,14 +179,14 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
             <div className="p-1">
               <button
                 className={`
-            ${createDefaultHook.loading ? '!cursor-wait ' : ''}
+            ${createChild.loading ? '!cursor-wait ' : ''}
             px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white rounded-lg focus:ring-4 focus:outline-none bg-green-600 hover:bg-green-700 focus:ring-green-800
             `}
                 type="button"
                 onClick={() => setActivityCreatePopup(true)}
-                disabled={createDefaultHook.loading}
+                disabled={createChild.loading}
               >
-                {!createDefaultHook.loading && (
+                {!createChild.loading && (
                   <svg
                     className="w-3 h-3 mr-1 text-white"
                     aria-hidden="true"
@@ -202,7 +203,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
                     />
                   </svg>
                 )}
-                {createDefaultHook.loading ? "Creating..." : "New Coding Activity"}
+                {createChild.loading ? "Creating..." : "New Coding Activity"}
               </button>
             </div>
             <div className={`p-1 ${deleteList.length > 0 ? "block" : "hidden"}`}>
@@ -296,7 +297,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
                           className={`edit_button bg-red-500 ${item.parentActivity? "":"pointer-events-none opacity-50"}`}
                           onClick={() => resetChild.reset(item._id, item.parentActivity)}
                         >
-                          Reset
+                          {resetChild.loading ? "Resetting..." : "Reset"}
                         </button>
                         <Link href={`/coding-activity/${item._id}`}>
                           <button
@@ -482,7 +483,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
                   <ObjectDropdownWithKey
                     defaultSelected={"Select Activity"}
                     onUpdate={setSelectedForCreateNewActivity}
-                    optionList={videoClipListList?.results}
+                    optionList={videoClipListList?.results.filter((item) => !item.parentActivity) || []}
                     labelKey={'activityTitle'}
                   />
                 </div>
@@ -493,6 +494,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
                   onClick={() => createChild.create(selectedForCreateNewActivity._id,
                     (data) => {
                       setActivityCreatePopup(false);
+                      location.reload();
                     },
                     (error) => {
 

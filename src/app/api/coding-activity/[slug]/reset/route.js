@@ -35,7 +35,7 @@ export async function POST(req, context) {
     codeExecutorActivity.systemPrompt = parentActivity.systemPrompt
     codeExecutorActivity.uiContent = parentActivity.uiContent
     await codeExecutorActivity.save()
-    return Response.json({ ...codeExecutorActivity });
+    return Response.json({ ...codeExecutorActivity._doc });
 
     // end if
   } else {

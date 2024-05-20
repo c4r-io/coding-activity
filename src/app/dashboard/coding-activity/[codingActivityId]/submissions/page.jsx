@@ -261,6 +261,7 @@ const Page = ({ params }) => {
                       </td>
                       <td className="px-6 py-4">
                         <button
+                        className='text-ui-violet underline'
                         onClick={() => setImagePopup(item?.attachment?.data)}
                         >Attachment</button>
                       </td>
