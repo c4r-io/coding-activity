@@ -3,7 +3,7 @@ import CodeEditorView from './CodeEditorView'
 import ChatView from "./ChatView.jsx";
 import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider.jsx';
 import { ChatMessagesContext } from '@/contextapi/code-executor-api/ChatMessagesProvider';
-import LoginPopup from './LoginPopup';
+import ActivityTrackerPopup from './ActivityTrackerPopup';
 
 // default preview message for devmode
 const devModeMessages = [
@@ -78,7 +78,7 @@ const MainView = ({ devmode, codingActivityId, uiDataFromDb }) => {
     return (
       <div>
         <div style={{ display: `block` }} className='relative'>
-          {/* <LoginPopup /> */}
+          <ActivityTrackerPopup />
           <CodeEditorView />
         </div>
         {/* <div style={{ display: `${uiData.screen === 'chat' ? 'block' : 'none'}` }}>

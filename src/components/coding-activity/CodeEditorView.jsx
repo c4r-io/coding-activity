@@ -22,7 +22,7 @@ import Script from "next/script.js";
 import CodeMirrorEidtor from "./CodeMirrorEidtor.jsx";
 import EditTextElementWrapper from "./editors/EditTextElementWrapper.jsx";
 import DrawerArround from "./DrawerArround.jsx";
-import { useAnalytics, useInitClientAnalytics } from "../hooks/ApiHooks.jsx";
+import { useInitClientAnalytics } from "../hooks/ApiHooks.jsx";
 import ChatView from "./ChatView.jsx";
 import { useDebounceEffect } from "../hooks/useDebounceEffect.jsx";
 import WebRApp from "./webrRepl/WebRApp.jsx";
@@ -59,7 +59,6 @@ plt.show()
 `;
 export default function CodeEditorView() {
   const { uiData, dispatchUiData } = React.useContext(UiDataContext);
-  const analytics = useAnalytics()
   const { messages, dispatchMessages } = React.useContext(ChatMessagesContext);
   let pyodide = useRef(null);
   let pyodideLoaded = useRef(null);
@@ -341,6 +340,7 @@ print(opdt)
 
     const authUserExist = localStorage.getItem('auth-user');
     const authUser = authUserExist ? JSON.parse(authUserExist) : null;
+    const analytics = sessionStorage.getItem('client-analytics-session-id')
     const config = {
       method: "post",
       url: "/api/code-executor-issue-list",
@@ -351,7 +351,8 @@ print(opdt)
         codingActivity: uiData.codingActivityId,
         description: issueDiscription,
         attachment: issueAttachment,
-        user: authUser?._id,
+        analytics,
+
       },
     };
     setIsIssueSubmitting(true);
@@ -468,7 +469,6 @@ print(opdt)
                             } py-0.5 px-3 rounded-sm pep8-formatter-button`}
                           onClick={() => {
                             formatCodeWithPep8();
-                            analytics.send();
                           }}
                         >
                           {isCodeFormating ? "Formating" : uiData?.uiContent?.editorview?.editorPep8Btn}
@@ -491,7 +491,6 @@ print(opdt)
                       onClick={() => {
                         dispatchMessages({ type: "setTakeScreenshot", payload: true });
                         setIsTakingHelpAttachScreenshot(true);
-                        analytics.send();
                       }
                       }
 
@@ -521,7 +520,6 @@ print(opdt)
                         else if (uiData.activityCodeRuntime === "Web-R") {
                           setTriggerWebRRun(!triggerWebRRun)
                         }
-                        analytics.send()
                       }}
                     >
                       {isCodeExecuting ? <div className="w-full flex justify-center items-center"><img className="w-6 h-6" src="/images/loading.gif" /></div> : "Execute"}
@@ -681,7 +679,6 @@ print(opdt)
                   className="bootom-action-btn"
                   onClick={() => {
                     handleExpandBottomSection();
-                    analytics.send();
                   }}
                 >
                   <div className="w-[30px] flex justify-center text-lg">

@@ -5,6 +5,10 @@ const pythonExecutorIssueListSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'CodingActivity',
     },
+    analytics: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Analytics',
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'User',

@@ -8,14 +8,18 @@ import { useContext, useEffect, useState } from "react";
 import { UserContext } from "@/contextapi/UserProvider";
 import { useRouter } from "next/navigation";
 import { MdCheckBoxOutlineBlank, MdCheckBox } from "react-icons/md";
-import { useDeleteByIds, useCreateDefault } from "../hooks/ApiHooks";
+import { useDeleteByIds, useCreateDefault, useCreateChild, useResetChild } from "../hooks/ApiHooks";
+import ObjectDropdownWithKey from "../dropdown/ObjectDropdownWIthKey";
+import { set } from "mongoose";
 const CodeExecutorItemsUi = ({ searchParams, data }) => {
   const { userData, dispatchUserData } = useContext(UserContext);
   const router = useRouter();
   const [videoClipListList, setVideoClipListList] = useState(data);
   const [deletePopup, setDeletePopup] = useState(false);
+  const [activityCreatePopup, setActivityCreatePopup] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [createLoading, setCreateLoading] = useState(false);
+  const [selectedForCreateNewActivity, setSelectedForCreateNewActivity] = useState(null);
   const [listLoading, setListLoading] = useState(false);
   const pageNumber = searchParams.page ? Number(searchParams.page) : 1;
   const [page, setPage] = useState(pageNumber);
@@ -89,6 +93,8 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
       activityCodeRuntime: "Pyodide"
     }
   );
+  const createChild = useCreateChild()
+  const resetChild = useResetChild()
   const deleteConfirmDialog = () => {
     setDeletePopup(true);
   };
@@ -99,6 +105,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
         // success callback
         setDeletePopup(false);
         getvideoClipListsList(page);
+        setDeleteList([]);
       },
       () => {
         // error callback
@@ -166,7 +173,37 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
                     />
                   </svg>
                 )}
-                {createDefaultHook.loading ? "Creating..." : "New Code Executor Activity"}
+                {createDefaultHook.loading ? "Creating..." : "New Activity Class"}
+              </button>
+            </div>
+            <div className="p-1">
+              <button
+                className={`
+            ${createChild.loading ? '!cursor-wait ' : ''}
+            px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white rounded-lg focus:ring-4 focus:outline-none bg-green-600 hover:bg-green-700 focus:ring-green-800
+            `}
+                type="button"
+                onClick={() => setActivityCreatePopup(true)}
+                disabled={createChild.loading}
+              >
+                {!createChild.loading && (
+                  <svg
+                    className="w-3 h-3 mr-1 text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M10 5.757v8.486M5.757 10h8.486M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
+                  </svg>
+                )}
+                {createChild.loading ? "Creating..." : "New Coding Activity"}
               </button>
             </div>
             <div className={`p-1 ${deleteList.length > 0 ? "block" : "hidden"}`}>
@@ -200,6 +237,9 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
                 <th scope="col" className="px-6 py-3">
                   Title
                 </th>
+                <th scope="col" className="px-6 py-3">
+                  Activity Class
+                </th>
                 <th scope="col" className="px-6 py-3 text-right">
                   Actions
                 </th>
@@ -224,6 +264,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
                       </button>
                     </td>
                     <td className="px-6 py-4">{item?.activityTitle}</td>
+                    <td className="px-6 py-4">{item.parentActivity? "":"Parent"}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="inline-flex space-x-1 items-center text-base font-semibold text-white">
                         <Link href={`/dashboard/coding-activity/${item._id}/analytics`}>
@@ -247,9 +288,16 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
                         <button
                           type="button"
                           className="edit_button  bg-orange-500"
-                          onClick={()=>duplicateItem(item._id)}
+                          onClick={() => duplicateItem(item._id)}
                         >
                           Duplicate
+                        </button>
+                        <button
+                          type="button"
+                          className={`edit_button bg-red-500 ${item.parentActivity? "":"pointer-events-none opacity-50"}`}
+                          onClick={() => resetChild.reset(item._id, item.parentActivity)}
+                        >
+                          {resetChild.loading ? "Resetting..." : "Reset"}
                         </button>
                         <Link href={`/coding-activity/${item._id}`}>
                           <button
@@ -385,6 +433,81 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
                   className=" focus:ring-4 focus:outline-none rounded-lg border text-sm font-medium px-5 py-2.5 focus:z-10 bg-gray-700 text-gray-300 border-gray-500 hover:text-white hover:bg-gray-600 focus:ring-gray-600"
                   onClick={() => {
                     setDeletePopup(false);
+                  }}
+                >
+                  No, cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activityCreatePopup && (
+        <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50">
+          <div className="relative w-full max-w-md max-h-full">
+            <div className="relative rounded-lg shadow bg-gray-700">
+              <button
+                type="button"
+                className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center hover:bg-gray-600 hover:text-ui-white-text"
+                data-modal-hide="popup-modal"
+                onClick={() => setActivityCreatePopup(false)}
+              >
+                <svg
+                  className="w-3 h-3"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 14 14"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                  />
+                </svg>
+                <span className="sr-only">Close modal</span>
+              </button>
+              <div className="p-6 text-center">
+
+                <div className="mb-6">
+                  <label
+                    htmlFor="componentname"
+                    className="block mb-2 text-sm font-medium text-ui-white-text"
+                  >
+                    {" "}
+                    Select Activity to create
+                  </label>
+                  <ObjectDropdownWithKey
+                    defaultSelected={"Select Activity"}
+                    onUpdate={setSelectedForCreateNewActivity}
+                    optionList={videoClipListList?.results.filter((item) => !item.parentActivity) || []}
+                    labelKey={'activityTitle'}
+                  />
+                </div>
+                <button
+                  data-modal-hide="popup-modal"
+                  type="button"
+                  className="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
+                  onClick={() => createChild.create(selectedForCreateNewActivity._id,
+                    (data) => {
+                      setActivityCreatePopup(false);
+                      location.reload();
+                    },
+                    (error) => {
+
+                    })}
+                >
+                  Create
+                </button>
+                <button
+                  data-modal-hide="popup-modal"
+                  type="button"
+                  className="focus:ring-4 focus:outline-none rounded-lg border text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 bg-red-700 text-gray-300 border-gray-500 hover:text-ui-white-text hover:bg-red-600 focus:ring-gray-600"
+                  onClick={() => {
+                    setActivityCreatePopup(false);
                   }}
                 >
                   No, cancel

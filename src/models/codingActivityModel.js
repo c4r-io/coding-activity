@@ -4,6 +4,12 @@ const codeExecutorActivitySchema = mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'User',
+    },   
+    parentActivity: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CodingActivity",
+      required: false,
+      default: null,
     },
     activityTitle: {
       type: String,

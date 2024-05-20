@@ -59,11 +59,11 @@ export async function GET(req, res) {
   const analyticsForChart = await Analytics.find({...keywordsAnalytics});
   const findFromDbApi = Analytics.find({ ...keywords })
     .limit(pageSize)
-    .skip(pageSize * (page - 1))
-    .sort({ createdAt: -1 });
-  // if (req.nextUrl.searchParams.get('select')) {
-  //   findFromDbApi.select(req.nextUrl.searchParams.get('select').split(','))
-  // }
+    .skip(pageSize * (page - 1));
+  if (req.nextUrl.searchParams.get('sort')) {
+    console.log("sort option ",req.nextUrl.searchParams.get('sort'))
+    findFromDbApi.sort(req.nextUrl.searchParams.get('sort'))
+  }
   const results = await findFromDbApi.exec();
   return Response.json({
     results,
