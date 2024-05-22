@@ -20,7 +20,7 @@ const Page = async ({ params, searchParams }) => {
     console.error(error)
   }
   return (
-    <AnalyticsPage analyticsList={analyticsList} params={params} searchParams={searchParams}></AnalyticsPage>
+    <AnalyticsPage analyticsListData={analyticsList} params={params} searchParams={searchParams}></AnalyticsPage>
   )
 }
 

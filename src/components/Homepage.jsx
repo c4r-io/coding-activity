@@ -5,7 +5,7 @@ import React, { useEffect } from 'react'
 const Homepage = () => {
     const router = useRouter();
     useEffect(() => {
-        router.push('/dashboard')
+        router.push('/dashboard/coding-activity')
     }, [])
     return (
         <div>Redirecting...</div>

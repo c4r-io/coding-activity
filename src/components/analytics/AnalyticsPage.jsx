@@ -3,7 +3,7 @@ import { api } from '@/utils/apibase';
 import Pagination from '@/components/Pagination.jsx';
 import { getToken } from '@/utils/token';
 import { toast } from 'react-toastify';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { UserContext } from '@/contextapi/UserProvider';
 import { MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md';
@@ -11,7 +11,12 @@ import { useDeleteByIds } from '@/components/hooks/ApiHooks';
 import Sidebar from '@/components/Sidebar';
 import { PieChart } from '@/components/coding-activity/chart/PieChart';
 import SortBtnComponent from '@/components/SortBtnComponent';
-const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
+import { BarChart } from '@/components/coding-activity/chart/BarChart';
+import BarChartApex from '../coding-activity/chart/BarChartApex';
+import PieChartApex from '../coding-activity/chart/PieChartApex';
+import MonacoCodeEditor from '../coding-activity/MonacoCodeEditor';
+import Script from 'next/script';
+const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   const sortOrder = searchParams.sortOrder || -1,
     sortKey = searchParams.sortKey || "permission";
   function getTrimedString(str, len = 50) {
@@ -36,22 +41,28 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
   }
   const { userData, dispatchUserData } = useContext(UserContext);
   const router = useRouter();
-//   const [analyticsList, setAnalyticsList] =
-//     useState({
-//       page: 1,
-//       pages: 1,
-//       results: null,
-//       analytics: null,
-//     });
+  const [analyticsList, setAnalyticsList] =
+    useState(analyticsListData);
   const [page, setPage] = useState(searchParams.page || 1);
   const [deletePopup, setDeletePopup] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [analyticsKey, setAnalyticsKey] = useState("device");
+  const [yAnalyticsKey, setYAnalyticsKey] = useState("deviceVersion");
+  const [bins, setBins] = useState(5);
   const [deleteList, setDeleteList] = useState([]);
   const [createLoading, setCreateLoading] = useState(false);
+  const [featureEngineeringPopup, setFeatureEngineeringPopup] = useState(false);
+  const [featureEngineeringCode, setFeatureEngineeringCode] = useState("");
   const [listLoading, setListLoading] = useState(false);
-
-  const getpythonExecutorIssueListsList = async (page) => {
+  const histogramValidKey = [
+    "sessionTime.total",
+    "sessionTime.start",
+    "sessionTime.end",
+    "screenWidth",
+    "screenHeight",
+    "aspectRatio"
+  ]
+  const getAnalyticsDataList = async (page) => {
     dispatchUserData({ type: 'checkLogin' });
     const config = {
       method: 'GET',
@@ -64,12 +75,17 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
         codingActivity: params.codingActivityId,
         select: '',
         analyticsKey: analyticsKey,
+        yAnalyticsKey: yAnalyticsKey,
+        bins,
+        histogramValidKey: JSON.stringify(histogramValidKey)
       },
     };
     setListLoading(true);
     try {
       const response = await api.request(config);
-    //   setAnalyticsList(response.data);
+      setAnalyticsList(response.data);
+      // analyticsList = response.data;
+      setFeatureEngineeringCode(response.data?.codingActivity?.featureEngineeringCode);
       console.log(response.data);
       setListLoading(false);
     } catch (error) {
@@ -128,7 +144,7 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
       () => {
         // success callback
         setDeletePopup(false);
-        getpythonExecutorIssueListsList(page);
+        getAnalyticsDataList(page);
         setDeleteList([]);
       },
       () => {
@@ -147,8 +163,8 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
     // router.push({ query: { page: e } });
   };
   useEffect(() => {
-    getpythonExecutorIssueListsList(page);
-  }, [page, analyticsKey]);
+    getAnalyticsDataList(page);
+  }, [page, analyticsKey, yAnalyticsKey, bins]);
 
 
   const toggleAddToDeleteList = (id) => {
@@ -166,65 +182,159 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
     }
   }
   const optionsArray = [
-    { key: "totalDurationInSeconds", value: "Total Duration In Seconds" },
-    { key: "uid", value: "UID" },
+    { key: "sessionTime.total", value: "Total Duration In Seconds" },
     { key: "ip", value: "IP" },
-    { key: "ipinfo.city", value: "City" },
-    { key: "ipinfo.region", value: "Region" },
+    // { key: "ipinfo.city", value: "City" },
+    // { key: "ipinfo.region", value: "Region" },
     { key: "ipinfo.country", value: "Country" },
-    { key: "ipinfo.loc", value: "Loc" },
-    { key: "ipinfo.org", value: "Org" },
-    { key: "ipinfo.postal", value: "Postal" },
-    { key: "ipinfo.timezone", value: "Timezone" },
-    { key: "browser", value: "Browser" },
-    { key: "device", value: "Device" },
+    // { key: "ipinfo.loc", value: "Loc" },
+    // { key: "ipinfo.org", value: "Org" },
+    // { key: "ipinfo.postal", value: "Postal" },
+    // { key: "ipinfo.timezone", value: "Timezone" },
+    { key: "device", value: "OS" },
+    { key: "deviceVersion", value: "OS Version" },
+    { key: "screenWidth", value: "Width" },
+    { key: "screenHeight", value: "Height" },
     { key: "aspectRatio", value: "Aspect Ratio" },
+    { key: "uid", value: "Device" },
+    { key: "_id", value: "Session" },
   ];
-
+  const yOptionArray = [
+    ...optionsArray
+  ];
+  const BAR_CHART_DATA = [
+    { label: "Apples", value: 100 },
+    { label: "Bananas", value: 200 },
+    { label: "Oranges", value: 50 },
+    { label: "Kiwis", value: 150 }
+  ];
+  // const fix = async (callbackSuccess, callbackError) => {
+  //   const config = {
+  //     method: "put",
+  //     url: "/api/analytics",
+  //     headers: {
+  //       "Content-Type": "multipart/form-data",
+  //     },
+  //   };
+  //   try {
+  //     const response = await api.request(config);
+  //     if (callbackSuccess) {
+  //       callbackSuccess(response.data)
+  //     }
+  //   } catch (error) {
+  //     if (error?.response?.status == 401) {
+  //       toast.error(error.response.data.message + ". Login to try again.", {
+  //         position: "top-center",
+  //       });
+  //     } else {
+  //       toast.error(error.message, {
+  //         position: "top-center",
+  //       });
+  //     }
+  //     if (callbackError) {
+  //       callbackError(error)
+  //     }
+  //     console.error(error);
+  //   }
+  // };
+  const pyodideStatusRef = useRef(false);
+  const [pyodideStatus, setPyodideStatus] = useState(pyodideStatusRef.current);
+  const pyodide = useRef(null);
+  async function getReadyPyodide() {
+    pyodide.current = await window.loadPyodide();
+    await pyodide.current.loadPackage("micropip");
+    await pyodide.current.loadPackage("sympy");
+    const micropip = pyodide.current.pyimport("micropip");
+    await micropip.install("matplotlib");
+    await micropip.install("numpy");
+    await micropip.install("autopep8");
+    await micropip.install("seaborn"); // dynamic loads not working in pyodide
+    await micropip.install("pandas");
+    await micropip.install("sympy");
+    setPyodideStatus(true);
+    pyodideStatusRef.current = true;
+  }
   return (
     <>
+      <Script
+        id=""
+        src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"
+        onLoad={() => {
+          getReadyPyodide();
+        }}
+      />
       <Sidebar />
       <div className="p-4 sm:ml-64 bg-gray-700 min-h-screen">
         <div className="p-4 border-2 border-dashed rounded-lg border-gray-600">
 
           <div className="container mx-auto py-4 px-4 md:px-0">
             <div>
-              <div className="w-full flex-col md:flex-row flex justify-center items-center">
-                <PieChart data={analyticsList?.analytics || []} />
-
-                <div className="mb-6">
-                  <label
-                    htmlFor="analyticsKey"
-                    className="block mb-2 text-sm font-medium text-white"
-                  >
-                    Select a key ({optionsArray.find(e => e.key === analyticsKey)?.value})
-                  </label>
-                  <select
-                    value={analyticsKey}
-                    onChange={(e) => setAnalyticsKey(e.target.value)}
-                    id="analyticsKey"
-                    className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option>Choose a analytics key</option>
-                    {optionsArray.map((item, index) =>
-                      <option key={index} value={item.key}>{item.value}</option>
-                    )}
-                    {/* <option value="totalDurationInSeconds">Total Duration In Seconds</option>
-                    <option value="uid">UID</option>
-                    <option value="ip">IP</option>
-                    <option value="ipinfo.city">City</option>
-                    <option value="ipinfo.region">Region</option>
-                    <option value="ipinfo.country">Country</option>
-                    <option value="ipinfo.loc">Loc</option>
-                    <option value="ipinfo.org">Org</option>
-                    <option value="ipinfo.postal">Postal</option>
-                    <option value="ipinfo.timezone">Timezone</option>
-                    <option value="browser">Browser</option>
-                    <option value="device">Device</option>
-                    <option value="screenWidth">Screen Width</option>
-                    <option value="screenHeight">Screen Height</option> */}
-                  </select>
+              {/* <button
+              onClick={() => fix()}
+              >FIx</button> */}
+              <div className="w-full flex-colflex justify-center items-center text-white pb-3">
+                <div className='flex -m-1'>
+                  <div className="p-1">
+                    <label
+                      htmlFor="analyticsKey"
+                      className="block mb-2 text-sm font-medium text-white"
+                    >
+                      Select x ({optionsArray.find(e => e.key === analyticsKey)?.value})
+                    </label>
+                    <select
+                      value={analyticsKey}
+                      onChange={(e) => setAnalyticsKey(e.target.value)}
+                      id="analyticsKey"
+                      className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option>Choose a analytics key</option>
+                      {optionsArray.map((item, index) =>
+                        <option key={index} value={item.key}>{item.value}</option>
+                      )}
+                    </select>
+                  </div>
+                  <div className="p-1">
+                    <label
+                      htmlFor="analyticsKey"
+                      className="block mb-2 text-sm font-medium text-white"
+                    >
+                      Select y ({yOptionArray.find(e => e.key === yAnalyticsKey)?.value})
+                    </label>
+                    <select
+                      value={yAnalyticsKey}
+                      onChange={(e) => setYAnalyticsKey(e.target.value)}
+                      id="analyticsKey"
+                      className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option>Choose a analytics key</option>
+                      {yOptionArray.map((item, index) =>
+                        <option key={index} value={item.key}>{item.value}</option>
+                      )}
+                    </select>
+                  </div>
+                  <div className="p-1">
+                    <label
+                      htmlFor="binsize"
+                      className="block mb-2 text-sm font-medium text-white"
+                    >
+                      Select bins ({bins})
+                    </label>
+                    <input
+                      value={bins}
+                      onChange={(e) => setBins(e.target.value)}
+                      type='number'
+                      id="binsize"
+                      className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    >
+                    </input>
+                  </div>
                 </div>
+                {analyticsList?.barAnalytics ? (
+                  <BarChartApex data={analyticsList?.barAnalytics || []} />
+                ) : (
+                  <PieChart data={analyticsList?.analytics || []} />
+                )}
+                {/* <BarChart data={analyticsList?.barAnalytics || []} /> */}
               </div>
               <div className="w-full flex justify-end pb-3 -m-1">
                 <div className={`p-1 ${deleteList.length > 0 ? "block" : "hidden"}`}>
@@ -235,6 +345,15 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
                     disabled={apiDeleteByIdHook.loading}
                   >
                     Delete Selected
+                  </button>
+                </div>
+                <div className={`p-1`}>
+                  <button
+                    type="button"
+                    className="edit_button"
+                    onClick={() => setFeatureEngineeringPopup(true)}
+                  >
+                    Feature Engineering {pyodideStatus ? "Ready" : "Loading"}
                   </button>
                 </div>
               </div>
@@ -264,16 +383,34 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"time"}
+                          feildKey={"createdAt"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Time
+                          Date
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"totalDurationInSeconds"}
+                          feildKey={"sessionTime.start"}
+                          sortOrder={sortOrder}
+                          sortKey={sortKey}
+                        >
+                          Start Time
+                        </SortBtnComponent>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <SortBtnComponent
+                          feildKey={"sessionTime.end"}
+                          sortOrder={sortOrder}
+                          sortKey={sortKey}
+                        >
+                          End Time
+                        </SortBtnComponent>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <SortBtnComponent
+                          feildKey={"sessionTime.total"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
@@ -320,20 +457,38 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"ipinfo.loc"}
+                          feildKey={"ipinfo.latitude"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Loc
+                          Latitude
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"ipinfo.org"}
+                          feildKey={"ipinfo.longitude"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Org
+                          Longitude
+                        </SortBtnComponent>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <SortBtnComponent
+                          feildKey={"ipinfo.asn.asn"}
+                          sortOrder={sortOrder}
+                          sortKey={sortKey}
+                        >
+                          ASN
+                        </SortBtnComponent>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <SortBtnComponent
+                          feildKey={"ipinfo.asn.name"}
+                          sortOrder={sortOrder}
+                          sortKey={sortKey}
+                        >
+                          Org Name
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -347,11 +502,20 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"ipinfo.timezone"}
+                          feildKey={"ipinfo.timezone.continental"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Timezone
+                          Timezone Continent
+                        </SortBtnComponent>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <SortBtnComponent
+                          feildKey={"ipinfo.timezone.city"}
+                          sortOrder={sortOrder}
+                          sortKey={sortKey}
+                        >
+                          Timezone City
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -365,11 +529,29 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
+                          feildKey={"browserVersion"}
+                          sortOrder={sortOrder}
+                          sortKey={sortKey}
+                        >
+                          Browser Version
+                        </SortBtnComponent>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <SortBtnComponent
                           feildKey={"device"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
                           Device
+                        </SortBtnComponent>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <SortBtnComponent
+                          feildKey={"deviceVersion"}
+                          sortOrder={sortOrder}
+                          sortKey={sortKey}
+                        >
+                          Device Version
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -408,11 +590,16 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
                               {item?.uid}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.time[0]},
-                              {item?.time[item.time.length - 1]}
+                              {(new Date(item?.createdAt)).toISOString().slice(0, 10)}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.totalDurationInSeconds}
+                              {item?.sessionTime?.start}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.sessionTime?.end}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.sessionTime?.total}
                             </td>
                             <td className="px-6 py-4">
                               {item?.ip}
@@ -427,22 +614,37 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
                               {item?.ipinfo?.country}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.ipinfo?.loc}
+                              {item?.ipinfo?.latitude}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.ipinfo?.org}
+                              {item?.ipinfo?.longitude}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.ipinfo?.asn?.asn}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.ipinfo?.asn?.name}
                             </td>
                             <td className="px-6 py-4">
                               {item?.ipinfo?.postal}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.ipinfo?.timezone}
+                              {item?.ipinfo?.timezone?.continent}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.ipinfo?.timezone?.city}
                             </td>
                             <td className="px-6 py-4">
                               {item?.browser}
                             </td>
                             <td className="px-6 py-4">
+                              {item?.browserVersion}
+                            </td>
+                            <td className="px-6 py-4">
                               {item?.device}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.deviceVersion}
                             </td>
                             <td className="px-6 py-4">
                               {item?.aspectRatio}
@@ -587,6 +789,70 @@ const AnalyticsPage = ({ analyticsList, params, searchParams }) => {
                         }}
                       >
                         No, cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            {featureEngineeringPopup && (
+              <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50">
+                <div className="relative w-full max-w-md max-h-full">
+                  <div className="relative rounded-lg shadow bg-gray-700">
+                    <button
+                      type="button"
+                      className="absolute top-3 right-2.5 text-gray-400 bg-transparent rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center hover:bg-gray-600 hover:text-white"
+                      data-modal-hide="popup-modal"
+                      onClick={() => setFeatureEngineeringPopup(false)}
+                    >
+                      <svg
+                        className="w-3 h-3"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 14 14"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                        />
+                      </svg>
+                      <span className="sr-only">Close modal</span>
+                    </button>
+                    <div className="p-6 text-center">
+
+                      <div className="my-5 text-lg font-normal text-gray-400">
+                        {analyticsList?.codingActivity?.featureEngineeringCode 
+                        &&
+                        <MonacoCodeEditor
+                          value={analyticsList?.codingActivity?.featureEngineeringCode || ""}
+                          onChange={(e) => setFeatureEngineeringCode(e)}
+                          height={"50vh"}
+                          width={"100%"}
+                          language="python"
+                        />
+                        }
+                      </div>
+                      <button
+                        data-modal-hide="popup-modal"
+                        type="button"
+                        className="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
+                        onClick={() => handleDelete()}
+                      >
+                        Yes, I&apos;m sure
+                      </button>
+                      <button
+                        data-modal-hide="popup-modal"
+                        type="button"
+                        className="focus:ring-4 focus:outline-none rounded-lg border text-sm font-medium px-5 py-2.5 focus:z-10 bg-gray-700 text-gray-300 border-gray-500 hover:text-white hover:bg-gray-600 focus:ring-gray-600"
+                        onClick={() => {
+                          setFeatureEngineeringPopup(false);
+                        }}
+                      >
+                        Discard Changes
                       </button>
                     </div>
                   </div>

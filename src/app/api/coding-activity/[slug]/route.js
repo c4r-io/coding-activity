@@ -39,46 +39,43 @@ export async function PUT(req, context) {
   // console.log(req?.user?.userName == user.userName)
   // start if
   if (codeExecutorActivity) {
-
-    if (true) {
-
-      // convert to js object
-      const body = await req.formData();
-      if (body.get('activityTitle')) {
-        codeExecutorActivity.activityTitle = body.get('activityTitle');
-      }
-      if (body.get('gptModel')) {
-        codeExecutorActivity.gptModel = body.get('gptModel');
-      }
-      if (body.get('systemPrompt')) {
-        codeExecutorActivity.systemPrompt = body.get('systemPrompt');
-      }
-      if (body.get('activityDefaultCode')) {
-        codeExecutorActivity.activityDefaultCode = body.get('activityDefaultCode');
-      }
-      if (body.get('activityCodeExecutor')) {
-        codeExecutorActivity.activityCodeExecutor = body.get('activityCodeExecutor');
-      }
-      if (body.get('activityCodeRuntime')) {
-        codeExecutorActivity.activityCodeRuntime = body.get('activityCodeRuntime');
-      }
-      if (body.get('uiContent')) {
-        codeExecutorActivity.uiContent = JSON.parse(body.get('uiContent'));
-      }
-      if (
-        body.get('thumbnail') &&
-        codeExecutorActivity.thumbnail !== body.get('thumbnail')
-      ) {
-        const filename = await filehandler.saveFileAsBinary(body.get('thumbnail'));
-        // filehandler.deleteFile(codeExecutorActivity.thumbnail);
-        codeExecutorActivity.thumbnail = filename;
-      }
-      const updatedCodingActivity = await codeExecutorActivity.save();
-      return Response.json({ ...updatedCodingActivity._doc });
-
-    } else {
-      return Response.json({ mesg: "Not authorized" })
+    // convert to js object
+    const body = await req.formData();
+    if (body.get('activityTitle')) {
+      codeExecutorActivity.activityTitle = body.get('activityTitle');
     }
+    if (body.get('gptModel')) {
+      codeExecutorActivity.gptModel = body.get('gptModel');
+    }
+    if (body.get('systemPrompt')) {
+      codeExecutorActivity.systemPrompt = body.get('systemPrompt');
+    }
+    if (body.get('activityDefaultCode')) {
+      codeExecutorActivity.activityDefaultCode = body.get('activityDefaultCode');
+    }
+    if (body.get('featureEngineeringCode')) {
+      codeExecutorActivity.featureEngineeringCode = body.get('featureEngineeringCode');
+    }
+    if (body.get('activityCodeExecutor')) {
+      codeExecutorActivity.activityCodeExecutor = body.get('activityCodeExecutor');
+    }
+    if (body.get('activityCodeRuntime')) {
+      codeExecutorActivity.activityCodeRuntime = body.get('activityCodeRuntime');
+    }
+    if (body.get('uiContent')) {
+      codeExecutorActivity.uiContent = JSON.parse(body.get('uiContent'));
+    }
+    if (
+      body.get('thumbnail') &&
+      codeExecutorActivity.thumbnail !== body.get('thumbnail')
+    ) {
+      const filename = await filehandler.saveFileAsBinary(body.get('thumbnail'));
+      // filehandler.deleteFile(codeExecutorActivity.thumbnail);
+      codeExecutorActivity.thumbnail = filename;
+    }
+    const updatedCodingActivity = await codeExecutorActivity.save();
+    return Response.json({ ...updatedCodingActivity._doc });
+
     // end if
   } else {
     return Response.json(
