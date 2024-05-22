@@ -8,6 +8,17 @@ const analyticsSchema = mongoose.Schema(
     time: [{
       type: Number,
     }],
+    sessionTime: {
+      start: {
+        type: Number,
+      },
+      end: {
+        type: Number,
+      },
+      total: {
+        type: Number,
+      },
+    },
     totalDurationInSeconds: {
       type: Number,
     },
@@ -20,9 +31,21 @@ const analyticsSchema = mongoose.Schema(
       region: { type: String },
       country: { type: String },
       loc: { type: String },
+      latitude: { type: Number },
+      longitude: { type: Number },
       org: { type: String },
+      asn: {
+        asn: { type: String },
+        name: { type: String },
+      },
       postal: { type: String },
-      timezone: { type: String },
+      timezone: { 
+        tz: { type: String },
+        continent: { type: String },
+        city: { type: String },
+       },
+      continent: { type: String },
+      continentCity: { type: String },
     },
     uid: {
       type: String,
@@ -30,7 +53,13 @@ const analyticsSchema = mongoose.Schema(
     browser: {
       type: String,
     },
+    browserVersion: {
+      type: String,
+    },
     device: {
+      type: String,
+    },
+    deviceVersion: {
       type: String,
     },
     screenWidth: {
@@ -45,9 +74,9 @@ const analyticsSchema = mongoose.Schema(
     toJSON: { virtuals: true },
   },
 );
-const virtual = analyticsSchema.virtual('aspectRatio');
-virtual.get(function (value, virtual, doc) {
-  if(!this.screenWidth || !this.screenHeight) return null;
+const aspectRatio = analyticsSchema.virtual('aspectRatio');
+aspectRatio.get(function (value, virtual, doc) {
+  if (!this.screenWidth || !this.screenHeight) return null;
   function gcd(a, b) {
     return b === 0 ? a : gcd(b, a % b);
   }
@@ -55,8 +84,9 @@ virtual.get(function (value, virtual, doc) {
   const aspectRatioWidth = this.screenWidth / divisor;
   const aspectRatioHeight = this.screenHeight / divisor;
 
-  return `${aspectRatioWidth}:${aspectRatioHeight}`
+  return `${(this.screenWidth / this.screenHeight).toFixed(2)}`
 });
+
 const Analytics =
   mongoose.models.Analytics ||
   mongoose.model('Analytics', analyticsSchema);

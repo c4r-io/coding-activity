@@ -1288,8 +1288,10 @@ export const useInitClientAnalytics = () => {
       data['uid'] = uidId;
     }
     if (uaparser) {
-      data['device'] = uaparser.os.name + "-" + uaparser.os.version
-      data['browser'] = uaparser.browser.name + "-" + uaparser.browser.major
+      data['device'] = uaparser.os.name
+      data['deviceVersion'] = uaparser.os.version
+      data['browser'] = uaparser.browser.name
+      data['browserVersion'] = uaparser.browser.major
       data['screenWidth'] = window.innerWidth
       data['screenHeight'] = window.innerHeight
     }

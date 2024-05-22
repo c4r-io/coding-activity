@@ -13,7 +13,7 @@ const defaultData = [
   { name: "Windows", value: 30 },
   { name: "Mac os", value: 60 },
 ];
-export const PieChart = ({ width= 500, height=500, data=defaultData }) => {
+export const PieChart = ({ width = 500, height = 500, data = defaultData }) => {
 
   const radius = Math.min(width - 2 * MARGIN_X, height - 2 * MARGIN_Y) / 2;
 
@@ -74,11 +74,11 @@ export const PieChart = ({ width= 500, height=500, data=defaultData }) => {
         />
         <text
           x={labelPosX + (isRightLabel ? 2 : -2)}
-          y={inflexionPoint[1]-10}
+          y={inflexionPoint[1] - 10}
           textAnchor={textAnchor}
           dominantBaseline="middle"
           fontSize={10}
-          style={{ fill: "#ffffff",  }}
+          style={{ fill: "#ffffff", }}
         >
           {label}
         </text>
@@ -88,7 +88,7 @@ export const PieChart = ({ width= 500, height=500, data=defaultData }) => {
           textAnchor={textAnchor}
           dominantBaseline="middle"
           fontSize={10}
-          style={{ fill: "#ffffff",  }}
+          style={{ fill: "#ffffff", }}
         >
           ({data[i].value.toFixed(0)})
         </text>
@@ -97,8 +97,14 @@ export const PieChart = ({ width= 500, height=500, data=defaultData }) => {
   });
 
   return (
-    <svg width={width} height={height} style={{ display: "inline-block" }}>
-      <g transform={`translate(${width / 2}, ${height / 2})`}>{shapes}</g>
-    </svg>
+    <div>
+      <div className="chart-wrap">
+        <div id="chart" className='flex justify-center items-center'>
+          <svg width={width} height={height} style={{ display: "inline-block" }}>
+            <g transform={`translate(${width / 2}, ${height / 2})`}>{shapes}</g>
+          </svg>        
+          </div>
+      </div>
+    </div>
   );
 };

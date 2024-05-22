@@ -17,6 +17,15 @@ const codeExecutorActivitySchema = mongoose.Schema(
     activityDefaultCode: {
       type: String,
     },
+    featureEngineeringCode: {
+      type: String,
+      default: `
+# don't change "listOfDataFromAPI" name
+datalist = listOfDataFromAPI
+# edit from here
+json.dumps(datalist, indent=2)
+      `,
+    },
     activityCodeExecutor: {
       type: String,
     },
