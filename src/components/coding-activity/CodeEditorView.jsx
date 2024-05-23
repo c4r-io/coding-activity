@@ -495,7 +495,7 @@ print(opdt)
                       }
 
                     >
-                      I need help with this!
+                      {uiData?.uiContent?.editorview?.editorNeedHelpBtn}
                     </button>
                   </EditTextElementWrapper>
 
@@ -522,7 +522,7 @@ print(opdt)
                         }
                       }}
                     >
-                      {isCodeExecuting ? <div className="w-full flex justify-center items-center"><img className="w-6 h-6" src="/images/loading.gif" /></div> : "Execute"}
+                      {isCodeExecuting ? <div className="w-full flex justify-center items-center"><img className="w-6 h-6" src="/images/loading.gif" /></div> : uiData?.uiContent?.editorview?.editorActionBtn}
                     </button>
                   </EditTextElementWrapper>
                 </div>
