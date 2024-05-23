@@ -232,7 +232,7 @@ const FollowUpAskQuestionUi = () => {
     const code = "code"
     const submitHandler = async () => {
         setIsLoading(true);
-        const msg = messages.messageList.length <= 1 ? "Here's whole code. " + "\n " + messages.code : ''
+        const msg = messages.messageList.length <= 3 ? "Here's whole code. " + "\n " + uiData?.uiContent?.defaults?.code : ''
         const systemPrompt = {
             role: "system",
             content: [
