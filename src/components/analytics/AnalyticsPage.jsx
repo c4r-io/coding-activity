@@ -16,38 +16,29 @@ import BarChartApex from '../coding-activity/chart/BarChartApex';
 import PieChartApex from '../coding-activity/chart/PieChartApex';
 import MonacoCodeEditor from '../coding-activity/MonacoCodeEditor';
 import Script from 'next/script';
+import SelectorObject from '../customElements/SelectorObject';
+import {  useFilterValues } from './AnalyticsHooks';
+import MultipleSelector from '../customElements/MultipleSelector';
+import { filter } from 'd3';
 const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
+  const filterHook = useFilterValues();
   const sortOrder = searchParams.sortOrder || -1,
     sortKey = searchParams.sortKey || "permission";
-  function getTrimedString(str, len = 50) {
-    const arStr = str?.split(' ');
-    let opStr = '';
-    if (arStr?.length < 5) {
-      return { content: `${str?.slice(0, len)} `, isTrimed: str.length > len };
-    }
-    if (arStr) {
-      for (const iterator of arStr) {
-        const testOpStr = opStr + ' ' + iterator;
-        if (testOpStr.length < len) {
-          opStr = testOpStr;
-        } else {
-          break;
-        }
-      }
-      return { content: `${opStr} `, isTrimed: str.length > len };
-    } else {
-      return { content: ` `, isTrimed: false };
-    }
-  }
   const { userData, dispatchUserData } = useContext(UserContext);
   const router = useRouter();
   const [analyticsList, setAnalyticsList] =
     useState(analyticsListData);
+  useEffect(() => {
+    setAnalyticsList(analyticsListData);
+  }, [analyticsListData])
   const [page, setPage] = useState(searchParams.page || 1);
   const [deletePopup, setDeletePopup] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [analyticsKey, setAnalyticsKey] = useState("device");
   const [yAnalyticsKey, setYAnalyticsKey] = useState("deviceVersion");
+  const [filterKey, setFilterKey] = useState("");
+  const [filterValue1, setFilterValue1] = useState("");
+  const [filterValue2, setFilterValue2] = useState("");
   const [bins, setBins] = useState(5);
   const [deleteList, setDeleteList] = useState([]);
   const [createLoading, setCreateLoading] = useState(false);
@@ -64,6 +55,11 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   ]
   const getAnalyticsDataList = async (page) => {
     dispatchUserData({ type: 'checkLogin' });
+    const sortParams = {}
+    if (searchParams.sortKey) {
+      sortParams.sort = `${searchParams?.sortOrder == 1 ? "" : "-"}${searchParams.sortKey}`
+    }
+    console.log("Sort Params", sortParams)
     const config = {
       method: 'GET',
       url: '/api/analytics',
@@ -76,8 +72,11 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
         select: '',
         analyticsKey: analyticsKey,
         yAnalyticsKey: yAnalyticsKey,
+        filterKey: filterKey,
+        filterValue1: JSON.stringify(filterValue1),
         bins,
-        histogramValidKey: JSON.stringify(histogramValidKey)
+        histogramValidKey: JSON.stringify(histogramValidKey),
+        ...sortParams
       },
     };
     setListLoading(true);
@@ -103,41 +102,9 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
       }
     }
   };
-  const createSamplePythonExecutorIssueList = async () => {
-    dispatchUserData({ type: 'checkLogin' });
-    const config = {
-      method: 'post',
-      url: '/api/analytics',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${getToken('token')}`,
-      },
-      data: {
-        description: 'Sample Description',
-        codingActivity: params.codingActivityId
-      },
-    };
-    setCreateLoading(true);
-    try {
-      const response = await api.request(config);
-      console.log(response.data);
-      setCreateLoading(false);
-      router.push(`/dashboard/coding-activity/${params.codingActivityId}/code-executor-issue-list/${response.data._id}`);
-    } catch (error) {
-      if (error?.response?.status == 401) {
-        toast.error(error.response.data.message + '. Login to try again.', {
-          position: 'top-center',
-        });
-        router.push('/');
-      } else {
-        toast.error(error.message, {
-          position: 'top-center',
-        });
-      }
-      console.error(error);
-      setCreateLoading(false);
-    }
-  };
+  const applyFilter = async () => {
+    getAnalyticsDataList(page);
+  }
   const apiDeleteByIdHook = useDeleteByIds("/api/analytics");
   const handleDelete = async () => {
     apiDeleteByIdHook.deleteByIds(deleteList,
@@ -181,8 +148,33 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
       setDeleteList(analyticsList?.results?.map((item) => item._id));
     }
   }
+  useEffect(() => {
+    if (filterKey) {
+      filterHook.get(filterKey);
+      setFilterValue1("");
+      setFilterValue2("");
+    }
+  }, [filterKey])
+  const filterOptionsArray = [
+    { key: "sessionTime.total", value: "Total Duration" },
+    { key: "ip", value: "IP" },
+    // { key: "ipinfo.city", value: "City" },
+    // { key: "ipinfo.region", value: "Region" },
+    { key: "ipinfo.country", value: "Country" },
+    // { key: "ipinfo.loc", value: "Loc" },
+    // { key: "ipinfo.org", value: "Org" },
+    // { key: "ipinfo.postal", value: "Postal" },
+    // { key: "ipinfo.timezone", value: "Timezone" },
+    { key: "device", value: "OS" },
+    { key: "deviceVersion", value: "OS Version" },
+    { key: "screenWidth", value: "Width" },
+    { key: "screenHeight", value: "Height" },
+    { key: "aspectRatio", value: "Aspect Ratio" },
+    { key: "uid", value: "Device" },
+    { key: "_id", value: "Session" },
+  ];
   const optionsArray = [
-    { key: "sessionTime.total", value: "Total Duration In Seconds" },
+    { key: "sessionTime.total", value: "Total Duration" },
     { key: "ip", value: "IP" },
     // { key: "ipinfo.city", value: "City" },
     // { key: "ipinfo.region", value: "Region" },
@@ -254,6 +246,37 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
     setPyodideStatus(true);
     pyodideStatusRef.current = true;
   }
+  const [featureEngList, setFeatureEngList] = useState([]);
+  const runFeatureEngineering = async () => {
+      const code = analyticsList?.codingActivity?.featureEngineeringCode;
+      const list = analyticsList?.results;
+      console.log("code: ", code);
+      if (code == "") {
+        alert("Please enter code to execute");
+        return;
+      }
+      const modifiedCode = `
+import json
+${code}
+`
+      const nc = code.split("listOfDataFromAPI");
+      const nc2 = nc[0] + `
+'${JSON.stringify(list)}'
+`+ nc[1];
+
+      try {
+        const op = pyodide.current.runPython(`
+${nc2}`)
+          ;
+        console.log("python op: ", op);
+        const jsonop = JSON.parse(op);
+        setFeatureEngList(jsonop);
+        
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
   return (
     <>
       <Script
@@ -271,17 +294,18 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
             <div>
               {/* <button
               onClick={() => fix()}
-              >FIx</button> */}
+              >FIx data</button> */}
               <div className="w-full flex-colflex justify-center items-center text-white pb-3">
-                <div className='flex -m-1'>
-                  <div className="p-1">
-                    <label
-                      htmlFor="analyticsKey"
-                      className="block mb-2 text-sm font-medium text-white"
-                    >
-                      Select x ({optionsArray.find(e => e.key === analyticsKey)?.value})
-                    </label>
-                    <select
+                <div className='py-2'>
+                  <div className='flex flex-wrap -m-1'>
+                    <div className="p-1 w-56">
+                      <label
+                        htmlFor="analyticsKey"
+                        className="block mb-2 text-sm font-medium text-white"
+                      >
+                        Plot ({optionsArray.find(e => e.key === analyticsKey)?.value})
+                      </label>
+                      {/* <select
                       value={analyticsKey}
                       onChange={(e) => setAnalyticsKey(e.target.value)}
                       id="analyticsKey"
@@ -291,16 +315,24 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
                       {optionsArray.map((item, index) =>
                         <option key={index} value={item.key}>{item.value}</option>
                       )}
-                    </select>
-                  </div>
-                  <div className="p-1">
-                    <label
-                      htmlFor="analyticsKey"
-                      className="block mb-2 text-sm font-medium text-white"
-                    >
-                      Select y ({yOptionArray.find(e => e.key === yAnalyticsKey)?.value})
-                    </label>
-                    <select
+                    </select> */}
+                      <SelectorObject
+                        fields={optionsArray}
+                        labelKey="value"
+                        handleSelected={(e) => setAnalyticsKey(e.key)}
+
+                      >
+                        {optionsArray.find(e => e.key === analyticsKey)?.value}
+                      </SelectorObject>
+                    </div>
+                    <div className="p-1 w-56">
+                      <label
+                        htmlFor="analyticsKey"
+                        className="block mb-2 text-sm font-medium text-white"
+                      >
+                        Group by ({yOptionArray.find(e => e.key === yAnalyticsKey)?.value})
+                      </label>
+                      {/* <select
                       value={yAnalyticsKey}
                       onChange={(e) => setYAnalyticsKey(e.target.value)}
                       id="analyticsKey"
@@ -310,23 +342,80 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
                       {yOptionArray.map((item, index) =>
                         <option key={index} value={item.key}>{item.value}</option>
                       )}
-                    </select>
-                  </div>
-                  <div className="p-1">
-                    <label
-                      htmlFor="binsize"
-                      className="block mb-2 text-sm font-medium text-white"
-                    >
-                      Select bins ({bins})
-                    </label>
-                    <input
-                      value={bins}
-                      onChange={(e) => setBins(e.target.value)}
-                      type='number'
-                      id="binsize"
+                    </select> */}
+
+                      <SelectorObject
+                        fields={yOptionArray}
+                        labelKey="value"
+                        handleSelected={(e) => setYAnalyticsKey(e.key)}
+
+                      >
+                        {yOptionArray.find(e => e.key === yAnalyticsKey)?.value}
+                      </SelectorObject>
+                    </div>
+
+                    <div className={`p-1 ${histogramValidKey.includes(yAnalyticsKey) ? "" : "hidden"}`}>
+                      <label
+                        htmlFor="binsize"
+                        className="block mb-2 text-sm font-medium text-white"
+                      >
+                        Number of bins ({bins})
+                      </label>
+                      <input
+                        value={bins}
+                        onChange={(e) => setBins(e.target.value)}
+                        type='number'
+                        id="binsize"
+                        className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                      >
+                      </input>
+                    </div>
+                    <div className="p-1 w-56">
+                      <label
+                        htmlFor="filterKey"
+                        className="block mb-2 text-sm font-medium text-white"
+                      >
+                        Filter by ({filterOptionsArray.find(e => e.key === filterKey)?.value})
+                      </label>
+                      {/* <select
+                      value={filterKey}
+                      onChange={(e) => setFilterKey(e.target.value)}
+                      id="filterKey"
                       className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
                     >
-                    </input>
+                      <option>Choose a filter key</option>
+                      {filterOptionsArray.map((item, index) =>
+                        <option key={index} value={item.key}>{item.value}</option>
+                      )}
+                    </select> */}
+                      <SelectorObject
+                        fields={[{ key: null, value: "None" }, ...filterOptionsArray]}
+                        labelKey="value"
+                        handleSelected={(e) => setFilterKey(e.key)}
+
+                      >
+                        {filterOptionsArray.find(e => e.key === filterKey)?.value}
+                      </SelectorObject>
+                    </div>
+                    <div className={`p-1 w-56 ${filterKey && filterHook.filterValues ? "" : "hidden"}`}>
+                      <label
+                        htmlFor="filterKey"
+                        className="block mb-2 text-sm font-medium text-white"
+                      >
+                        Filter Value
+                      </label>
+                      <MultipleSelector
+                        fields={filterHook.filterValues}
+                        handleSelected={(e) => setFilterValue1(e)}
+                      >
+                        {filterValue1 ? filterValue1.join(", ") : "None"}
+                      </MultipleSelector>
+                    </div>
+                    <div className={`p-1 w-56 ${filterKey && filterHook.filterValues ? "" : "hidden"}`}>
+                      <button className='edit_button bg-ui-violet hover:bg-ui-violet'
+                        onClick={applyFilter}
+                      >Apply FIlter</button>
+                    </div>
                   </div>
                 </div>
                 {analyticsList?.barAnalytics ? (
@@ -347,7 +436,7 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
                     Delete Selected
                   </button>
                 </div>
-                <div className={`p-1`}>
+                {/* <div className={`p-1`}>
                   <button
                     type="button"
                     className="edit_button"
@@ -356,6 +445,15 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
                     Feature Engineering {pyodideStatus ? "Ready" : "Loading"}
                   </button>
                 </div>
+                <div className={`p-1`}>
+                  <button
+                    type="button"
+                    className="edit_button"
+                    onClick={() => runFeatureEngineering()}
+                  >
+                    Apply Feature Engineering
+                  </button>
+                </div> */}
               </div>
               <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table className="w-full text-sm text-left text-gray-400">
@@ -414,7 +512,7 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Total Duration In Seconds
+                          Total Duration
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -560,9 +658,14 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          AspectRatio
+                          AspectRatio 
                         </SortBtnComponent>
                       </th>
+                      {Object.keys(featureEngList).map((item2, index) => (
+                      <th scope="col" className="px-6 py-3" key={index}>
+                          {item2}
+                      </th>
+                      ))}
                       <th scope="col" className="px-6 py-3 text-right">
                         Actions
                       </th>
@@ -825,15 +928,15 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
                     <div className="p-6 text-center">
 
                       <div className="my-5 text-lg font-normal text-gray-400">
-                        {analyticsList?.codingActivity?.featureEngineeringCode 
-                        &&
-                        <MonacoCodeEditor
-                          value={analyticsList?.codingActivity?.featureEngineeringCode || ""}
-                          onChange={(e) => setFeatureEngineeringCode(e)}
-                          height={"50vh"}
-                          width={"100%"}
-                          language="python"
-                        />
+                        {analyticsList?.codingActivity?.featureEngineeringCode
+                          &&
+                          <MonacoCodeEditor
+                            value={analyticsList?.codingActivity?.featureEngineeringCode || ""}
+                            onChange={(e) => setFeatureEngineeringCode(e)}
+                            height={"50vh"}
+                            width={"100%"}
+                            language="python"
+                          />
                         }
                       </div>
                       <button

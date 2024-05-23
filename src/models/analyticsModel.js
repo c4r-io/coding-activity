@@ -68,24 +68,27 @@ const analyticsSchema = mongoose.Schema(
     screenHeight: {
       type: Number,
     },
+    aspectRatio: {
+      type: Number,
+    },
   },
   {
     timestamps: true,
     toJSON: { virtuals: true },
   },
 );
-const aspectRatio = analyticsSchema.virtual('aspectRatio');
-aspectRatio.get(function (value, virtual, doc) {
-  if (!this.screenWidth || !this.screenHeight) return null;
-  function gcd(a, b) {
-    return b === 0 ? a : gcd(b, a % b);
-  }
-  const divisor = gcd(this.screenWidth, this.screenHeight);
-  const aspectRatioWidth = this.screenWidth / divisor;
-  const aspectRatioHeight = this.screenHeight / divisor;
+// const aspectRatio = analyticsSchema.virtual('aspectRatio');
+// aspectRatio.get(function (value, virtual, doc) {
+//   if (!this.screenWidth || !this.screenHeight) return null;
+//   function gcd(a, b) {
+//     return b === 0 ? a : gcd(b, a % b);
+//   }
+//   const divisor = gcd(this.screenWidth, this.screenHeight);
+//   const aspectRatioWidth = this.screenWidth / divisor;
+//   const aspectRatioHeight = this.screenHeight / divisor;
 
-  return `${(this.screenWidth / this.screenHeight).toFixed(2)}`
-});
+//   return `${(this.screenWidth / this.screenHeight).toFixed(2)}`
+// });
 
 const Analytics =
   mongoose.models.Analytics ||

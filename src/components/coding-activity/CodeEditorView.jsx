@@ -444,7 +444,7 @@ print(opdt)
           <div className={`ps-4 pe-14 widget `}>
             <div className="mx-3 p-1 pb-0 border-x-2 space-y-3 border-ui-violet rounded-xl bg-[#171819] text-white">
               <div className="p-3 pb-0 mt-3 relative group">
-                {uiData.activityCodeRuntime === "Web-R" ?
+                { !uiData.devmode && uiData.activityCodeRuntime === "Web-R" ?
                   <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />
                   :
                   <CodeMirrorEidtor

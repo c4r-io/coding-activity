@@ -228,6 +228,7 @@ function calculateAnalyticsHistogram(array, key, key2, bins) {
 export async function GET(req, res) {
   let keywords = {};
   let keywordsAnalytics = {};
+  let keywordsFilter = {};
   let analyticsKey = "device";
   let yAnalyticsKey = "deviceVersion";
   let histogramValidKey = [];
@@ -240,6 +241,9 @@ export async function GET(req, res) {
   }
   if (req.nextUrl.searchParams.get('histogramValidKey')) {
     histogramValidKey = JSON.parse(req.nextUrl.searchParams.get('histogramValidKey'));
+  }
+  if (req.nextUrl.searchParams.get('filterKey') && req.nextUrl.searchParams.get('filterValue1')) {
+    keywordsFilter[`${req.nextUrl.searchParams.get('filterKey')}`] = JSON.parse(req.nextUrl.searchParams.get('filterValue1'));
   }
   if (req.nextUrl.searchParams.get('bins')) {
     bins = req.nextUrl.searchParams.get('bins');
@@ -254,9 +258,9 @@ export async function GET(req, res) {
   await connectMongoDB();
   const pageSize = Number(req.nextUrl.searchParams.get('pageSize')) || 30;
   const page = Number(req.nextUrl.searchParams.get('pageNumber')) || 1;
-  const count = await Analytics.countDocuments({ ...keywords });
-  const analyticsForChart = await Analytics.find({ ...keywordsAnalytics });
-  const findFromDbApi = Analytics.find({ ...keywords })
+  const count = await Analytics.countDocuments({ ...keywords, ...keywordsFilter });
+  const analyticsForChart = await Analytics.find({ ...keywordsAnalytics, ...keywordsFilter });
+  const findFromDbApi = Analytics.find({ ...keywords, ...keywordsFilter })
     .limit(pageSize)
     .skip(pageSize * (page - 1));
   if (req.nextUrl.searchParams.get('sort')) {
@@ -414,6 +418,9 @@ export async function PUT(req) {
       // }
       delete analyticsById.time;
       delete analyticsById.totalDurationInSeconds;
+      if(analyticsById.screenWidth && analyticsById.screenHeight){
+        analyticsById.aspectRatio = (analyticsById.screenWidth/ analyticsById.screenHeight).toFixed(2);
+      }
       await analyticsById.save();
     }
   }
