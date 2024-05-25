@@ -47,6 +47,9 @@ export async function PUT(req, context) {
     if (body.get('gptModel')) {
       codeExecutorActivity.gptModel = body.get('gptModel');
     }
+    if (body.get('codeRefPrompt')) {
+      codeExecutorActivity.codeRefPrompt = body.get('codeRefPrompt');
+    }
     if (body.get('systemPrompt')) {
       codeExecutorActivity.systemPrompt = body.get('systemPrompt');
     }

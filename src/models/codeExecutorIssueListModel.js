@@ -13,6 +13,12 @@ const pythonExecutorIssueListSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'User',
     },
+    issueCode: {
+      type: Number,
+    },
+    issueType: {
+      type: String,
+    },
     description: {
       type: String,
     },

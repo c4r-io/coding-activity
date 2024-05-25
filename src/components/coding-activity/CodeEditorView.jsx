@@ -22,7 +22,7 @@ import Script from "next/script.js";
 import CodeMirrorEidtor from "./CodeMirrorEidtor.jsx";
 import EditTextElementWrapper from "./editors/EditTextElementWrapper.jsx";
 import DrawerArround from "./DrawerArround.jsx";
-import { useInitClientAnalytics } from "../hooks/ApiHooks.jsx";
+import { useErrorAnalytics, useInitClientAnalytics, useIssueAnalytics } from "../hooks/ApiHooks.jsx";
 import ChatView from "./ChatView.jsx";
 import { useDebounceEffect } from "../hooks/useDebounceEffect.jsx";
 import WebRApp from "./webrRepl/WebRApp.jsx";
@@ -58,6 +58,7 @@ plt.show()
 
 `;
 export default function CodeEditorView() {
+  const errorAnalytics = useErrorAnalytics();
   const { uiData, dispatchUiData } = React.useContext(UiDataContext);
   const { messages, dispatchMessages } = React.useContext(ChatMessagesContext);
   let pyodide = useRef(null);
@@ -305,6 +306,11 @@ print(opdt)
             images: null,
             error: error,
           });
+          errorAnalytics.send({
+            issueCode: 5000,
+            issueType: "Python Code Execution Error",
+            description: JSON.stringify(error),
+          })
           // setExecutedCodeErrorOutput("Error: " + error);
         }
         // console.log(op)
@@ -317,19 +323,24 @@ print(opdt)
         setTimeout(() => {
           console.log("running count", apiCallCount);
           runCode(apiCallCount + 1);
-        }, 5000 * apiCallCount);
+        }, 500 * apiCallCount);
       } else {
         setExecutedCodeOutput({
           output: null,
           error: error,
         });
         setIsCodeExecuting(false);
+        errorAnalytics.send({
+          issueCode: 5001,
+          issueType: "Javascript Code Execution Error",
+          description: JSON.stringify(error),
+        })
       }
       // getReadyPyodide()
       console.error(error);
     }
   };
-  // aws code runner
+  const issueAnalytics = useIssueAnalytics();
   const createSamplePythonExecutorIssueList = async () => {
     if (issueDiscription == null) {
       toast.error("Please enter issue description", {
@@ -337,45 +348,16 @@ print(opdt)
       });
       return;
     }
-
-    const authUserExist = localStorage.getItem('auth-user');
-    const authUser = authUserExist ? JSON.parse(authUserExist) : null;
-    const analytics = sessionStorage.getItem('client-analytics-session-id')
-    const config = {
-      method: "post",
-      url: "/api/code-executor-issue-list",
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      data: {
-        codingActivity: uiData.codingActivityId,
-        description: issueDiscription,
-        attachment: issueAttachment,
-        analytics,
-
-      },
-    };
-    setIsIssueSubmitting(true);
-    try {
-      const response = await api.request(config);
-      console.log(response.data);
-      setIsIssueSubmitting(false);
+    issueAnalytics.send({
+      codingActivity: uiData.codingActivityId,
+      description: issueDiscription,
+      attachment: issueAttachment
+    }, (data) => {
       setIssueDiscription(null);
       setIssueAttachment(null);
-    } catch (error) {
-      if (error?.response?.status == 401) {
-        toast.error(error.response.data.message + ". Login to try again.", {
-          position: "top-center",
-        });
-        router.push("/");
-      } else {
-        toast.error(error.message, {
-          position: "top-center",
-        });
-      }
-      console.error(error);
-      setIsIssueSubmitting(false);
-    }
+    }, (e) => {
+      console.error(e)
+    })
   };
 
   // implement take screenshot functionality
@@ -444,7 +426,7 @@ print(opdt)
           <div className={`ps-4 pe-14 widget `}>
             <div className="mx-3 p-1 pb-0 border-x-2 space-y-3 border-ui-violet rounded-xl bg-[#171819] text-white">
               <div className="p-3 pb-0 mt-3 relative group">
-                { !uiData.devmode && uiData.activityCodeRuntime === "Web-R" ?
+                {!uiData.devmode && uiData.activityCodeRuntime === "Web-R" ?
                   <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />
                   :
                   <CodeMirrorEidtor
@@ -537,7 +519,7 @@ print(opdt)
               {(!uiData.devmode && uiData.activityCodeRuntime === "Web-R") ?
                 <div className="px-3 w-full">
                   <WebRApp.Terminal />
-                    <WebRApp.Plot />
+                  <WebRApp.Plot />
 
                 </div> : ""
               }
@@ -651,13 +633,13 @@ print(opdt)
                         buttonEditor={true}
                       >
                         <button
-                          className={`${isIssueSubmitting
+                          className={`${issueAnalytics.loading
                             ? "clicked pointer-events-none"
                             : "unclicked"
                             } py-2 px-3 w-full h-12`}
                           onClick={createSamplePythonExecutorIssueList}
                         >
-                          {isIssueSubmitting ? "Submitting..." : uiData?.uiContent?.editorview?.editorActionSubmitAttachment}
+                          {issueAnalytics.loading ? "Submitting..." : uiData?.uiContent?.editorview?.editorActionSubmitAttachment}
                         </button>
                       </EditTextElementWrapper>
                     </div>

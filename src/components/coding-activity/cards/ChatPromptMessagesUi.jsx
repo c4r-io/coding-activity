@@ -3,7 +3,7 @@ import React, { Fragment } from 'react'
 import { UiDataContext } from "@/contextapi/code-executor-api/UiDataProvider.jsx";
 import { ChatMessagesContext } from "@/contextapi/code-executor-api/ChatMessagesProvider.jsx";
 import MarkdownRenderer from './MardownRenderer.jsx';
-import { useChatFeedback } from '@/components/hooks/ApiHooks.jsx';
+import { useChatFeedback, useErrorAnalytics } from '@/components/hooks/ApiHooks.jsx';
 import UploadImageWrapper from '../editors/EditUploadImageWrapper.jsx';
 import EditTextElementWrapper from '../editors/EditTextElementWrapper.jsx';
 import EditMystMdElementWrapper from '../editors/EditMystMdElementWrapper.jsx';
@@ -18,7 +18,7 @@ const ChatPromptMessagesUi = ({ }) => {
                 return (
                     <div key={index}>
                         {message.role === 'user' &&
-                            <UserMessageUi prompt={`${message?.content[0]?.text.split(" Here's whole code.")[0]}`} />
+                            <UserMessageUi prompt={`${message?.content[0]?.text.split(uiData.codeRefPrompt)[0]}`} />
                         }
                         {/* {uiData.devmode && <AssistantMessageUi prompt={`${message?.content}`} />} */}
                         {message.role === 'assistant' ? uiData.chatScreenStatus != "followUpReviewAction" && messages.messageList.length - 1 == index ?
@@ -222,6 +222,7 @@ const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
     )
 }
 const FollowUpAskQuestionUi = () => {
+    const errorAnalytics = useErrorAnalytics();
     const predefineQuestionListRef = React.useRef(null);
     const { uiData, dispatchUiData } = React.useContext(UiDataContext);
     const [editorFocused, setEditorFocused] = React.useState('');
@@ -232,7 +233,7 @@ const FollowUpAskQuestionUi = () => {
     const code = "code"
     const submitHandler = async () => {
         setIsLoading(true);
-        const msg = messages.messageList.length <= 3 ? "Here's whole code. " + "\n " + uiData?.uiContent?.defaults?.code : ''
+        const msg = messages.messageList.length <= 3 ? uiData.codeRefPrompt + "\n " + uiData?.uiContent?.defaults?.code : ''
         const systemPrompt = {
             role: "system",
             content: [
@@ -314,15 +315,15 @@ const FollowUpAskQuestionUi = () => {
         } catch (error) {
             console.log(error);
             setIsLoading(false);
+            errorAnalytics.send({
+                issueCode: 5002,
+                issueType: "GPT API Error",
+                description: JSON.stringify(error),
+            })
         }
 
     };
 
-    const closeHandler = () => {
-        setPrompt("");
-        setResponseMessage("");
-        setIsLoading(false);
-    };
     const scrollLeft = () => {
         predefineQuestionListRef.current.scrollLeft -= 200;
     }
@@ -436,6 +437,7 @@ const FollowUpAskQuestionUi = () => {
     )
 }
 const FollowUpReviewActionUi = () => {
+    const errorAnalytics = useErrorAnalytics();
     const { uiData, dispatchUiData } = React.useContext(UiDataContext);
     const chatFeedbackHook = useChatFeedback();
     const handleLike = () => {
@@ -449,6 +451,13 @@ const FollowUpReviewActionUi = () => {
             () => {
                 // success
                 dispatchUiData({ type: 'setScreen', payload: 'editor' });
+            },
+            (error) => {
+                errorAnalytics.send({
+                    issueCode: 5003,
+                    issueType: "Feedback API Error",
+                    description: JSON.stringify(error),
+                })
             }
         )
     }
@@ -463,6 +472,13 @@ const FollowUpReviewActionUi = () => {
             () => {
                 // success
                 dispatchUiData({ type: 'setScreen', payload: 'editor' });
+            },
+            (error) => {
+                errorAnalytics.send({
+                    issueCode: 5003,
+                    issueType: "Feedback API Error",
+                    description: JSON.stringify(error),
+                })
             }
         )
     }

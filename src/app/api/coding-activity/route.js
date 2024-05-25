@@ -40,7 +40,8 @@ export async function GET(req, res) {
   const findFromDbApi = CodingActivity.find({ $or: [{ ...orKeywords, ...keywords }] })
     .limit(pageSize)
     .skip(pageSize * (page - 1))
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .populate({path:'parentActivity', model:CodingActivity, select: 'activityTitle'});
   // if (req.nextUrl.searchParams.get('select')) {
   //   findFromDbApi.select(req.nextUrl.searchParams.get('select').split(','))
   // }

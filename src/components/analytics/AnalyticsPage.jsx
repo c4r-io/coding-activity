@@ -17,9 +17,10 @@ import PieChartApex from '../coding-activity/chart/PieChartApex';
 import MonacoCodeEditor from '../coding-activity/MonacoCodeEditor';
 import Script from 'next/script';
 import SelectorObject from '../customElements/SelectorObject';
-import {  useFilterValues } from './AnalyticsHooks';
+import { useFilterValues } from './AnalyticsHooks';
 import MultipleSelector from '../customElements/MultipleSelector';
 import { filter } from 'd3';
+import Link from 'next/link';
 const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   const filterHook = useFilterValues();
   const sortOrder = searchParams.sortOrder || -1,
@@ -35,7 +36,7 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   const [deletePopup, setDeletePopup] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [analyticsKey, setAnalyticsKey] = useState("device");
-  const [yAnalyticsKey, setYAnalyticsKey] = useState("deviceVersion");
+  const [yAnalyticsKey, setYAnalyticsKey] = useState(null);
   const [filterKey, setFilterKey] = useState("");
   const [filterValue1, setFilterValue1] = useState("");
   const [filterValue2, setFilterValue2] = useState("");
@@ -55,11 +56,14 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   ]
   const getAnalyticsDataList = async (page) => {
     dispatchUserData({ type: 'checkLogin' });
-    const sortParams = {}
+    const additionalParams = {}
     if (searchParams.sortKey) {
-      sortParams.sort = `${searchParams?.sortOrder == 1 ? "" : "-"}${searchParams.sortKey}`
+      additionalParams.sort = `${searchParams?.sortOrder == 1 ? "" : "-"}${searchParams.sortKey}`
     }
-    console.log("Sort Params", sortParams)
+    if (yAnalyticsKey) {
+      searchParams.yAnalyticsKey = searchParams;
+    }
+    console.log("Sort Params", additionalParams)
     const config = {
       method: 'GET',
       url: '/api/analytics',
@@ -71,12 +75,11 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
         codingActivity: params.codingActivityId,
         select: '',
         analyticsKey: analyticsKey,
-        yAnalyticsKey: yAnalyticsKey,
         filterKey: filterKey,
         filterValue1: JSON.stringify(filterValue1),
         bins,
         histogramValidKey: JSON.stringify(histogramValidKey),
-        ...sortParams
+        ...additionalParams
       },
     };
     setListLoading(true);
@@ -192,7 +195,19 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
     { key: "_id", value: "Session" },
   ];
   const yOptionArray = [
-    ...optionsArray
+    { key: "None", value: null },
+    { key: "ip", value: "IP" },
+    // { key: "ipinfo.city", value: "City" },
+    // { key: "ipinfo.region", value: "Region" },
+    { key: "ipinfo.country", value: "Country" },
+    // { key: "ipinfo.loc", value: "Loc" },
+    // { key: "ipinfo.org", value: "Org" },
+    // { key: "ipinfo.postal", value: "Postal" },
+    // { key: "ipinfo.timezone", value: "Timezone" },
+    { key: "device", value: "OS" },
+    { key: "deviceVersion", value: "OS Version" },
+    { key: "uid", value: "Device" },
+    { key: "_id", value: "Session" },
   ];
   const BAR_CHART_DATA = [
     { label: "Apples", value: 100 },
@@ -247,36 +262,68 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
     pyodideStatusRef.current = true;
   }
   const [featureEngList, setFeatureEngList] = useState([]);
-  const runFeatureEngineering = async () => {
-      const code = analyticsList?.codingActivity?.featureEngineeringCode;
-      const list = analyticsList?.results;
-      console.log("code: ", code);
-      if (code == "") {
-        alert("Please enter code to execute");
-        return;
-      }
-      const modifiedCode = `
-import json
-${code}
-`
-      const nc = code.split("listOfDataFromAPI");
-      const nc2 = nc[0] + `
-'${JSON.stringify(list)}'
+  const runFeatureEngineering = async (apiCallCount = 0) => {
+    const code = analyticsList?.codingActivity?.featureEngineeringCode;
+    const list = analyticsList?.results;
+    console.log("code: ", code);
+    if (code == "") {
+      alert("Please enter code to execute");
+      return;
+    }
+    const nc = code.split("listOfDataFromAPI");
+    const nc2 = nc[0] + `
+r"""${JSON.stringify(list)}"""
 `+ nc[1];
 
-      try {
-        const op = pyodide.current.runPython(`
+    try {
+      // console.log("executable code: ", nc2);
+      const op = pyodide.current.runPython(`
 ${nc2}`)
-          ;
-        console.log("python op: ", op);
-        const jsonop = JSON.parse(op);
-        setFeatureEngList(jsonop);
-        
-
-      } catch (error) {
+        ;
+      console.log("python op: ", op);
+      const jsonop = JSON.parse(op);
+      setFeatureEngList(jsonop);
+    } catch (error) {
+      if (apiCallCount < 3) {
+        console.log("error: ", error);
+        console.log("retrying in 3 seconds");
+        getReadyPyodide();
+        setTimeout(() => {
+          runFeatureEngineering(apiCallCount + 1);
+        })
+      } else {
         console.log(error);
       }
     }
+  }
+  useEffect(() => {
+    if (pyodideStatus) {
+      runFeatureEngineering()
+    }
+  }, [pyodideStatus])
+  useEffect(() => {
+    const checkVisivility = () => {
+      if (document.hidden) {
+        console.log('Tab is inactive');
+      } else {
+        console.log('Tab is active');
+        if (featureEngList && featureEngList.length == 0 && pyodideStatus) {
+          runFeatureEngineering()
+        }
+        if (pyodide.current == null) {
+          getReadyPyodide();
+          console.log("get pyodide ready")
+        } else if (pyodideStatus == false) {
+          setPyodideStatus(true);
+          console.log("set pyodide status ready")
+        }
+      }
+    }
+    document.addEventListener('visibilitychange', checkVisivility);
+    return () => {
+      document.removeEventListener('visibilitychange', checkVisivility)
+    }
+  }, [])
   return (
     <>
       <Script
@@ -436,7 +483,7 @@ ${nc2}`)
                     Delete Selected
                   </button>
                 </div>
-                {/* <div className={`p-1`}>
+                <div className={`p-1`}>
                   <button
                     type="button"
                     className="edit_button"
@@ -453,7 +500,7 @@ ${nc2}`)
                   >
                     Apply Feature Engineering
                   </button>
-                </div> */}
+                </div>
               </div>
               <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table className="w-full text-sm text-left text-gray-400">
@@ -658,13 +705,16 @@ ${nc2}`)
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          AspectRatio 
+                          AspectRatio
                         </SortBtnComponent>
                       </th>
-                      {Object.keys(featureEngList).map((item2, index) => (
-                      <th scope="col" className="px-6 py-3" key={index}>
+                        <th scope="col" className="px-6 py-3">
+                         Issue list
+                        </th>
+                      {featureEngList && featureEngList.length > 0 && Object.keys(featureEngList[0]).map((item2, index) => (
+                        <th scope="col" className="px-6 py-3" key={index}>
                           {item2}
-                      </th>
+                        </th>
                       ))}
                       <th scope="col" className="px-6 py-3 text-right">
                         Actions
@@ -752,6 +802,25 @@ ${nc2}`)
                             <td className="px-6 py-4">
                               {item?.aspectRatio}
                             </td>
+                            <td className="px-6 py-4">
+                              {item?.codeExecutorIssueList && item?.codeExecutorIssueList.length > 0 ? (
+                                item.codeExecutorIssueList.map((issue, issueIndex) => (
+                                  <div
+                                    key={issueIndex}>
+                                  <Link className='text-ui-violet hover:text-ui-violet'
+                                  href={`/dashboard/coding-activity/${params.codingActivityId}/submissions?filterById=${issue}`}
+                                  >
+                                    {issue}
+                                  </Link>
+                                  </div>
+                                )
+                              )): "No Issue"}
+                            </td>
+                            {featureEngList && featureEngList.length > 0 && Object.keys(featureEngList[0]).map((item2, item2Index) => (
+                              <td scope="col" className="px-6 py-3" key={item2Index}>
+                                {featureEngList[index][item2]}
+                              </td>
+                            ))}
                             <td className="px-6 py-4 text-right">
                               <div className="inline-flex space-x-1 items-center text-base font-semibold text-white">
                                 <button

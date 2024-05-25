@@ -114,7 +114,7 @@ function findMaxRepeatedString(arr) {
   // Return the maximum repeated string and its count
   return { string: maxString, count: maxCount };
 }
-function calculateAnalyticsPieChart(array, key, key2) {
+function calculateAnalyticsPieChart({array, key, key2}) {
   const analytics = {};
   const analyticsArray = [];
   let analyticsArrayKeys = [];
@@ -123,12 +123,15 @@ function calculateAnalyticsPieChart(array, key, key2) {
     const keys = key.split('.');
     const value1 = keys.reduce((acc, cur) => acc && acc[cur], item);
 
-    const keys2 = key2.split('.');
-    const value2 = keys2.reduce((acc, cur) => acc && acc[cur], item);
+    let keys2 = null,value2 = null;
+    if(key2){
+      keys2 = key2.split('.');
+      value2 = keys2.reduce((acc, cur) => acc && acc[cur], item);
+    }
 
-    if (value1 !== undefined && value2 !== undefined) {
+    if (value1 !== undefined) {
       // const label = `${value1}-${value2}`;
-      const label = `${value2}`;
+      const label = value2 ? `${value2}`: `${value1}`;
       analyticsArray.push({
         label: label,
         value: value1
@@ -141,7 +144,11 @@ function calculateAnalyticsPieChart(array, key, key2) {
     const value = analyticsArray.filter((item) => item.label === key).map((item) => item.value);
     // console.log(key, value)
     const maxRepeated = findMaxRepeatedString(value)
-    analytics[`${key}-${maxRepeated.string}`] = value.length
+    if(key2){
+      analytics[`${key}-${maxRepeated.string}`] = value.length
+    }else{
+      analytics[`${key}`] = value.length
+    }
   })
   // console.log(analyticsArrayKeys, analyticsArray)
   // console.log(analytics)
@@ -153,7 +160,7 @@ function calculateAnalyticsPieChart(array, key, key2) {
   }));
   return result;
 }
-function calculateAnalyticsHistogram(array, key, key2, bins) {
+function calculateAnalyticsHistogram({array, key, key2, bins = 5}) {
   const analytics = {};
   const analyticsMaxList = [];
   const analyticsReploted = []
@@ -164,12 +171,15 @@ function calculateAnalyticsHistogram(array, key, key2, bins) {
     const keys = key.split('.');
     const value1 = keys.reduce((acc, cur) => acc && acc[cur], item);
 
-    const keys2 = key2.split('.');
-    const value2 = keys2.reduce((acc, cur) => acc && acc[cur], item);
+    let keys2 = null,value2 = null;
+    if(key2){
+      keys2 = key2.split('.');
+      value2 = keys2.reduce((acc, cur) => acc && acc[cur], item);
+    }
 
-    if (value1 !== undefined && value2 !== undefined) {
+    if (value1 !== undefined) {
       // const label = `${value1}-${value2}`;
-      const label = `${value2}`;
+      const label = value2 ? `${value2}`: `${value1}`;
       analyticsArray.push({
         label: label,
         value: value1
@@ -230,7 +240,7 @@ export async function GET(req, res) {
   let keywordsAnalytics = {};
   let keywordsFilter = {};
   let analyticsKey = "device";
-  let yAnalyticsKey = "deviceVersion";
+  let yAnalyticsKey = null;
   let histogramValidKey = [];
   let bins = 5;
   if (req.nextUrl.searchParams.get('analyticsKey')) {
@@ -268,16 +278,14 @@ export async function GET(req, res) {
     findFromDbApi.sort(req.nextUrl.searchParams.get('sort'))
   }
   const results = await findFromDbApi.exec();
-  const barAnalytics = calculateAnalyticsPieChart(analyticsForChart, analyticsKey, yAnalyticsKey)
-  const barchart = calculateAnalyticsHistogram(analyticsForChart, yAnalyticsKey, analyticsKey, bins)
+  const barchart = calculateAnalyticsHistogram({array:analyticsForChart, key2:yAnalyticsKey, key:analyticsKey, bins:bins})
   const codingActivity = await CodingActivity.findById(keywords.codingActivity).select('featureEngineeringCode');
   return Response.json({
     results,
     page,
     pages: Math.ceil(count / pageSize),
-    analytics: calculateAnalyticsPieChart(analyticsForChart, yAnalyticsKey, analyticsKey),
-    barAnalytics: histogramValidKey.includes(yAnalyticsKey) ? barchart:  histogramValidKey.includes(yAnalyticsKey),
-    barAnalyticsD: barAnalytics,
+    analytics: histogramValidKey.includes(analyticsKey) ? false : calculateAnalyticsPieChart({array:analyticsForChart, key:analyticsKey}),
+    barAnalytics: histogramValidKey.includes(analyticsKey) ? barchart:  histogramValidKey.includes(analyticsKey),
     codingActivity
   }, {
     status: 200,
