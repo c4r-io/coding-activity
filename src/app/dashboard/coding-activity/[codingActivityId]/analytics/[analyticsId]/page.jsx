@@ -79,7 +79,7 @@ const Page = ({ params }) => {
                                 {item}
                               </td>
                               <td className="px-6 py-4">
-                                {analyticsList?.results[item]}
+                                {JSON.stringify(analyticsList?.results[item])}
                               </td>
                             </tr>
                           ),

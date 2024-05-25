@@ -5,6 +5,12 @@ const analyticsSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'CodingActivity',
     },
+    codeExecutorIssueList: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PythonExecutorIssueList",
+      required: false,
+      default: null,
+    }],
     time: [{
       type: Number,
     }],

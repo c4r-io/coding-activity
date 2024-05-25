@@ -17,6 +17,7 @@ const Page = ({ params }) => {
   const [activityTitle, setActivityTitle] = useState(null);
   const [gptModel, setGptModel] = useState(null);
   const [systemPrompt, setSystemPrompt] = useState(null);
+  const [codeRefPrompt, setCodeRefPrompt] = useState(null);
   const [activityDefaultCode, setActivityDefaultCode] = useState(null);
   const [activityCodeExecutor, setActivityCodeExecutor] = useState(null);
   const [activityCodeRuntime, setActivityCodeRuntime] = useState(null);
@@ -111,6 +112,9 @@ const Page = ({ params }) => {
     const data = {};
     if (gptModel && codingActivityListResponse?.gptModel !== gptModel) {
       data.gptModel = gptModel;
+    }
+    if (codeRefPrompt && codingActivityListResponse?.codeRefPrompt !== codeRefPrompt) {
+      data.codeRefPrompt = codeRefPrompt;
     }
     if (systemPrompt && codingActivityListResponse?.systemPrompt !== systemPrompt) {
       data.systemPrompt = systemPrompt;
@@ -254,6 +258,22 @@ const Page = ({ params }) => {
                   <option value="gpt-3.5-turbo-16k-0613">GPT-3.5 Turbo (16k 0613)</option> */}
                 </select>
 
+              </div>
+              <div className="mb-6">
+                <label
+                  htmlFor="codeRefPrompt"
+                  className="block mb-2 text-sm font-medium text-white"
+                >
+                  {" "}
+                  Code Ref Prompt
+                </label>
+                <textarea
+                  id="codeRefPrompt"
+                  className="shadow-sm border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
+                  placeholder="System prompt"
+                  defaultValue={codingActivityListResponse?.codeRefPrompt}
+                  onInput={(e) => setCodeRefPrompt(e.target.value)}
+                />
               </div>
               <div className="mb-6">
                 <label

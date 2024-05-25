@@ -1,5 +1,6 @@
 import connectMongoDB from '@/config/connectMongoDB.js';
 import CodeExecutorIssueList from '@/models/codeExecutorIssueListModel.js';
+import Analytics from '@/models/analyticsModel';
 import { admin, protect } from '@/authorizationMiddlewares/authMiddleware';
 import filehandler from '@/lib/filehandler';
 // @desc Get all codeExecutorIssueLists
@@ -10,12 +11,17 @@ export async function GET(req, res) {
   if (req.nextUrl.searchParams.get('codingActivity')) {
     keywords['codingActivity'] = req.nextUrl.searchParams.get('codingActivity');
   }
+  if (req.nextUrl.searchParams.get('filterById')) {
+    delete keywords['codingActivity'];
+    keywords['_id'] = req.nextUrl.searchParams.get('filterById');
+  }
   // in case if the query is not js object
   // if (
   //   !(await protect(req))
   // ) {
   //   return Response.json({ mesg: "Not authorized" })
   // }
+  console.log('keywords', keywords);
   await connectMongoDB();
   const pageSize = Number(req.nextUrl.searchParams.get('pageSize')) || 30;
   const page = Number(req.nextUrl.searchParams.get('pageNumber')) || 1;
@@ -53,6 +59,12 @@ export async function POST(req, context) {
   if (body.get('description')) {
     codeExecutorIssueList['description'] = body.get('description');
   }
+  if (body.get('issueCode')) {
+    codeExecutorIssueList['issueCode'] = body.get('issueCode');
+  }
+  if (body.get('issueType')) {
+    codeExecutorIssueList['issueType'] = body.get('issueType');
+  }
   if (
     body.get('attachment') &&
     codeExecutorIssueList.attachment !== body.get('attachment')
@@ -71,10 +83,13 @@ export async function POST(req, context) {
     }
   }
   if (codeExecutorIssueList) {
-    console.log("codeExecutorIssueList", codeExecutorIssueList)
+    // console.log("codeExecutorIssueList", codeExecutorIssueList)
     const createdCodeExecutorIssueList = await CodeExecutorIssueList.create(
       { ...codeExecutorIssueList },
     );
+    if(codeExecutorIssueList.analytics){
+      await Analytics.findByIdAndUpdate(codeExecutorIssueList.analytics, { $push: { codeExecutorIssueList: createdCodeExecutorIssueList._id } }, { new: true, useFindAndModify: false });
+    }
     return Response.json({ ...createdCodeExecutorIssueList._doc });
     // end if
   } else {

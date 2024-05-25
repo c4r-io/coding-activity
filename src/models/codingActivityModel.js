@@ -23,6 +23,7 @@ const codeExecutorActivitySchema = mongoose.Schema(
 import json
 datalist = json.loads(listOfDataFromAPI)
 # don't change "list Of Data From API" name
+# don't change order of the list element
 # edit from here
 def additionalList(result):
   new_result = []
@@ -34,13 +35,8 @@ def additionalList(result):
     
     browser = item.get("browser", "")
     browser_version = item.get("browserVersion", "")
-    
-    _id = item.get("_id", "")
 
     new_item["deviceInformation"] = f"{device} {device_version} {browser} {browser_version}"
-    
-    # must provide _id
-    new_item["_id"] = _id
     new_result.append(new_item)
   return new_result
 newList = additionalList(datalist)
@@ -60,8 +56,13 @@ json.dumps(newList, indent=2)
     gptModel: {
       type: String,
     },
+    codeRefPrompt: {
+      type: String,
+      default: "Here's the code that generates the output: \n"
+    },
     systemPrompt: {
       type: String,
+      default: "You are helping a student with their homework. The student is asking you to explain a concept to them. \n"
     },
   },
   {

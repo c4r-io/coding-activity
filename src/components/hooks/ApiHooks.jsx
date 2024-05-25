@@ -1324,3 +1324,114 @@ export const useInitClientAnalytics = () => {
     loading
   }
 }
+
+export const useIssueAnalytics = () => {
+  const { uiData } = React.useContext(UiDataContext);
+  const [loading, setLoading] = React.useState(false);
+  const send = async (e, callbackSuccess, callbackError) => {
+    const data = { ...e }
+    // acceptable data
+    // { issueCode
+    // issueType
+    // description }
+    data['codingActivity'] = uiData._id;
+    const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
+    if (clientAnalyticsSessionExist) {
+      data['analytics'] = clientAnalyticsSessionExist;
+    }
+    // const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
+    // if (clientAnalyticsSessionExist) {
+    //   data['session'] = clientAnalyticsSessionExist;
+    // }
+    const config = {
+      method: "post",
+      url: "/api/code-executor-issue-list",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      data
+    };
+    setLoading(true);
+    try {
+      const response = await api.request(config);
+      setLoading(false);
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      if (error?.response?.status == 401) {
+        toast.error(error.response.data.message + ". Login to try again.", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+        });
+      }
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
+      setLoading(false);
+    }
+  };
+  return {
+    send,
+    loading
+  }
+}
+export const useErrorAnalytics = () => {
+  const { uiData } = React.useContext(UiDataContext);
+  const [loading, setLoading] = React.useState(false);
+  const send = async (e, callbackSuccess, callbackError) => {
+    const data = { ...e }
+    // acceptable data
+    // { issueCode
+    // issueType
+    // description }
+    data['codingActivity'] = uiData._id;
+    const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
+    if (clientAnalyticsSessionExist) {
+      data['analytics'] = clientAnalyticsSessionExist;
+    }
+    // const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
+    // if (clientAnalyticsSessionExist) {
+    //   data['session'] = clientAnalyticsSessionExist;
+    // }
+    const config = {
+      method: "post",
+      url: "/api/code-executor-issue-list",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      data
+    };
+    setLoading(true);
+    try {
+      const response = await api.request(config);
+      setLoading(false);
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      if (error?.response?.status == 401) {
+        toast.error(error.response.data.message + ". Login to try again.", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+        });
+      }
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
+      setLoading(false);
+    }
+  };
+  return {
+    send,
+    loading
+  }
+}
