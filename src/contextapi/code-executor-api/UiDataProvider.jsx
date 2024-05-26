@@ -1,3 +1,4 @@
+import { uiCOntentDefault } from "@/components/hooks/ApiHooks";
 import { createContext, useReducer, useState } from "react";
 import css from "styled-jsx/css";
 export const UiDataContext = createContext();
@@ -862,87 +863,7 @@ export const UiDataProvider = ({ children }) => {
   const [uiData, dispatchUiData] = useReducer(reducer, {
     uiContentss: null,
     codingActivityId: null,
-    uiContent: {
-      "chatprompt": {
-        "headerElement": "# Office Hours \n\n # are in!",
-        "footerElement": "Everyone needs help sometimes! Rigorous Raven is here to \\\n help. **Click on the part of the activity you need help with.**",
-        "userMessageTitle": "**You** asked:",
-        "assistantMessageHeaderTitle": "**Rigorous Raven** says:",
-        "chatprompotFollowUpTitle": "**Rigorous Raven** says:",
-        "followupReportBtn": "Report",
-        "followupSatisfiedBtn": "Thanks, That's all!",
-        "followupAskMoreBtn": "Ask Follow-Up",
-        "followupAskCustomQuestionBtn": "Ask Regorous Raven",
-        "followUpReviewTitle": "**Thank you for asking for help** Did you find this useful?",
-        "predefineQuestionList": [
-          "What dose this do?",
-          "Teach me more!",
-          "Show an example?",
-          "sdfsdf",
-          "sadfsdfsdf"
-        ],
-        "sample": ""
-      },
-      "editorview": {
-        "headerTitle": "# Let’s visualize block randomization\n\nBlock randomization is as simple as hitting a button! Free software packages such as **blockrand**, **randomizR**, or **psych** in R can block randomize your study.\n\\\nBut what is happening under the hood? Hit “Run” on this R code to see a visualization of a block randomized study with 4 treatments.",
-        "headerBodyTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-        "headerFooterTitle": "### Custom footer",
-        "editorPep8Btn": "PEP8",
-        "editorNeedHelpBtn": "I need help with this!",
-        "editorActionBtn": "Execute",
-        "editorActionAttachScreenshot": "Attach Screenshot",
-        "editorActionSubmitAttachment": "Submit",
-        "sample": "",
-        "plotLeftLabel": "This axis shows you how many blocks into which your patients have been randomized",
-        "plotBottomLabel": "This axis shows you the sequence of the treatments within each block",
-        "plotRightLabel": "This legend shows a different color for each treatment"
-      },
-      "codeEditorTopCardImage": {
-        "styles": {
-          "top": -1,
-          "left": 597,
-          "width": 125,
-          "height": 171,
-          "rotateAngle": 0
-        }
-      },
-      "chatPromptTopCardAvater": {
-        "styles": {
-          "top": 19,
-          "left": 24,
-          "width": 207,
-          "height": 162,
-          "rotateAngle": 0
-        }
-      },
-      "feedbackReviewUnLikeImage": {
-        "styles": {
-          "top": -47,
-          "left": 139,
-          "width": 110,
-          "height": 94,
-          "rotateAngle": 0
-        }
-      },
-      "feedbackReviewLikeImage": {
-        "styles": {
-          "top": -29,
-          "left": 100,
-          "width": 200,
-          "height": 173,
-          "rotateAngle": 0
-        }
-      },
-      "defaults": {
-        "code": "print(\"hello from default!\")"
-      },
-      cssdata: {
-        all: allCss,
-      },
-      codeEditorTopCardImage: {
-        data: null
-      }
-    },
+    uiContent: uiCOntentDefault,
     _id: null,
     gptModel: "gpt-4-turbo-2024-04-09",
     systemPrompt: "You are helping a student with their homework. The student is asking you to explain a concept to them. \n",

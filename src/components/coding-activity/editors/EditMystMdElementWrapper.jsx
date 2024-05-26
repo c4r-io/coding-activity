@@ -9,28 +9,16 @@ function EditMystMdElementWrapper({ children, className, path, buttonEditor = fa
     const [editorFocused, setEditorFocused] = React.useState('');
     const { uiData, dispatchUiData } = React.useContext(UiDataContext);
     // State to store the base64 string
-    const getData = (path) => {
-        return path.split(".").reduce((acc, curr) => {
-            if (curr) {
-                return acc[curr];
-            }
-        }, uiData?.uiContent)
-    }
-    const [data, setData] = useState('');
-
-    useEffect(() => {
+    const getDefaultData = () => {
         const splittedPath = path.split(".");
         const nd = splittedPath.reduce((acc, curr) => {
             if (curr) {
                 return acc[curr];
             }
         }, uiData?.uiContent)
-        if (nd) {
-            // console.log("Data: ", nd);
-            setData(nd)
-        }
-    }, [path])
-    const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 300)
+        return nd
+    }
+    const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 400)
     return (
         <div>
             {uiData.devmode ?
@@ -43,7 +31,7 @@ function EditMystMdElementWrapper({ children, className, path, buttonEditor = fa
                                     onChange={(e) => {
                                             dispatchUiDataWithDebounce({ type: 'setContent', payload: { key: path, data: e.target.value } })
                                     }}
-                                    defaultValue={getData(path)}
+                                    defaultValue={getDefaultData()}
                                     onBlur={() => setEditorFocused("")}></input>
                                 : <textarea className={`${className} html-editor`}
                                     style={{ height: heightOfPreview + "px" }}
@@ -51,7 +39,7 @@ function EditMystMdElementWrapper({ children, className, path, buttonEditor = fa
                                     onChange={(e) => {
                                         dispatchUiDataWithDebounce({ type: 'setContent', payload: { key: path, data: e.target.value } })
                                     }}
-                                    defaultValue={getData(path)}
+                                    defaultValue={getDefaultData()}
                                     onBlur={() => setEditorFocused("")}></textarea>}
                         </Fragment>
                         :
@@ -71,7 +59,7 @@ function EditMystMdElementWrapper({ children, className, path, buttonEditor = fa
                             }
                             }
                         >
-                            <MystPreviewTwContainer data={getData(path)} />
+                            <MystPreviewTwContainer data={getDefaultData()} />
                         </div>
 
                     }

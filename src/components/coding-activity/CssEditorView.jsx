@@ -22,7 +22,7 @@ const CssEditorView = () => {
         // console.log("changing css data")
     }
     const handleChangeWithDebounce = debounce(
-        handleOnChange, 5000
+        handleOnChange, 1000
     )
 
 
