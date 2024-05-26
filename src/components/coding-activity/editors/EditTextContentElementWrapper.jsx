@@ -7,20 +7,7 @@ function EditTextContentElementWrapper({ children, className, path, buttonEditor
     const [editorFocused, setEditorFocused] = React.useState('');
     const { uiData, dispatchUiData } = React.useContext(UiDataContext);
     // State to store the base64 string
-    const [data, setData] = useState('');
-    useEffect(() => {
-        const splittedPath = path.split(".");
-        const nd = splittedPath.reduce((acc, curr) => {
-            if (curr) {
-                return acc[curr];
-            }
-        }, uiData?.uiContent)
-        if (nd) {
-            // console.log("Data: ", nd);
-            setData(nd)
-        }
-    }, [path])
-    const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 300)
+    const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 400)
     return (
         <Fragment>
             {/* onChange={(e) => {

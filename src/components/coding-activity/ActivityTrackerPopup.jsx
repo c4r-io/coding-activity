@@ -7,7 +7,7 @@ import { useAnalytics } from '../hooks/ApiHooks';
 // Login popup had beed created to get student login details
 const ActivityTrackerPopup = () => {
     const resetInMax = 10;
-    const activitySessionCheckInMax = 30;
+    const activitySessionCheckInMax = 22230;
     const [isActivityTrackerPopupOpen, setIsActivityTrackerPopupOpen] = React.useState(true);
     const [isActivityStarted, setIsActivityStarted] = React.useState(false)
     const analytics = useAnalytics();
@@ -27,7 +27,7 @@ const ActivityTrackerPopup = () => {
             if (sessionResterTimeCount.current <= 0) {
                 clearInterval(sessionReseterTimerFunction.current)
                 sessionReseterTimerFunction.current = null
-                console.log('Session Time is up')
+                // console.log('Session Time is up')
                 endSession()
             }
         }, 1000)
@@ -81,12 +81,12 @@ const ActivityTrackerPopup = () => {
             if (timeCount.current < activitySessionCheckInMax) {
                 timeCount.current++
                 resetTimerOnEvent()
-                console.log('Time:', timeCount.current)
+                // console.log('Time:', timeCount.current)
             }
             if (timeCount.current >= activitySessionCheckInMax) {
                 clearInterval(startTimerFunction.current)
                 startTimerFunction.current = null
-                console.log('Time is up')
+                // console.log('Time is up')
                 setIsActivityTrackerPopupOpen(true);
                 startSessionRestTimer()
                 setIsActivityStarted(true)

@@ -25,15 +25,15 @@ const analyticsSchema = mongoose.Schema(
         type: Number,
       },
     },
-    totalDurationInSeconds: {
-      type: Number,
-    },
+    // totalDurationInSeconds: {
+    //   type: Number,
+    // },
     ip: {
       type: String,
     },
     ipinfo: {
       // ip: { type: String },
-      city: { type: String },
+      // city: { type: String },
       region: { type: String },
       country: { type: String },
       loc: { type: String },

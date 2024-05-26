@@ -21,7 +21,16 @@ function EditTextElementWrapper({ children, className, path, buttonEditor = fals
             setData(nd)
         }
     }, [path])
-    const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 300)
+    const getDefaultData = () => {
+        const splittedPath = path.split(".");
+        const nd = splittedPath.reduce((acc, curr) => {
+            if (curr) {
+                return acc[curr];
+            }
+        }, uiData?.uiContent)
+        return nd
+    }
+    const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 400)
     return (
         <div>
             {uiData.devmode ?
@@ -30,20 +39,20 @@ function EditTextElementWrapper({ children, className, path, buttonEditor = fals
                         <Fragment>
                             {buttonEditor ?
                                 <input className={`${className} html-editor`}
-                                    autoFocus={editorFocused == "chatprompt-top-headertext-editor"}
-                                    onChange={(e) => {
-                                        dispatchUiDataWithDebounce({ type: 'setContent', payload: { key: path, data: e.target.value } });
-                                    }}
-                                    defaultValue={data}
-                                    onBlur={() => setEditorFocused("")}></input>
-                                : <textarea className={`${className} html-editor`}
-
                                     style={{ height: heightOfPreview + "px" }}
                                     autoFocus={editorFocused == "chatprompt-top-headertext-editor"}
                                     onChange={(e) => {
                                         dispatchUiDataWithDebounce({ type: 'setContent', payload: { key: path, data: e.target.value } });
                                     }}
-                                    defaultValue={data}
+                                    defaultValue={getDefaultData()}
+                                    onBlur={() => setEditorFocused("")}></input>
+                                : <textarea className={`${className} html-editor`}
+                                    style={{ height: heightOfPreview + "px" }}
+                                    autoFocus={editorFocused == "chatprompt-top-headertext-editor"}
+                                    onChange={(e) => {
+                                        dispatchUiDataWithDebounce({ type: 'setContent', payload: { key: path, data: e.target.value } });
+                                    }}
+                                    defaultValue={getDefaultData()}
                                     onBlur={() => setEditorFocused("")}></textarea>}
                         </Fragment>
                         :
