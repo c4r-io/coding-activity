@@ -215,35 +215,35 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
     { label: "Oranges", value: 50 },
     { label: "Kiwis", value: 150 }
   ];
-  // const fix = async (callbackSuccess, callbackError) => {
-  //   const config = {
-  //     method: "put",
-  //     url: "/api/analytics",
-  //     headers: {
-  //       "Content-Type": "multipart/form-data",
-  //     },
-  //   };
-  //   try {
-  //     const response = await api.request(config);
-  //     if (callbackSuccess) {
-  //       callbackSuccess(response.data)
-  //     }
-  //   } catch (error) {
-  //     if (error?.response?.status == 401) {
-  //       toast.error(error.response.data.message + ". Login to try again.", {
-  //         position: "top-center",
-  //       });
-  //     } else {
-  //       toast.error(error.message, {
-  //         position: "top-center",
-  //       });
-  //     }
-  //     if (callbackError) {
-  //       callbackError(error)
-  //     }
-  //     console.error(error);
-  //   }
-  // };
+  const fix = async (callbackSuccess, callbackError) => {
+    const config = {
+      method: "put",
+      url: "/api/analytics",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    };
+    try {
+      const response = await api.request(config);
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      if (error?.response?.status == 401) {
+        toast.error(error.response.data.message + ". Login to try again.", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+        });
+      }
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
+    }
+  };
   const pyodideStatusRef = useRef(false);
   const [pyodideStatus, setPyodideStatus] = useState(pyodideStatusRef.current);
   const pyodide = useRef(null);
@@ -339,9 +339,9 @@ ${nc2}`)
 
           <div className="container mx-auto py-4 px-4 md:px-0">
             <div>
-              {/* <button
+              <button
               onClick={() => fix()}
-              >FIx data</button> */}
+              >FIx data</button>
               <div className="w-full flex-colflex justify-center items-center text-white pb-3">
                 <div className='py-2'>
                   <div className='flex flex-wrap -m-1'>
@@ -523,7 +523,8 @@ ${nc2}`)
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          UID
+                          {/* UID */}
+                          uid
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -532,34 +533,38 @@ ${nc2}`)
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Date
+                          {/* Date */}
+                          createdAt
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"sessionTime.start"}
+                          feildKey={"sessionStartTime"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Start Time
+                          {/* Start Time */}
+                          sessionStartTime
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"sessionTime.end"}
+                          feildKey={"sessionEndTime"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          End Time
+                          {/* End Time */}
+                          sessionEndTime
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"sessionTime.total"}
+                          feildKey={"sessionDuration"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Total Duration
+                          {/* Total Duration */}
+                          sessionDuration
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -568,99 +573,100 @@ ${nc2}`)
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          IP
+                          {/* IP */}
+                          ip
                         </SortBtnComponent>
 
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"ipinfo.city"}
+                          feildKey={"city"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          City
+                          {/* City */}
+                          city
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"ipinfo.region"}
+                          feildKey={"region"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Region
+                          {/* Region */}
+                          region
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"ipinfo.country"}
+                          feildKey={"country"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Country
+                          {/* Country */}
+                          country
                         </SortBtnComponent>
 
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"ipinfo.latitude"}
+                          feildKey={"latitude"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Latitude
+                          {/* Latitude */}
+                          latitude
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"ipinfo.longitude"}
+                          feildKey={"longitude"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Longitude
+                          {/* Longitude */}
+                          longitude
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"ipinfo.asn.asn"}
+                          feildKey={"asn"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          ASN
+                          {/* ASN */}
+                          asn
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"ipinfo.asn.name"}
+                          feildKey={"asnName"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Org Name
+                          {/* Org Name */}
+                          asnName
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"ipinfo.postal"}
+                          feildKey={"postal"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Postal
+                          {/* Postal */}
+                          postal
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
-                          feildKey={"ipinfo.timezone.continental"}
+                          feildKey={"continental"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Timezone Continent
-                        </SortBtnComponent>
-                      </th>
-                      <th scope="col" className="px-6 py-3">
-                        <SortBtnComponent
-                          feildKey={"ipinfo.timezone.city"}
-                          sortOrder={sortOrder}
-                          sortKey={sortKey}
-                        >
-                          Timezone City
+                          {/* Timezone Continent */}
+                          continent
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -669,7 +675,8 @@ ${nc2}`)
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Browser
+                          {/* Browser */}
+                          browser
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -678,7 +685,8 @@ ${nc2}`)
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Browser Version
+                          {/* Browser Version */}
+                          browserVersion
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -687,7 +695,8 @@ ${nc2}`)
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Device
+                          {/* Device */}
+                          device
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -696,7 +705,8 @@ ${nc2}`)
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          Device Version
+                          {/* Device Version */}
+                          deviceVersion
                         </SortBtnComponent>
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -705,7 +715,8 @@ ${nc2}`)
                           sortOrder={sortOrder}
                           sortKey={sortKey}
                         >
-                          AspectRatio
+                          {/* AspectRatio */}
+                          aspectRatio
                         </SortBtnComponent>
                       </th>
                         <th scope="col" className="px-6 py-3">
@@ -746,46 +757,43 @@ ${nc2}`)
                               {(new Date(item?.createdAt)).toISOString().slice(0, 10)}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.sessionTime?.start}
+                              {item?.sessionStartTime}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.sessionTime?.end}
+                              {item?.sessionEndTime}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.sessionTime?.total}
+                              {item?.sessionDuration}
                             </td>
                             <td className="px-6 py-4">
                               {item?.ip}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.ipinfo?.city}
+                              {item?.city}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.ipinfo?.region}
+                              {item?.region}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.ipinfo?.country}
+                              {item?.country}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.ipinfo?.latitude}
+                              {item?.latitude}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.ipinfo?.longitude}
+                              {item?.longitude}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.ipinfo?.asn?.asn}
+                              {item?.asn}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.ipinfo?.asn?.name}
+                              {item?.asnName}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.ipinfo?.postal}
+                              {item?.postal}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.ipinfo?.timezone?.continent}
-                            </td>
-                            <td className="px-6 py-4">
-                              {item?.ipinfo?.timezone?.city}
+                              {item?.continent}
                             </td>
                             <td className="px-6 py-4">
                               {item?.browser}

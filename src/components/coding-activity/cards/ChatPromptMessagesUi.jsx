@@ -318,7 +318,7 @@ const FollowUpAskQuestionUi = () => {
             errorAnalytics.send({
                 issueCode: 5002,
                 issueType: "GPT API Error",
-                description: JSON.stringify(error),
+                description: typeof(error) == 'string' ? error : JSON.stringify(error),
             })
         }
 
@@ -456,7 +456,7 @@ const FollowUpReviewActionUi = () => {
                 errorAnalytics.send({
                     issueCode: 5003,
                     issueType: "Feedback API Error",
-                    description: JSON.stringify(error),
+                    description: typeof(error) == 'string' ? error : JSON.stringify(error),
                 })
             }
         )
@@ -477,7 +477,7 @@ const FollowUpReviewActionUi = () => {
                 errorAnalytics.send({
                     issueCode: 5003,
                     issueType: "Feedback API Error",
-                    description: JSON.stringify(error),
+                    description: typeof(error) == 'string' ? error : JSON.stringify(error),
                 })
             }
         )

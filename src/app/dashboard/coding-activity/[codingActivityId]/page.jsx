@@ -239,7 +239,7 @@ const Page = ({ params }) => {
                     return <option key={index} value={model.id}>{changeCase.capitalCase(model.id)}</option>
                   })}
                   {/* <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                  <option value="gpt-4-turbo-2024-04-09">GPT-4 Turbo (2024-04-09)</option>
+                  <option value="gpt-4o">GPT-4 Turbo (2024-04-09)</option>
                   <option value="gpt-4-turbo-preview">GPT-4 Turbo Preview</option>
                   <option value="gpt-4-0125-preview">GPT-4 (0125 Preview)</option>
                   <option value="gpt-4-1106-preview">GPT-4 (1106 Preview)</option>
