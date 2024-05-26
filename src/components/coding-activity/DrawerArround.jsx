@@ -40,7 +40,7 @@ const DrawerArround = ({ children }) => {
                             }
                         </div>
                     </button>
-                    <div className='absolute left-5 top-0 w-[108px] h-full p-1 flex justify-center items-center'>
+                    <div className='absolute left-5 top-0 w-[105px] h-full p-1 flex justify-center items-center'>
                         <EditTextContentElementWrapper
                             className={`drawer-view-plot-left-label-visible`}
                             path={"editorview.plotLeftLabel"}
@@ -51,7 +51,7 @@ const DrawerArround = ({ children }) => {
                         </EditTextContentElementWrapper>
                     </div>
                 </div>
-                <div className={`${openLeft ? "ps-[128px]" : "ps-[28px]"} ${openRight ? "pe-[128px]" : "pe-[28px]"}`}>{children}</div>
+                <div className={`${openLeft ? "ps-[125px]" : "ps-[20px]"} ${openRight ? "pe-[125px]" : "pe-[20px]"}`}>{children}</div>
                 <div className={`absolute right-0 top-0 h-full ${openRight ? 'w-[125px]' : 'w-[20px] overflow-hidden'}`}>
                     <button className='expando absolute py-2 right-0 top-0 w-5 h-full bg-ui-violet text flex flex-col justify-between'
                         onClick={() => {
@@ -77,7 +77,7 @@ const DrawerArround = ({ children }) => {
                         </div>
                     </button>
 
-                    <div className='absolute right-5 top-0 w-[108px] h-full p-1 flex justify-center items-center'>
+                    <div className='absolute right-5 top-0 w-[105px] h-full p-1 flex justify-center items-center'>
                         <EditTextContentElementWrapper
                             className={`drawer-view-plot-right-label-visible`}
                             path={"editorview.plotRightLabel"}
@@ -108,7 +108,7 @@ const DrawerArround = ({ children }) => {
                         }
                     }}
                 >
-                    <div className="w-[30px] flex justify-center text-lg">
+                    <div className="w-[20px] flex justify-center text-lg">
                         {openBottom ? (
                             <MdKeyboardArrowDown />
                         ) : (
@@ -118,7 +118,7 @@ const DrawerArround = ({ children }) => {
                     <p className="text-center text-[10px]">
                         {!openBottom ? "Open" : "Close"}
                     </p>
-                    <div className="w-[30px] flex justify-center text-lg">
+                    <div className="w-[20px] flex justify-center text-lg">
                         {openBottom ? (
                             <MdKeyboardArrowDown />
                         ) : (

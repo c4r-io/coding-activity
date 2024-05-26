@@ -255,14 +255,13 @@ ${code}
 `
     const nc = modifiedCode.replaceAll("plt.show()", pltshow);
     const nc2 = nc.replaceAll(/print\((.*?)\)/g, "expectedop.extend([$1])");
-    setIsCodeExecuting(true);
     const executableCode = `
 ${nc2}
 opdt = json.dumps(expectedop, indent=2)
 print(opdt)
 `
     // const nc2 = nc.replaceAll(/print\((.*?)\)/g, "$1");
-    console.log(nc);
+    // console.log(nc);
     setIsCodeExecuting(true);
     try {
       const config = {
@@ -309,7 +308,7 @@ print(opdt)
           errorAnalytics.send({
             issueCode: 5000,
             issueType: "Python Code Execution Error",
-            description: JSON.stringify(error),
+            description: typeof(error) == 'string' ? error : JSON.stringify(error),
           })
           // setExecutedCodeErrorOutput("Error: " + error);
         }
@@ -322,7 +321,7 @@ print(opdt)
       if (apiCallCount <= 3) {
         setTimeout(() => {
           console.log("running count", apiCallCount);
-          runCode(apiCallCount + 1);
+          runCodeAws(apiCallCount + 1);
         }, 500 * apiCallCount);
       } else {
         setExecutedCodeOutput({
@@ -333,11 +332,11 @@ print(opdt)
         errorAnalytics.send({
           issueCode: 5001,
           issueType: "Javascript Code Execution Error",
-          description: JSON.stringify(error),
+          description: typeof(error) == 'string' ? error : JSON.stringify(error),
         })
       }
       // getReadyPyodide()
-      console.error(error);
+      console.log(error);
     }
   };
   const issueAnalytics = useIssueAnalytics();

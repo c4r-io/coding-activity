@@ -11,9 +11,18 @@ const analyticsSchema = mongoose.Schema(
       required: false,
       default: null,
     }],
-    time: [{
+    // time: [{
+    //   type: Number,
+    // }],
+    sessionStartTime: {
       type: Number,
-    }],
+    },
+    sessionEndTime: {
+      type: Number,
+    },
+    sessionDuration: {
+      type: Number,
+    },
     sessionTime: {
       start: {
         type: Number,
@@ -31,9 +40,21 @@ const analyticsSchema = mongoose.Schema(
     ip: {
       type: String,
     },
+    region: { type: String },
+    country: { type: String },
+    loc: { type: String },
+    latitude: { type: Number },
+    longitude: { type: Number },
+    org: { type: String },
+    asn: { type: String },
+    asnName: { type: String },
+    postal: { type: String },
+    timezone: { type: String },
+    continent: { type: String },
+    city: { type: String },
     ipinfo: {
       // ip: { type: String },
-      // city: { type: String },
+      city: { type: String },
       region: { type: String },
       country: { type: String },
       loc: { type: String },
@@ -45,11 +66,11 @@ const analyticsSchema = mongoose.Schema(
         name: { type: String },
       },
       postal: { type: String },
-      timezone: { 
+      timezone: {
         tz: { type: String },
         continent: { type: String },
         city: { type: String },
-       },
+      },
       continent: { type: String },
       continentCity: { type: String },
     },
@@ -83,6 +104,7 @@ const analyticsSchema = mongoose.Schema(
     toJSON: { virtuals: true },
   },
 );
+analyticsSchema.remove(['analyticsById.ipinfo', 'analyticsById.sessionTime']);
 // const aspectRatio = analyticsSchema.virtual('aspectRatio');
 // aspectRatio.get(function (value, virtual, doc) {
 //   if (!this.screenWidth || !this.screenHeight) return null;

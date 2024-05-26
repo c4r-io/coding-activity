@@ -311,19 +311,21 @@ export async function POST(req) {
   await connectMongoDB();
   if (body.get('session')) {
     const analyticsById = await Analytics.findById(body.get('session'));
-    if (!analyticsById.sessionTime.start) {
-      analyticsById.sessionTime.start = body.get('time');
+    if (!analyticsById.sessionStartTime) {
+      analyticsById.sessionStartTime = body.get('time');
     } else {
-      analyticsById.sessionTime.end = body.get('time');
-      analyticsById.sessionTime.total = calculateTimeDifference(analyticsById);
+      analyticsById.sessionEndTime = body.get('time');
+      analyticsById.ssessionDuration = calculateTimeDifference(analyticsById);
     }
     await analyticsById.save();
     return Response.json({ ...analyticsById._doc });
   }
-
+  const dataToSave = {}
   const ip = req?.ip || getClientIp(req) || req.headers.get('X-Forwarded-For')
   const ipData = await axios.get(`https://ipinfo.io/${ip}/json?token=${process.env.NEXT_PUBLIC_IP_IPINFO_TOKEN}`);
-
+  if(ip){
+    dataToSave.ip = ip;
+  }
   const ipinfo = ipData?.data || {
     city: req.geo.city,
     country: req.geo.country,
@@ -333,29 +335,37 @@ export async function POST(req) {
     postal: 'unknown',
     timezone: 'unknown',
   }
+  if(ipinfo.city){
+    dataToSave.city = ipinfo.city;
+  }
   if (ipinfo.loc) {
     const loc = ipinfo.loc.split(',');
-    ipinfo.latitude = loc[0];
-    ipinfo.longitude = loc[1];
+    // ipinfo.latitude = loc[0];
+    // ipinfo.longitude = loc[1];
+    dataToSave.latitude = loc[0];
+    dataToSave.longitude = loc[1];
   }
   if (ipinfo.org) {
     const org = ipinfo.org.split(' ');
-    ipinfo.asn = {
-      asn: org[0],
-      name: org.slice(1).join(' '),
-    }
+    // ipinfo.asn = {
+    //   asn: org[0],
+    //   name: org.slice(1).join(' '),
+    // }
+    dataToSave.org = ipinfo.org;
+    dataToSave.asn = org[0];
+    dataToSave.asnName = org.slice(1).join(' ');
   }
   if (ipinfo.timezone) {
-    const timezone = ipinfo.timezone.split('/');
-    ipinfo.timezone = {
-      tz: `${timezone[0]}/${timezone[1]}`,
-      continent: timezone[0],
-      city: timezone[1],
-    }
+    dataToSave.timezone = ipinfo.timezone;
+    dataToSave.continent = ipinfo.timezone.split('/')[0];
+    // const timezone = ipinfo.timezone.split('/');
+    // ipinfo.timezone = {
+    //   tz: `${timezone[0]}/${timezone[1]}`,
+    //   continent: timezone[0],
+    //   city: timezone[1],
+    // }
   }
   const createdAnalytics = await Analytics.create({
-    ip: ip,
-    ipinfo: ipinfo,
     uid: body.get('uid'),
     device: body.get('device') || req.headers.get("sec-ch-ua-platform"),
     deviceVersion: body.get('deviceVersion') || req.headers.get("sec-ch-ua"),
@@ -365,11 +375,10 @@ export async function POST(req) {
     screenHeight: body.get('screenHeight'),
     user: body.get('user'),
     codingActivity: body.get('codingActivity'),
-    sessionTime: {
-      start: body.get('time'),
-      end: null,
-      total: 0,
-    },
+    sessionStartTime: body.get('time'),
+    sessionEndTime: null,
+    sessionDuration: 0,
+    ...dataToSave
   });
   return Response.json({ ...createdAnalytics._doc });
 }
@@ -424,11 +433,27 @@ export async function PUT(req) {
       // if(analyticsById?.ipinfo?.timezone){
       //   analyticsById.ipinfo.timezone.tz = `${analyticsById?.ipinfo?.continent}/${analyticsById?.ipinfo?.continentCity}`;
       // }
-      delete analyticsById.time;
-      delete analyticsById.totalDurationInSeconds;
+      // delete analyticsById.time;
+      // delete analyticsById.totalDurationInSeconds;
       if(analyticsById.screenWidth && analyticsById.screenHeight){
         analyticsById.aspectRatio = (analyticsById.screenWidth/ analyticsById.screenHeight).toFixed(2);
       }
+      // analyticsById.sessionStartTime = analyticsById.sessionTime.start
+      // analyticsById.sessionEndTime = analyticsById.sessionTime.end
+      // analyticsById.sessionDuration = analyticsById.sessionTime.total
+      // analyticsById.region = analyticsById.ipinfo.region
+      // analyticsById.country = analyticsById.ipinfo.country
+      // analyticsById.loc = analyticsById.ipinfo.loc
+      // analyticsById.latitude = analyticsById.ipinfo.latitude
+      // analyticsById.longitude = analyticsById.ipinfo.longitude
+      // analyticsById.org = analyticsById.ipinfo.org
+      // analyticsById.asn = analyticsById.ipinfo.asn.asn
+      // analyticsById.asnName = analyticsById.ipinfo.asn.name
+      // analyticsById.postal = analyticsById.ipinfo.postal
+      // analyticsById.timezone = analyticsById.ipinfo.timezone.tz
+      // analyticsById.city = analyticsById.ipinfo?.city || analyticsById.ipinfo?.continentCity || ""
+      // analyticsById.continent = analyticsById.ipinfo.timezone.continent
+      // console.log(analyticsById.city, JSON.stringify(Object.keys(analyticsById.ipinfo)))
       await analyticsById.save();
     }
   }
