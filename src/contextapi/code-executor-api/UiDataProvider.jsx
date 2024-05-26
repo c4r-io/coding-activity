@@ -865,7 +865,7 @@ export const UiDataProvider = ({ children }) => {
     codingActivityId: null,
     uiContent: uiCOntentDefault,
     _id: null,
-    gptModel: "gpt-4-turbo-2024-04-09",
+    gptModel: "gpt-4o",
     systemPrompt: "You are helping a student with their homework. The student is asking you to explain a concept to them. \n",
     codeRefPrompt: "Here's the code that generates the output: \n",
     activityTitle: "Activity Title",

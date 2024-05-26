@@ -76,7 +76,7 @@ export async function POST(req) {
     activityCodeExecutor: body.activityCodeExecutor,
     activityCodeRuntime: body.activityCodeRuntime,
     uiContent: body.uiContent,
-    gptModel: body.gptModel || "gpt-4-turbo-2024-04-09",
+    gptModel: body.gptModel || "gpt-4o",
     systemPrompt: body.systemPrompt || "You are a helpful assistant.",
   });
   return Response.json({ ...createdvideoClipList._doc });
