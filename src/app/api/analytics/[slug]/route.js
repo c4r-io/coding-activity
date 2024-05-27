@@ -20,37 +20,78 @@ export async function GET(req, context) {
   const results = await apiFunction.exec();
   return Response.json({ results });
 }
+// @desc Post pythonExecutorIssueList
+// @route POST api/pythonExecutorIssueLists/:id
+// @acess Privet
+export async function POST(req, context) {
+  const { params } = context;
+  await connectMongoDB();
+  const analytics = await Analytics.findById(
+    params.slug,
+  );
+  // start if
+  if (analytics) {
+    // convert to js object
+    const body = await req.json();
+    if (body.consoleIssue) {
+      analytics.issueList.push(body.consoleIssue)
+    }
+    const updatedAnalytics = await analytics.save();
+    return Response.json({ ...updatedAnalytics._doc });
+    // end if
+  } else {
+    return Response.json(
+      { message: 'Analytics not found' },
+      { status: 404 },
+    );
+  }
+}
 // @desc Put pythonExecutorIssueList
 // @route PUT api/pythonExecutorIssueLists/:id
 // @acess Privet
 export async function PUT(req, context) {
-  if (!(await protect(req))) {
-    return Response.json({ mesg: 'Not authorized' });
-  }
   const { params } = context;
   await connectMongoDB();
-  const codeExecutorIssueList = await Analytics.findById(
+  const analytics = await Analytics.findById(
     params.slug,
   );
   // start if
-  if (codeExecutorIssueList) {
+  if (analytics) {
     // convert to js object
     const body = await req.formData();
-    if (body.get('description')) {
-      codeExecutorIssueList.description = body.get('description');
+    if (body.get('consoleIssue')) {
+      analytics.issueList.push(body.get('consoleIssue'))
+    }
+    if (body.get('issue')) {
+      if (!analytics.issue1) {
+        analytics.issue1 = body.get('issue');
+      }
+      else if (analytics.issue1 && !analytics.issue2) {
+        analytics.issue2 = body.get('issue');
+      }
+      else if (analytics.issue2 && !analytics.issue3) {
+        analytics.issue3 = body.get('issue');
+      } else {
+        analytics.issueList.push(body.get('issue'))
+      }
     }
     if (
-      body.get('attachment') &&
-      codeExecutorIssueList.attachment !== body.get('attachment')
+      body.get('attachment')
     ) {
-      const filename = await filehandler.saveFileAsBinary(
-        body.get('attachment'),
-      );
-      // const filename = await filehandler.saveFile(body.get("attachment"))
-      // filehandler.deleteFile(codeExecutorIssueList.attachment)
-      codeExecutorIssueList.attachment = filename;
+      const filename = { data: body.get('attachment') };
+      if (!analytics.attachment1) {
+        analytics.attachment1 = filename;
+      }
+      else if (analytics.attachment1 && !analytics.attachment2) {
+        analytics.attachment2 = filename;
+      }
+      else if (analytics.attachment2 && !analytics.attachment3) {
+        analytics.attachment3 = filename;
+      } else {
+        analytics.attachmentList.push(filename)
+      }
     }
-    const updatedAnalytics = await codeExecutorIssueList.save();
+    const updatedAnalytics = await analytics.save();
     return Response.json({ ...updatedAnalytics._doc });
     // end if
   } else {

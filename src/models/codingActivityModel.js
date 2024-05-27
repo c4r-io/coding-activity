@@ -33,11 +33,14 @@ def additionalList(result):
     device = item.get("device", "")
     device_version = item.get("deviceVersion", "")
     
+    _id = item.get("_id","")
     browser = item.get("browser", "")
     browser_version = item.get("browserVersion", "")
-
-    new_item["deviceInformation"] = f"{device} {device_version} {browser} {browser_version}"
+    new_item["_id"] = _id
+    new_item["featureEngineeredData"]={}
+    new_item["featureEngineeredData"]["deviceInformation"] = f"{device} {device_version} {browser} {browser_version}"
     new_result.append(new_item)
+
   return new_result
 newList = additionalList(datalist)
 json.dumps(newList, indent=2)

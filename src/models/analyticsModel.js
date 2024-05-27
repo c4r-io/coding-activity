@@ -98,6 +98,33 @@ const analyticsSchema = mongoose.Schema(
     aspectRatio: {
       type: Number,
     },
+    issue1: {
+      type: String,
+    },
+    attachment1: {
+      type: Object,
+    },
+    issue2: {
+      type: String,
+    },    
+    attachment2: {
+      type: Object,
+    },
+    issue3: {
+      type: String,
+    },    
+    attachment3: {
+      type: Object,
+    },
+    issueList: [{
+      type: String,
+    }],    
+    attachmentList: [{
+      type: Object,
+    }],
+    featureEngineeredData: {
+      type: Object,
+    },
   },
   {
     timestamps: true,

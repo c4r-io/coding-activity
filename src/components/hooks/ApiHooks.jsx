@@ -1338,14 +1338,17 @@ export const useIssueAnalytics = () => {
     const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
     if (clientAnalyticsSessionExist) {
       data['analytics'] = clientAnalyticsSessionExist;
+    }else{
+      return
     }
     // const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
     // if (clientAnalyticsSessionExist) {
     //   data['session'] = clientAnalyticsSessionExist;
     // }
     const config = {
-      method: "post",
-      url: "/api/code-executor-issue-list",
+      method: "put",
+      // url: "/api/code-executor-issue-list",
+      url: "/api/analytics/"+clientAnalyticsSessionExist,
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -1393,14 +1396,17 @@ export const useErrorAnalytics = () => {
     const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
     if (clientAnalyticsSessionExist) {
       data['analytics'] = clientAnalyticsSessionExist;
+    }else{
+      return;
     }
     // const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
     // if (clientAnalyticsSessionExist) {
     //   data['session'] = clientAnalyticsSessionExist;
     // }
     const config = {
-      method: "post",
-      url: "/api/code-executor-issue-list",
+      method: "put",
+      // url: "/api/code-executor-issue-list",
+      url: "/api/analytics/"+clientAnalyticsSessionExist,
       headers: {
         "Content-Type": "multipart/form-data",
       },

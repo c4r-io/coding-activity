@@ -4,7 +4,6 @@ import Analytics from '@/models/analyticsModel';
 import CodingActivity from '@/models/codingActivityModel';
 import { getClientIp } from 'request-ip';
 import axios from 'axios';
-import mongodbClient from '@/config/mongodbClient';
 // @desc Get all videoClipLists
 // @route GET api/videoClipLists
 // @acess Privet
@@ -15,7 +14,6 @@ const defaultAnalytics = [
 ];
 function countIdenticalValues(array, key) {
   const countMap = {};
-
   array.forEach(item => {
     const keys = key.split('.');
     let value = item;
@@ -115,7 +113,7 @@ function findMaxRepeatedString(arr) {
   // Return the maximum repeated string and its count
   return { string: maxString, count: maxCount };
 }
-function calculateAnalyticsPieChart({ array, key, key2 }) {
+function calculateAnalyticsPieChart({array, key, key2}) {
   const analytics = {};
   const analyticsArray = [];
   let analyticsArrayKeys = [];
@@ -124,15 +122,15 @@ function calculateAnalyticsPieChart({ array, key, key2 }) {
     const keys = key.split('.');
     const value1 = keys.reduce((acc, cur) => acc && acc[cur], item);
 
-    let keys2 = null, value2 = null;
-    if (key2) {
+    let keys2 = null,value2 = null;
+    if(key2){
       keys2 = key2.split('.');
       value2 = keys2.reduce((acc, cur) => acc && acc[cur], item);
     }
 
     if (value1 !== undefined) {
       // const label = `${value1}-${value2}`;
-      const label = value2 ? `${value2}` : `${value1}`;
+      const label = value2 ? `${value2}`: `${value1}`;
       analyticsArray.push({
         label: label,
         value: value1
@@ -145,9 +143,9 @@ function calculateAnalyticsPieChart({ array, key, key2 }) {
     const value = analyticsArray.filter((item) => item.label === key).map((item) => item.value);
     // console.log(key, value)
     const maxRepeated = findMaxRepeatedString(value)
-    if (key2) {
+    if(key2){
       analytics[`${key}-${maxRepeated.string}`] = value.length
-    } else {
+    }else{
       analytics[`${key}`] = value.length
     }
   })
@@ -161,7 +159,7 @@ function calculateAnalyticsPieChart({ array, key, key2 }) {
   }));
   return result;
 }
-function calculateAnalyticsHistogram({ array, key, key2, bins = 5 }) {
+function calculateAnalyticsHistogram({array, key, key2, bins = 5}) {
   const analytics = {};
   const analyticsMaxList = [];
   const analyticsReploted = []
@@ -172,15 +170,15 @@ function calculateAnalyticsHistogram({ array, key, key2, bins = 5 }) {
     const keys = key.split('.');
     const value1 = keys.reduce((acc, cur) => acc && acc[cur], item);
 
-    let keys2 = null, value2 = null;
-    if (key2) {
+    let keys2 = null,value2 = null;
+    if(key2){
       keys2 = key2.split('.');
       value2 = keys2.reduce((acc, cur) => acc && acc[cur], item);
     }
 
     if (value1 !== undefined) {
       // const label = `${value1}-${value2}`;
-      const label = value2 ? `${value2}` : `${value1}`;
+      const label = value2 ? `${value2}`: `${value1}`;
       analyticsArray.push({
         label: label,
         value: value1
@@ -279,14 +277,14 @@ export async function GET(req, res) {
     findFromDbApi.sort(req.nextUrl.searchParams.get('sort'))
   }
   const results = await findFromDbApi.exec();
-  const barchart = calculateAnalyticsHistogram({ array: analyticsForChart, key2: yAnalyticsKey, key: analyticsKey, bins: bins })
+  const barchart = calculateAnalyticsHistogram({array:analyticsForChart, key2:yAnalyticsKey, key:analyticsKey, bins:bins})
   const codingActivity = await CodingActivity.findById(keywords.codingActivity).select('featureEngineeringCode');
   return Response.json({
     results,
     page,
     pages: Math.ceil(count / pageSize),
-    analytics: histogramValidKey.includes(analyticsKey) ? false : calculateAnalyticsPieChart({ array: analyticsForChart, key: analyticsKey }),
-    barAnalytics: histogramValidKey.includes(analyticsKey) ? barchart : histogramValidKey.includes(analyticsKey),
+    analytics: histogramValidKey.includes(analyticsKey) ? false : calculateAnalyticsPieChart({array:analyticsForChart, key:analyticsKey}),
+    barAnalytics: histogramValidKey.includes(analyticsKey) ? barchart:  histogramValidKey.includes(analyticsKey),
     codingActivity
   }, {
     status: 200,
@@ -324,7 +322,7 @@ export async function POST(req) {
   const dataToSave = {}
   const ip = req?.ip || getClientIp(req) || req.headers.get('X-Forwarded-For')
   const ipData = await axios.get(`https://ipinfo.io/${ip}/json?token=${process.env.NEXT_PUBLIC_IP_IPINFO_TOKEN}`);
-  if (ip) {
+  if(ip){
     dataToSave.ip = ip;
   }
   const ipinfo = ipData?.data || {
@@ -336,7 +334,7 @@ export async function POST(req) {
     postal: 'unknown',
     timezone: 'unknown',
   }
-  if (ipinfo.city) {
+  if(ipinfo.city){
     dataToSave.city = ipinfo.city;
   }
   if (ipinfo.loc) {
@@ -383,23 +381,83 @@ export async function POST(req) {
   });
   return Response.json({ ...createdAnalytics._doc });
 }
-
+// fix formation
 export async function PUT(req) {
-  const body = await req.json()
-  const client = await mongodbClient;
-  const db = client.db();
-  const upd=[]
-  for (const updatedData of body.updateDataList) {
-    const id = updatedData._id;
-    delete updatedData._id;
-    const analytics = await db
-      .collection("analytics")
-      .find();
-      // .updateOne({ _id: id }, { $set: {...updatedData} });
-      upd.push({id,analytics})
-
+  await connectMongoDB();
+  const analytics = await Analytics.find({});
+  if (analytics) {
+    for (const analytic of analytics) {
+      const analyticsById = await Analytics.findById(analytic._id);
+      // if (analyticsById.time) {
+      //   analyticsById.sessionTime = {
+      //     start: analyticsById.time[0],
+      //     end: analyticsById.time[analyticsById.time.length - 1],
+      //     total: analyticsById.totalDurationInSeconds,
+      //   };
+      // }
+      // if(analyticsById.ipinfo){
+      //   const ipinfo = analyticsById.ipinfo;
+      //   if (ipinfo.loc) {
+      //     const loc = ipinfo.loc.split(',');
+      //     ipinfo.latitude = loc[0];
+      //     ipinfo.longitude = loc[1];
+      //   }
+      //   if (ipinfo.org) {
+      //     const org = ipinfo.org.split(' ');
+      //     ipinfo.asn = {
+      //       asn: org[0],
+      //       name: org.slice(1).join(' '),
+      //     }
+      //   }
+      // }
+      // if(analyticsById.browser){
+      //   analyticsById.browserVersion = analyticsById.browser.split('-')[1];
+      //   analyticsById.browser = analyticsById.browser.split('-')[0];
+      // }
+      // if(analyticsById.device){
+      //   analyticsById.deviceVersion = analyticsById.device.split('-')[1];
+      //   analyticsById.device = analyticsById.device.split('-')[0];
+      // }
+      // if(analyticsById.ipinfo.timezone){
+      //   analyticsById.ipinfo.continent = analyticsById.ipinfo.timezone.split('/')[0];
+      //   analyticsById.ipinfo.continentCity = analyticsById.ipinfo.timezone.split('/')[1];
+      // }
+      // analyticsById.ipinfo.timezone = {};
+      // if(analyticsById?.ipinfo?.continent){
+      //   analyticsById.ipinfo.timezone.continent = analyticsById?.ipinfo?.continent;
+      // }
+      // if(analyticsById?.ipinfo?.continentCity){
+      //   analyticsById.ipinfo.timezone.city = analyticsById?.ipinfo?.continentCity;
+      // }
+      // if(analyticsById?.ipinfo?.timezone){
+      //   analyticsById.ipinfo.timezone.tz = `${analyticsById?.ipinfo?.continent}/${analyticsById?.ipinfo?.continentCity}`;
+      // }
+      // delete analyticsById.time;
+      // delete analyticsById.totalDurationInSeconds;
+      if(analyticsById.screenWidth && analyticsById.screenHeight){
+        analyticsById.aspectRatio = (analyticsById.screenWidth/ analyticsById.screenHeight).toFixed(2);
+      }
+      // analyticsById.sessionStartTime = analyticsById.sessionTime.start
+      // analyticsById.sessionEndTime = analyticsById.sessionTime.end
+      // analyticsById.sessionDuration = analyticsById.sessionTime.total
+      // analyticsById.region = analyticsById.ipinfo.region
+      // analyticsById.country = analyticsById.ipinfo.country
+      // analyticsById.loc = analyticsById.ipinfo.loc
+      // analyticsById.latitude = analyticsById.ipinfo.latitude
+      // analyticsById.longitude = analyticsById.ipinfo.longitude
+      // analyticsById.org = analyticsById.ipinfo.org
+      // analyticsById.asn = analyticsById.ipinfo.asn.asn
+      // analyticsById.asnName = analyticsById.ipinfo.asn.name
+      // analyticsById.postal = analyticsById.ipinfo.postal
+      // analyticsById.timezone = analyticsById.ipinfo.timezone.tz
+      // analyticsById.city = analyticsById.ipinfo?.city || analyticsById.ipinfo?.continentCity || ""
+      // analyticsById.continent = analyticsById.ipinfo.timezone.continent
+      // console.log(analyticsById.city, JSON.stringify(Object.keys(analyticsById.ipinfo)))
+      await analyticsById.save();
+    }
   }
-  return Response.json({ message: 'Analytics updated', upd,d:body.updateDataList });
+
+  return Response.json({ message: 'Analytics updated' });
 }
 
 

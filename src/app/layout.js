@@ -22,16 +22,26 @@ const overRideConsoleScript = `
 
   // Function to send log data to the backend
   function sendLogToServer(logData) {
-    // fetch('https://your-backend-server.com/api/logs', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify(logData)
-    // })
-    // .catch(error => {
-    //   originalError('Failed to send log to server:', error);
-    // });
+    const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
+    if (!clientAnalyticsSessionExist) {
+      return
+    }
+    let path = location.pathname.split('/');
+    if(path.length !== 2 && path[1] !== 'coding-activity'){
+      return
+    }
+    const bodyData = {consoleIssue: JSON.stringify(logData)};
+    let origin = location.origin;
+    fetch(\`\${origin}/api/analytics/\${clientAnalyticsSessionExist}\`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(bodyData)
+    })
+    .catch(error => {
+      originalError('Failed to send log to server:', error);
+    });
   }
 
   // Override console.log

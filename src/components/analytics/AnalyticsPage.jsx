@@ -11,18 +11,16 @@ import { useDeleteByIds } from '@/components/hooks/ApiHooks';
 import Sidebar from '@/components/Sidebar';
 import { PieChart } from '@/components/coding-activity/chart/PieChart';
 import SortBtnComponent from '@/components/SortBtnComponent';
-import { BarChart } from '@/components/coding-activity/chart/BarChart';
 import BarChartApex from '../coding-activity/chart/BarChartApex';
-import PieChartApex from '../coding-activity/chart/PieChartApex';
 import MonacoCodeEditor from '../coding-activity/MonacoCodeEditor';
 import Script from 'next/script';
 import SelectorObject from '../customElements/SelectorObject';
-import { useFilterValues } from './AnalyticsHooks';
+import { useFilterValues, useUpdateFeatureEngineeringCode } from './AnalyticsHooks';
 import MultipleSelector from '../customElements/MultipleSelector';
-import { filter } from 'd3';
 import Link from 'next/link';
 const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   const filterHook = useFilterValues();
+  const featureEngineeringCodeUpdater = useUpdateFeatureEngineeringCode();
   const sortOrder = searchParams.sortOrder || -1,
     sortKey = searchParams.sortKey || "permission";
   const { userData, dispatchUserData } = useContext(UserContext);
@@ -46,6 +44,8 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   const [featureEngineeringPopup, setFeatureEngineeringPopup] = useState(false);
   const [featureEngineeringCode, setFeatureEngineeringCode] = useState("");
   const [listLoading, setListLoading] = useState(false);
+  const [imagePopup, setImagePopup] = useState(null);
+  const [issuePopup, setIssuePopup] = useState(null);
   const histogramValidKey = [
     "sessionTime.total",
     "sessionTime.start",
@@ -105,6 +105,11 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
       }
     }
   };
+  useEffect(() => {
+    if(filterValue1){
+      getAnalyticsDataList(page);
+    }
+  }, [filterValue1])
   const applyFilter = async () => {
     getAnalyticsDataList(page);
   }
@@ -290,17 +295,105 @@ ${nc2}`)
         getReadyPyodide();
         setTimeout(() => {
           runFeatureEngineering(apiCallCount + 1);
-        })
+        },1000)
       } else {
         console.log(error);
       }
     }
   }
-  useEffect(() => {
-    if (pyodideStatus) {
-      runFeatureEngineering()
+  const runFEPyodide = async ({apiCallCount, currentPage, pages, results}) => {
+    const code = featureEngineeringCode;
+    const list = results;
+    console.log("code: ", code);
+    if (code == "") {
+      alert("Please enter code to execute");
+      return;
     }
-  }, [pyodideStatus])
+    const nc = code.split("listOfDataFromAPI");
+    const nc2 = nc[0] + `
+r"""${JSON.stringify(list)}"""
+`+ nc[1];
+
+    try {
+      // console.log("executable code: ", nc2);
+      const op = pyodide.current.runPython(`
+${nc2}`)
+        ;
+      console.log("python op: ", op);
+      const jsonop = JSON.parse(op);
+      await updateFeatureEngineering({currentPage, pages, results: jsonop})
+    } catch (error) {
+      if (apiCallCount < 3) {
+        console.log("error: ", error);
+        console.log("retrying in 3 seconds");
+        getReadyPyodide();
+        setTimeout(() => {
+          runFEPyodide({apiCallCount:apiCallCount+1, currentPage, pages, results});
+        },1000)
+      } else {
+        console.log(error);
+      }
+    }
+  }
+  const [isApplyingfeatureEngineering, setIsApplyingfeatureEngineering] = useState(false);
+  const applyFeatureEngineering = async ({currentPage}) => {
+    const config = {
+      method: 'GET',
+      url: '/api/analytics/feature-engineering',
+      headers: {
+        Authorization: `Bearer ${getToken('token')}`,
+      },
+      params: {
+        pageNumber: currentPage
+      },
+    };
+    setIsApplyingfeatureEngineering(true);
+    try {
+      const response = await api.request(config);
+      const data = response.data;
+      console.log("FE get data: ",data)
+      await runFEPyodide({apiCallCount: 0, currentPage:data.page, pages: data.pages, results: data.results})
+      // setIsApplyingfeatureEngineering(false);
+    } catch (error) {
+      console.log(error);
+      setIsApplyingfeatureEngineering(false);
+      toast.error(error.message, {
+        position: 'top-center',
+      });
+    }
+  }
+  const updateFeatureEngineering = async ({currentPage, pages, results}) => {
+    const config = {
+      method: 'POST',
+      url: '/api/analytics/feature-engineering',
+      data: {
+        featureEngineeredDatas: results
+      },
+    };
+    setIsApplyingfeatureEngineering(true);
+    try {
+      const response = await api.request(config);
+      const results = response.data.results;
+      console.log("results: ", results);
+      if(currentPage < pages){
+        applyFeatureEngineering({currentPage: currentPage + 1})
+      }else{
+        location.reload();
+        setIsApplyingfeatureEngineering(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setIsApplyingfeatureEngineering(false);
+      toast.error(error.message, {
+        position: 'top-center',
+      });
+    }
+  }
+  // useEffect(() => {
+  //   if (pyodideStatus) {
+  //     runFeatureEngineering()
+  //   }
+  // }, [pyodideStatus])
   useEffect(() => {
     const checkVisivility = () => {
       if (document.hidden) {
@@ -324,6 +417,13 @@ ${nc2}`)
       document.removeEventListener('visibilitychange', checkVisivility)
     }
   }, [])
+  const getFeatureEngineeringFilterKeys=()=>{
+   const fe = analyticsList?.results[0]?.featureEngineeredData
+    if(fe){
+      return Object.keys(fe).map((item)=>({key:`featureEngineeredData.${item}`, value:item}))
+    }
+    return []
+  }
   return (
     <>
       <Script
@@ -339,9 +439,9 @@ ${nc2}`)
 
           <div className="container mx-auto py-4 px-4 md:px-0">
             <div>
-              <button
-              onClick={() => fix()}
-              >FIx data</button>
+              {/* <button
+                onClick={() => fix()}
+              >FIx data</button> */}
               <div className="w-full flex-colflex justify-center items-center text-white pb-3">
                 <div className='py-2'>
                   <div className='flex flex-wrap -m-1'>
@@ -436,10 +536,9 @@ ${nc2}`)
                       )}
                     </select> */}
                       <SelectorObject
-                        fields={[{ key: null, value: "None" }, ...filterOptionsArray]}
+                        fields={[{ key: null, value: "None" }, ...filterOptionsArray, ...getFeatureEngineeringFilterKeys()]}
                         labelKey="value"
                         handleSelected={(e) => setFilterKey(e.key)}
-
                       >
                         {filterOptionsArray.find(e => e.key === filterKey)?.value}
                       </SelectorObject>
@@ -458,11 +557,11 @@ ${nc2}`)
                         {filterValue1 ? filterValue1.join(", ") : "None"}
                       </MultipleSelector>
                     </div>
-                    <div className={`p-1 w-56 ${filterKey && filterHook.filterValues ? "" : "hidden"}`}>
+                    {/* <div className={`p-1 w-56 ${filterKey && filterHook.filterValues ? "" : "hidden"}`}>
                       <button className='edit_button bg-ui-violet hover:bg-ui-violet'
                         onClick={applyFilter}
                       >Apply FIlter</button>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
                 {analyticsList?.barAnalytics ? (
@@ -484,27 +583,29 @@ ${nc2}`)
                   </button>
                 </div>
                 <div className={`p-1`}>
+                  {pyodideStatus ?
                   <button
                     type="button"
                     className="edit_button"
                     onClick={() => setFeatureEngineeringPopup(true)}
                   >
-                    Feature Engineering {pyodideStatus ? "Ready" : "Loading"}
+                    Feature Engineering Ready
                   </button>
-                </div>
-                <div className={`p-1`}>
+                  :
                   <button
                     type="button"
                     className="edit_button"
-                    onClick={() => runFeatureEngineering()}
+                    onClick={() => getReadyPyodide()}
                   >
-                    Apply Feature Engineering
+                    Feature Engineering Loading {pyodideStatus}
                   </button>
+                  }
                 </div>
               </div>
               <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                  {/* <div>{JSON.stringify(analyticsList?.results)}</div> */}
                 <table className="w-full text-sm text-left text-gray-400">
-                  <thead className="text-xs uppercase bg-gray-900 text-gray-400">
+                  <thead className="text-xs bg-gray-900 text-gray-400">
                     <tr>
                       <th scope="col" className="px-6 py-3">
                         <button
@@ -516,6 +617,32 @@ ${nc2}`)
                             <MdCheckBoxOutlineBlank />
                           }
                         </button>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <div>
+                        issue1
+                        </div>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        issue2
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        issue3
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        issueList
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        attachment1
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        attachment2
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        attachment3
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        attachmentList
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
@@ -719,12 +846,15 @@ ${nc2}`)
                           aspectRatio
                         </SortBtnComponent>
                       </th>
-                        <th scope="col" className="px-6 py-3">
-                         Issue list
-                        </th>
-                      {featureEngList && featureEngList.length > 0 && Object.keys(featureEngList[0]).map((item2, index) => (
+                      {analyticsList?.results[0]?.featureEngineeredData && Object.keys(analyticsList?.results[0]?.featureEngineeredData).length > 0 && Object.keys(analyticsList?.results[0]?.featureEngineeredData).map((item2, index) => (
                         <th scope="col" className="px-6 py-3" key={index}>
+                          <SortBtnComponent
+                          feildKey={`featureEngineeredData.${item2}`}
+                          sortOrder={sortOrder}
+                          sortKey={sortKey}
+                        >
                           {item2}
+                        </SortBtnComponent>
                         </th>
                       ))}
                       <th scope="col" className="px-6 py-3 text-right">
@@ -748,6 +878,50 @@ ${nc2}`)
                                   <span className="text-ui-purple"><MdCheckBox /> </span> :
                                   <MdCheckBoxOutlineBlank />
                                 }
+                              </button>
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.issue1 || "No Issue"}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.issue2 || "No Issue"}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.issue3 || "No Issue"}
+                            </td>
+                            <td className="px-6 py-4">
+                              <button className={`${item?.issueList?.length > 0 ? "text-ui-violet" : "pointer-events-none"}`}
+                                onClick={() => setIssuePopup(item?.issueList)}
+                              >
+                                {item?.issueList?.length > 0 ? "Click To See" : "No Additional Issue"}
+                              </button>
+                            </td>
+                            <td className="px-6 py-4">
+                              <button className={`${item?.attachment1 ? "text-ui-violet" : "pointer-events-none"}`}
+                                onClick={() => setImagePopup([item?.attachment1])}
+                              >
+                                {item?.attachment1 ? "Attachment" : "No Attachment"}
+                              </button>
+                            </td>
+                            <td className="px-6 py-4">
+                              <button className={`${item?.attachment2 ? "text-ui-violet" : "pointer-events-none"}`}
+                                onClick={() => setImagePopup([item?.attachment2])}
+                              >
+                                {item?.attachment2 ? "Attachment" : "No Attachment"}
+                              </button>
+                            </td>
+                            <td className="px-6 py-4">
+                              <button className={`${item?.attachment3 ? "text-ui-violet" : "pointer-events-none"}`}
+                                onClick={() => setImagePopup([item?.attachment3])}
+                              >
+                                {item?.attachment3 ? "Attachment" : "No Attachment"}
+                              </button>
+                            </td>
+                            <td className="px-6 py-4">
+                              <button className={`${item?.attachmentList?.length > 0 ? "text-ui-violet" : "pointer-events-none"}`}
+                                onClick={() => setImagePopup(item?.attachmentList)}
+                              >
+                                {item?.attachmentList?.length > 0 ? "Attachment" : "No Attachment"}
                               </button>
                             </td>
                             <td className="px-6 py-4">
@@ -810,23 +984,9 @@ ${nc2}`)
                             <td className="px-6 py-4">
                               {item?.aspectRatio}
                             </td>
-                            <td className="px-6 py-4">
-                              {item?.codeExecutorIssueList && item?.codeExecutorIssueList.length > 0 ? (
-                                item.codeExecutorIssueList.map((issue, issueIndex) => (
-                                  <div
-                                    key={issueIndex}>
-                                  <Link className='text-ui-violet hover:text-ui-violet'
-                                  href={`/dashboard/coding-activity/${params.codingActivityId}/submissions?filterById=${issue}`}
-                                  >
-                                    {issue}
-                                  </Link>
-                                  </div>
-                                )
-                              )): "No Issue"}
-                            </td>
-                            {featureEngList && featureEngList.length > 0 && Object.keys(featureEngList[0]).map((item2, item2Index) => (
+                            {analyticsList?.results[0]?.featureEngineeredData && Object.keys(analyticsList?.results[0]?.featureEngineeredData).length > 0 && Object.keys(analyticsList?.results[0]?.featureEngineeredData).map((item2, item2Index) => (
                               <td scope="col" className="px-6 py-3" key={item2Index}>
-                                {featureEngList[index][item2]}
+                                {analyticsList?.results[index]?.featureEngineeredData[item2]}
                               </td>
                             ))}
                             <td className="px-6 py-4 text-right">
@@ -906,7 +1066,7 @@ ${nc2}`)
                 />
               )}
             </div>
-            {deletePopup && (
+            {deletePopup ? (
               <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50">
                 <div className="relative w-full max-w-md max-h-full">
                   <div className="relative rounded-lg shadow bg-gray-700">
@@ -974,8 +1134,8 @@ ${nc2}`)
                   </div>
                 </div>
               </div>
-            )}
-            {featureEngineeringPopup && (
+            ):""}
+            {featureEngineeringPopup ? (
               <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50">
                 <div className="relative w-full max-w-md max-h-full">
                   <div className="relative rounded-lg shadow bg-gray-700">
@@ -1020,9 +1180,17 @@ ${nc2}`)
                         data-modal-hide="popup-modal"
                         type="button"
                         className="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
-                        onClick={() => handleDelete()}
+                        onClick={() => featureEngineeringCodeUpdater.update(params.codingActivityId, featureEngineeringCode)}
                       >
-                        Yes, I&apos;m sure
+                        {featureEngineeringCodeUpdater.loading?"Saving...":"Save Code"}
+                      </button>
+                      <button
+                        data-modal-hide="popup-modal"
+                        type="button"
+                        className="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
+                        onClick={() => applyFeatureEngineering({currentPage:1})}
+                      >
+                        {isApplyingfeatureEngineering? "Applying...":"Apply"}
                       </button>
                       <button
                         data-modal-hide="popup-modal"
@@ -1038,7 +1206,144 @@ ${nc2}`)
                   </div>
                 </div>
               </div>
-            )}
+            ):""}
+            {imagePopup ? (
+              <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50"
+              onClick={() => setImagePopup(null)}
+              >
+                <div className="relative w-full max-w-md max-h-full">
+                  <div className="relative rounded-lg shadow bg-gray-700"
+                  
+                  onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      className="absolute top-3 right-2.5 text-gray-400 bg-transparent rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center hover:bg-gray-600 hover:text-white"
+                      data-modal-hide="popup-modal"
+                      onClick={() => setImagePopup(null)}
+                    >
+                      <svg
+                        className="w-3 h-3"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 14 14"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                        />
+                      </svg>
+                      <span className="sr-only">Close modal</span>
+                    </button>
+                    <div className="p-6 text-center">
+                      <svg
+                        className="mx-auto mb-4 w-12 h-12 text-gray-200"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                        />
+                      </svg>
+                      <div className='p-2 rounded-md overflow-auto'>
+                        {imagePopup.map((item, index) => (
+                          <img key={index} src={item?.data} />
+                        ))}
+                      </div>
+                      <button
+                        data-modal-hide="popup-modal"
+                        type="button"
+                        className="focus:ring-4 focus:outline-none rounded-lg border text-sm font-medium px-5 py-2.5 focus:z-10 bg-gray-700 text-gray-300 border-gray-500 hover:text-white hover:bg-gray-600 focus:ring-gray-600"
+                        onClick={() => {
+                          setImagePopup(null);
+                        }}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ):""}
+            {issuePopup ? (
+              <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50"
+                onClick={() => setIssuePopup(null)}
+              >
+                <div className="relative w-full max-w-md max-h-full">
+                  <div className="relative rounded-lg shadow bg-gray-700"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      className="absolute top-3 right-2.5 text-gray-400 bg-transparent rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center hover:bg-gray-600 hover:text-white"
+                      data-modal-hide="popup-modal"
+                      onClick={() => setIssuePopup(null)}
+                    >
+                      <svg
+                        className="w-3 h-3"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 14 14"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                        />
+                      </svg>
+                      <span className="sr-only">Close modal</span>
+                    </button>
+                    <div className="p-6 text-center">
+                      <svg
+                        className="mx-auto mb-4 w-12 h-12 text-gray-200"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                        />
+                      </svg>
+                      <div className='p-2 rounded-md overflow-auto text-white'>
+                        {issuePopup.map((item, index) => (
+                          <div key={index}>
+                            {typeof item === 'object' ? JSON.stringify(item) : item}
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        data-modal-hide="popup-modal"
+                        type="button"
+                        className="focus:ring-4 focus:outline-none rounded-lg border text-sm font-medium px-5 py-2.5 focus:z-10 bg-gray-700 text-gray-300 border-gray-500 hover:text-white hover:bg-gray-600 focus:ring-gray-600"
+                        onClick={() => {
+                          setIssuePopup(null);
+                        }}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ):""}
           </div>
         </div>
       </div>
