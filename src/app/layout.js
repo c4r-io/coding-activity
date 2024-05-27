@@ -26,6 +26,10 @@ const overRideConsoleScript = `
     if (!clientAnalyticsSessionExist) {
       return
     }
+    let path = location.pathname.split('/');
+    if(path.length !== 2 && path[1] !== 'coding-activity'){
+      return
+    }
     const bodyData = {consoleIssue: JSON.stringify(logData)};
     let origin = location.origin;
     fetch(\`\${origin}/api/analytics/\${clientAnalyticsSessionExist}\`, {

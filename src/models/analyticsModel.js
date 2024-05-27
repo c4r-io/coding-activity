@@ -122,6 +122,9 @@ const analyticsSchema = mongoose.Schema(
     attachmentList: [{
       type: Object,
     }],
+    featureEngineeredData: {
+      type: Object,
+    },
   },
   {
     timestamps: true,

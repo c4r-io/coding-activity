@@ -11,18 +11,16 @@ import { useDeleteByIds } from '@/components/hooks/ApiHooks';
 import Sidebar from '@/components/Sidebar';
 import { PieChart } from '@/components/coding-activity/chart/PieChart';
 import SortBtnComponent from '@/components/SortBtnComponent';
-import { BarChart } from '@/components/coding-activity/chart/BarChart';
 import BarChartApex from '../coding-activity/chart/BarChartApex';
-import PieChartApex from '../coding-activity/chart/PieChartApex';
 import MonacoCodeEditor from '../coding-activity/MonacoCodeEditor';
 import Script from 'next/script';
 import SelectorObject from '../customElements/SelectorObject';
-import { useFilterValues } from './AnalyticsHooks';
+import { useFilterValues, useUpdateFeatureEngineeringCode } from './AnalyticsHooks';
 import MultipleSelector from '../customElements/MultipleSelector';
-import { filter } from 'd3';
 import Link from 'next/link';
 const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   const filterHook = useFilterValues();
+  const featureEngineeringCodeUpdater = useUpdateFeatureEngineeringCode();
   const sortOrder = searchParams.sortOrder || -1,
     sortKey = searchParams.sortKey || "permission";
   const { userData, dispatchUserData } = useContext(UserContext);
@@ -107,6 +105,11 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
       }
     }
   };
+  useEffect(() => {
+    if(filterValue1){
+      getAnalyticsDataList(page);
+    }
+  }, [filterValue1])
   const applyFilter = async () => {
     getAnalyticsDataList(page);
   }
@@ -292,17 +295,105 @@ ${nc2}`)
         getReadyPyodide();
         setTimeout(() => {
           runFeatureEngineering(apiCallCount + 1);
-        })
+        },1000)
       } else {
         console.log(error);
       }
     }
   }
-  useEffect(() => {
-    if (pyodideStatus) {
-      runFeatureEngineering()
+  const runFEPyodide = async ({apiCallCount, currentPage, pages, results}) => {
+    const code = featureEngineeringCode;
+    const list = results;
+    console.log("code: ", code);
+    if (code == "") {
+      alert("Please enter code to execute");
+      return;
     }
-  }, [pyodideStatus])
+    const nc = code.split("listOfDataFromAPI");
+    const nc2 = nc[0] + `
+r"""${JSON.stringify(list)}"""
+`+ nc[1];
+
+    try {
+      // console.log("executable code: ", nc2);
+      const op = pyodide.current.runPython(`
+${nc2}`)
+        ;
+      console.log("python op: ", op);
+      const jsonop = JSON.parse(op);
+      await updateFeatureEngineering({currentPage, pages, results: jsonop})
+    } catch (error) {
+      if (apiCallCount < 3) {
+        console.log("error: ", error);
+        console.log("retrying in 3 seconds");
+        getReadyPyodide();
+        setTimeout(() => {
+          runFEPyodide({apiCallCount:apiCallCount+1, currentPage, pages, results});
+        },1000)
+      } else {
+        console.log(error);
+      }
+    }
+  }
+  const [isApplyingfeatureEngineering, setIsApplyingfeatureEngineering] = useState(false);
+  const applyFeatureEngineering = async ({currentPage}) => {
+    const config = {
+      method: 'GET',
+      url: '/api/analytics/feature-engineering',
+      headers: {
+        Authorization: `Bearer ${getToken('token')}`,
+      },
+      params: {
+        pageNumber: currentPage
+      },
+    };
+    setIsApplyingfeatureEngineering(true);
+    try {
+      const response = await api.request(config);
+      const data = response.data;
+      console.log("FE get data: ",data)
+      await runFEPyodide({apiCallCount: 0, currentPage:data.page, pages: data.pages, results: data.results})
+      // setIsApplyingfeatureEngineering(false);
+    } catch (error) {
+      console.log(error);
+      setIsApplyingfeatureEngineering(false);
+      toast.error(error.message, {
+        position: 'top-center',
+      });
+    }
+  }
+  const updateFeatureEngineering = async ({currentPage, pages, results}) => {
+    const config = {
+      method: 'POST',
+      url: '/api/analytics/feature-engineering',
+      data: {
+        featureEngineeredDatas: results
+      },
+    };
+    setIsApplyingfeatureEngineering(true);
+    try {
+      const response = await api.request(config);
+      const results = response.data.results;
+      console.log("results: ", results);
+      if(currentPage < pages){
+        applyFeatureEngineering({currentPage: currentPage + 1})
+      }else{
+        location.reload();
+        setIsApplyingfeatureEngineering(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setIsApplyingfeatureEngineering(false);
+      toast.error(error.message, {
+        position: 'top-center',
+      });
+    }
+  }
+  // useEffect(() => {
+  //   if (pyodideStatus) {
+  //     runFeatureEngineering()
+  //   }
+  // }, [pyodideStatus])
   useEffect(() => {
     const checkVisivility = () => {
       if (document.hidden) {
@@ -326,6 +417,13 @@ ${nc2}`)
       document.removeEventListener('visibilitychange', checkVisivility)
     }
   }, [])
+  const getFeatureEngineeringFilterKeys=()=>{
+   const fe = analyticsList?.results[0]?.featureEngineeredData
+    if(fe){
+      return Object.keys(fe).map((item)=>({key:`featureEngineeredData.${item}`, value:item}))
+    }
+    return []
+  }
   return (
     <>
       <Script
@@ -341,9 +439,9 @@ ${nc2}`)
 
           <div className="container mx-auto py-4 px-4 md:px-0">
             <div>
-              <button
+              {/* <button
                 onClick={() => fix()}
-              >FIx data</button>
+              >FIx data</button> */}
               <div className="w-full flex-colflex justify-center items-center text-white pb-3">
                 <div className='py-2'>
                   <div className='flex flex-wrap -m-1'>
@@ -438,10 +536,9 @@ ${nc2}`)
                       )}
                     </select> */}
                       <SelectorObject
-                        fields={[{ key: null, value: "None" }, ...filterOptionsArray]}
+                        fields={[{ key: null, value: "None" }, ...filterOptionsArray, ...getFeatureEngineeringFilterKeys()]}
                         labelKey="value"
                         handleSelected={(e) => setFilterKey(e.key)}
-
                       >
                         {filterOptionsArray.find(e => e.key === filterKey)?.value}
                       </SelectorObject>
@@ -460,11 +557,11 @@ ${nc2}`)
                         {filterValue1 ? filterValue1.join(", ") : "None"}
                       </MultipleSelector>
                     </div>
-                    <div className={`p-1 w-56 ${filterKey && filterHook.filterValues ? "" : "hidden"}`}>
+                    {/* <div className={`p-1 w-56 ${filterKey && filterHook.filterValues ? "" : "hidden"}`}>
                       <button className='edit_button bg-ui-violet hover:bg-ui-violet'
                         onClick={applyFilter}
                       >Apply FIlter</button>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
                 {analyticsList?.barAnalytics ? (
@@ -486,25 +583,27 @@ ${nc2}`)
                   </button>
                 </div>
                 <div className={`p-1`}>
+                  {pyodideStatus ?
                   <button
                     type="button"
                     className="edit_button"
                     onClick={() => setFeatureEngineeringPopup(true)}
                   >
-                    Feature Engineering {pyodideStatus ? "Ready" : "Loading"}
+                    Feature Engineering Ready
                   </button>
-                </div>
-                <div className={`p-1`}>
+                  :
                   <button
                     type="button"
                     className="edit_button"
-                    onClick={() => runFeatureEngineering()}
+                    onClick={() => getReadyPyodide()}
                   >
-                    Apply Feature Engineering
+                    Feature Engineering Loading {pyodideStatus}
                   </button>
+                  }
                 </div>
               </div>
               <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                  {/* <div>{JSON.stringify(analyticsList?.results)}</div> */}
                 <table className="w-full text-sm text-left text-gray-400">
                   <thead className="text-xs bg-gray-900 text-gray-400">
                     <tr>
@@ -747,9 +846,15 @@ ${nc2}`)
                           aspectRatio
                         </SortBtnComponent>
                       </th>
-                      {featureEngList && featureEngList.length > 0 && Object.keys(featureEngList[0]).map((item2, index) => (
+                      {analyticsList?.results[0]?.featureEngineeredData && Object.keys(analyticsList?.results[0]?.featureEngineeredData).length > 0 && Object.keys(analyticsList?.results[0]?.featureEngineeredData).map((item2, index) => (
                         <th scope="col" className="px-6 py-3" key={index}>
+                          <SortBtnComponent
+                          feildKey={`featureEngineeredData.${item2}`}
+                          sortOrder={sortOrder}
+                          sortKey={sortKey}
+                        >
                           {item2}
+                        </SortBtnComponent>
                         </th>
                       ))}
                       <th scope="col" className="px-6 py-3 text-right">
@@ -879,9 +984,9 @@ ${nc2}`)
                             <td className="px-6 py-4">
                               {item?.aspectRatio}
                             </td>
-                            {featureEngList && featureEngList.length > 0 && Object.keys(featureEngList[0]).map((item2, item2Index) => (
+                            {analyticsList?.results[0]?.featureEngineeredData && Object.keys(analyticsList?.results[0]?.featureEngineeredData).length > 0 && Object.keys(analyticsList?.results[0]?.featureEngineeredData).map((item2, item2Index) => (
                               <td scope="col" className="px-6 py-3" key={item2Index}>
-                                {featureEngList[index][item2]}
+                                {analyticsList?.results[index]?.featureEngineeredData[item2]}
                               </td>
                             ))}
                             <td className="px-6 py-4 text-right">
@@ -961,7 +1066,7 @@ ${nc2}`)
                 />
               )}
             </div>
-            {deletePopup && (
+            {deletePopup ? (
               <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50">
                 <div className="relative w-full max-w-md max-h-full">
                   <div className="relative rounded-lg shadow bg-gray-700">
@@ -1029,8 +1134,8 @@ ${nc2}`)
                   </div>
                 </div>
               </div>
-            )}
-            {featureEngineeringPopup && (
+            ):""}
+            {featureEngineeringPopup ? (
               <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50">
                 <div className="relative w-full max-w-md max-h-full">
                   <div className="relative rounded-lg shadow bg-gray-700">
@@ -1075,9 +1180,17 @@ ${nc2}`)
                         data-modal-hide="popup-modal"
                         type="button"
                         className="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
-                        onClick={() => handleDelete()}
+                        onClick={() => featureEngineeringCodeUpdater.update(params.codingActivityId, featureEngineeringCode)}
                       >
-                        Yes, I&apos;m sure
+                        {featureEngineeringCodeUpdater.loading?"Saving...":"Save Code"}
+                      </button>
+                      <button
+                        data-modal-hide="popup-modal"
+                        type="button"
+                        className="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
+                        onClick={() => applyFeatureEngineering({currentPage:1})}
+                      >
+                        {isApplyingfeatureEngineering? "Applying...":"Apply"}
                       </button>
                       <button
                         data-modal-hide="popup-modal"
@@ -1093,8 +1206,8 @@ ${nc2}`)
                   </div>
                 </div>
               </div>
-            )}
-            {imagePopup && (
+            ):""}
+            {imagePopup ? (
               <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50"
               onClick={() => setImagePopup(null)}
               >
@@ -1161,8 +1274,8 @@ ${nc2}`)
                   </div>
                 </div>
               </div>
-            )}
-            {issuePopup && (
+            ):""}
+            {issuePopup ? (
               <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50"
                 onClick={() => setIssuePopup(null)}
               >
@@ -1230,7 +1343,7 @@ ${nc2}`)
                   </div>
                 </div>
               </div>
-            )}
+            ):""}
           </div>
         </div>
       </div>
