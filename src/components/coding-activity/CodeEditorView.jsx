@@ -306,9 +306,7 @@ print(opdt)
             error: error,
           });
           errorAnalytics.send({
-            issueCode: 5000,
-            issueType: "Python Code Execution Error",
-            description: typeof(error) == 'string' ? error : JSON.stringify(error),
+            consoleIssue: typeof(error) == 'string' ? error : JSON.stringify(error),
           })
           // setExecutedCodeErrorOutput("Error: " + error);
         }
@@ -330,9 +328,7 @@ print(opdt)
         });
         setIsCodeExecuting(false);
         errorAnalytics.send({
-          issueCode: 5001,
-          issueType: "Javascript Code Execution Error",
-          description: typeof(error) == 'string' ? error : JSON.stringify(error),
+          consoleIssue: typeof(error) == 'string' ? error : JSON.stringify(error),
         })
       }
       // getReadyPyodide()
@@ -342,14 +338,14 @@ print(opdt)
   const issueAnalytics = useIssueAnalytics();
   const createSamplePythonExecutorIssueList = async () => {
     if (issueDiscription == null) {
-      toast.error("Please enter issue description", {
+      toast.error("Please enter issue issue", {
         position: "top-center",
       });
       return;
     }
     issueAnalytics.send({
-      codingActivity: uiData.codingActivityId,
-      description: issueDiscription,
+      // codingActivity: uiData.codingActivityId,
+      issue: issueDiscription,
       attachment: issueAttachment
     }, (data) => {
       setIssueDiscription(null);
