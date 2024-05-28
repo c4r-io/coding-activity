@@ -453,6 +453,7 @@ export async function PUT(req) {
       // analyticsById.city = analyticsById.ipinfo?.city || analyticsById.ipinfo?.continentCity || ""
       // analyticsById.continent = analyticsById.ipinfo.timezone.continent
       // console.log(analyticsById.city, JSON.stringify(Object.keys(analyticsById.ipinfo)))
+      // console.log(analyticsById.aspectRatio)
       await analyticsById.save();
     }
   }

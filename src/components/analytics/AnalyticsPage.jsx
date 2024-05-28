@@ -18,6 +18,8 @@ import SelectorObject from '../customElements/SelectorObject';
 import { useFilterValues, useUpdateFeatureEngineeringCode } from './AnalyticsHooks';
 import MultipleSelector from '../customElements/MultipleSelector';
 import Link from 'next/link';
+import { Checkbox } from '@headlessui/react';
+import { filter } from 'lodash';
 const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   const filterHook = useFilterValues();
   const featureEngineeringCodeUpdater = useUpdateFeatureEngineeringCode();
@@ -35,6 +37,7 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   const [deleteId, setDeleteId] = useState(null);
   const [analyticsKey, setAnalyticsKey] = useState("device");
   const [yAnalyticsKey, setYAnalyticsKey] = useState(null);
+  const [reduction, setReduction] = useState(false);
   const [filterKey, setFilterKey] = useState("");
   const [filterValue1, setFilterValue1] = useState("");
   const [filterValue2, setFilterValue2] = useState("");
@@ -47,7 +50,7 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   const [imagePopup, setImagePopup] = useState(null);
   const [issuePopup, setIssuePopup] = useState(null);
   const histogramValidKey = [
-    "sessionTime.total",
+    "sessionDuration",
     "sessionTime.start",
     "sessionTime.end",
     "screenWidth",
@@ -60,8 +63,21 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
     if (searchParams.sortKey) {
       additionalParams.sort = `${searchParams?.sortOrder == 1 ? "" : "-"}${searchParams.sortKey}`
     }
+    console.log(yAnalyticsKey, filterKey, filterValue1)
     if (yAnalyticsKey) {
-      searchParams.yAnalyticsKey = searchParams;
+      additionalParams.yAnalyticsKey = yAnalyticsKey;
+    }
+    if (filterKey) {
+      additionalParams.filterKey= filterKey
+    }
+    if (filterValue1) {
+      additionalParams.filterValue1= JSON.stringify(filterValue1)
+    }
+    if(bins){
+      additionalParams.bins = bins;
+    }
+    if(reduction){
+      additionalParams.reduction = reduction;
     }
     console.log("Sort Params", additionalParams)
     const config = {
@@ -73,11 +89,8 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
       params: {
         pageNumber: page,
         codingActivity: params.codingActivityId,
-        select: '',
+        select: '-sessionTime -ipinfo',
         analyticsKey: analyticsKey,
-        filterKey: filterKey,
-        filterValue1: JSON.stringify(filterValue1),
-        bins,
         histogramValidKey: JSON.stringify(histogramValidKey),
         ...additionalParams
       },
@@ -106,7 +119,7 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
     }
   };
   useEffect(() => {
-    if(filterValue1){
+    if (filterValue1) {
       getAnalyticsDataList(page);
     }
   }, [filterValue1])
@@ -139,7 +152,7 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   };
   useEffect(() => {
     getAnalyticsDataList(page);
-  }, [page, analyticsKey, yAnalyticsKey, bins]);
+  }, [page, analyticsKey, yAnalyticsKey, bins, reduction]);
 
 
   const toggleAddToDeleteList = (id) => {
@@ -164,15 +177,10 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
     }
   }, [filterKey])
   const filterOptionsArray = [
-    { key: "sessionTime.total", value: "Total Duration" },
+    { key: null, value: "None" },
+    { key: "sessionDuration", value: "Total Duration" },
     { key: "ip", value: "IP" },
-    // { key: "ipinfo.city", value: "City" },
-    // { key: "ipinfo.region", value: "Region" },
-    { key: "ipinfo.country", value: "Country" },
-    // { key: "ipinfo.loc", value: "Loc" },
-    // { key: "ipinfo.org", value: "Org" },
-    // { key: "ipinfo.postal", value: "Postal" },
-    // { key: "ipinfo.timezone", value: "Timezone" },
+    { key: "country", value: "Country" },
     { key: "device", value: "OS" },
     { key: "deviceVersion", value: "OS Version" },
     { key: "screenWidth", value: "Width" },
@@ -182,15 +190,9 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
     { key: "_id", value: "Session" },
   ];
   const optionsArray = [
-    { key: "sessionTime.total", value: "Total Duration" },
+    { key: "sessionDuration", value: "Total Duration" },
     { key: "ip", value: "IP" },
-    // { key: "ipinfo.city", value: "City" },
-    // { key: "ipinfo.region", value: "Region" },
-    { key: "ipinfo.country", value: "Country" },
-    // { key: "ipinfo.loc", value: "Loc" },
-    // { key: "ipinfo.org", value: "Org" },
-    // { key: "ipinfo.postal", value: "Postal" },
-    // { key: "ipinfo.timezone", value: "Timezone" },
+    { key: "country", value: "Country" },
     { key: "device", value: "OS" },
     { key: "deviceVersion", value: "OS Version" },
     { key: "screenWidth", value: "Width" },
@@ -200,15 +202,9 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
     { key: "_id", value: "Session" },
   ];
   const yOptionArray = [
-    { key: "None", value: null },
+    { key: null, value: "None" },
     { key: "ip", value: "IP" },
-    // { key: "ipinfo.city", value: "City" },
-    // { key: "ipinfo.region", value: "Region" },
-    { key: "ipinfo.country", value: "Country" },
-    // { key: "ipinfo.loc", value: "Loc" },
-    // { key: "ipinfo.org", value: "Org" },
-    // { key: "ipinfo.postal", value: "Postal" },
-    // { key: "ipinfo.timezone", value: "Timezone" },
+    { key: "country", value: "Country" },
     { key: "device", value: "OS" },
     { key: "deviceVersion", value: "OS Version" },
     { key: "uid", value: "Device" },
@@ -223,7 +219,7 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
   const fix = async (callbackSuccess, callbackError) => {
     const config = {
       method: "put",
-      url: "/api/analytics",
+      url: "/api/analytics/fix",
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -295,13 +291,13 @@ ${nc2}`)
         getReadyPyodide();
         setTimeout(() => {
           runFeatureEngineering(apiCallCount + 1);
-        },1000)
+        }, 1000)
       } else {
         console.log(error);
       }
     }
   }
-  const runFEPyodide = async ({apiCallCount, currentPage, pages, results}) => {
+  const runFEPyodide = async ({ apiCallCount, currentPage, pages, results }) => {
     const code = featureEngineeringCode;
     const list = results;
     console.log("code: ", code);
@@ -321,22 +317,22 @@ ${nc2}`)
         ;
       console.log("python op: ", op);
       const jsonop = JSON.parse(op);
-      await updateFeatureEngineering({currentPage, pages, results: jsonop})
+      await updateFeatureEngineering({ currentPage, pages, results: jsonop })
     } catch (error) {
       if (apiCallCount < 3) {
         console.log("error: ", error);
         console.log("retrying in 3 seconds");
         getReadyPyodide();
         setTimeout(() => {
-          runFEPyodide({apiCallCount:apiCallCount+1, currentPage, pages, results});
-        },1000)
+          runFEPyodide({ apiCallCount: apiCallCount + 1, currentPage, pages, results });
+        }, 1000)
       } else {
         console.log(error);
       }
     }
   }
   const [isApplyingfeatureEngineering, setIsApplyingfeatureEngineering] = useState(false);
-  const applyFeatureEngineering = async ({currentPage}) => {
+  const applyFeatureEngineering = async ({ currentPage }) => {
     const config = {
       method: 'GET',
       url: '/api/analytics/feature-engineering',
@@ -351,8 +347,8 @@ ${nc2}`)
     try {
       const response = await api.request(config);
       const data = response.data;
-      console.log("FE get data: ",data)
-      await runFEPyodide({apiCallCount: 0, currentPage:data.page, pages: data.pages, results: data.results})
+      console.log("FE get data: ", data)
+      await runFEPyodide({ apiCallCount: 0, currentPage: data.page, pages: data.pages, results: data.results })
       // setIsApplyingfeatureEngineering(false);
     } catch (error) {
       console.log(error);
@@ -362,7 +358,7 @@ ${nc2}`)
       });
     }
   }
-  const updateFeatureEngineering = async ({currentPage, pages, results}) => {
+  const updateFeatureEngineering = async ({ currentPage, pages, results }) => {
     const config = {
       method: 'POST',
       url: '/api/analytics/feature-engineering',
@@ -375,9 +371,9 @@ ${nc2}`)
       const response = await api.request(config);
       const results = response.data.results;
       console.log("results: ", results);
-      if(currentPage < pages){
-        applyFeatureEngineering({currentPage: currentPage + 1})
-      }else{
+      if (currentPage < pages) {
+        applyFeatureEngineering({ currentPage: currentPage + 1 })
+      } else {
         location.reload();
         setIsApplyingfeatureEngineering(false);
       }
@@ -417,10 +413,10 @@ ${nc2}`)
       document.removeEventListener('visibilitychange', checkVisivility)
     }
   }, [])
-  const getFeatureEngineeringFilterKeys=()=>{
-   const fe = analyticsList?.results[0]?.featureEngineeredData
-    if(fe){
-      return Object.keys(fe).map((item)=>({key:`featureEngineeredData.${item}`, value:item}))
+  const getFeatureEngineeringFilterKeys = () => {
+    const fe = analyticsList?.results[0]?.featureEngineeredData
+    if (fe) {
+      return Object.keys(fe).map((item) => ({ key: `featureEngineeredData.${item}`, value: item }))
     }
     return []
   }
@@ -501,7 +497,7 @@ ${nc2}`)
                       </SelectorObject>
                     </div>
 
-                    <div className={`p-1 ${histogramValidKey.includes(yAnalyticsKey) ? "" : "hidden"}`}>
+                    <div className={`p-1 ${histogramValidKey.includes(analyticsKey) ? "" : "hidden"}`}>
                       <label
                         htmlFor="binsize"
                         className="block mb-2 text-sm font-medium text-white"
@@ -516,6 +512,24 @@ ${nc2}`)
                         className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
                       >
                       </input>
+                    </div>
+                    <div className={`p-1`}>
+                      <label
+                        htmlFor="reduction"
+                        className="block mb-2 text-sm font-medium text-white"
+                      >
+                        Reduction ({reduction?"true":"false"})
+                      </label>
+                      <Checkbox
+                        checked={reduction}
+                        onChange={setReduction}
+                        className="group block size-10 rounded border border-gray-600 bg-transparent data-[checked]:bg-transparent"
+                      >
+                        {/* Checkmark icon */}
+                        <svg className="stroke-white opacity-0 group-data-[checked]:opacity-100" viewBox="0 0 14 14" fill="none">
+                          <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </Checkbox>
                     </div>
                     <div className="p-1 w-56">
                       <label
@@ -536,7 +550,7 @@ ${nc2}`)
                       )}
                     </select> */}
                       <SelectorObject
-                        fields={[{ key: null, value: "None" }, ...filterOptionsArray, ...getFeatureEngineeringFilterKeys()]}
+                        fields={[...filterOptionsArray, ...getFeatureEngineeringFilterKeys()]}
                         labelKey="value"
                         handleSelected={(e) => setFilterKey(e.key)}
                       >
@@ -584,26 +598,26 @@ ${nc2}`)
                 </div>
                 <div className={`p-1`}>
                   {pyodideStatus ?
-                  <button
-                    type="button"
-                    className="edit_button"
-                    onClick={() => setFeatureEngineeringPopup(true)}
-                  >
-                    Feature Engineering Ready
-                  </button>
-                  :
-                  <button
-                    type="button"
-                    className="edit_button"
-                    onClick={() => getReadyPyodide()}
-                  >
-                    Feature Engineering Loading {pyodideStatus}
-                  </button>
+                    <button
+                      type="button"
+                      className="edit_button"
+                      onClick={() => setFeatureEngineeringPopup(true)}
+                    >
+                      Feature Engineering Ready
+                    </button>
+                    :
+                    <button
+                      type="button"
+                      className="edit_button"
+                      onClick={() => getReadyPyodide()}
+                    >
+                      Feature Engineering Loading {pyodideStatus}
+                    </button>
                   }
                 </div>
               </div>
               <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                  {/* <div>{JSON.stringify(analyticsList?.results)}</div> */}
+                {/* <div>{JSON.stringify(analyticsList?.results)}</div> */}
                 <table className="w-full text-sm text-left text-gray-400">
                   <thead className="text-xs bg-gray-900 text-gray-400">
                     <tr>
@@ -620,7 +634,7 @@ ${nc2}`)
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <div>
-                        issue1
+                          issue1
                         </div>
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -849,12 +863,12 @@ ${nc2}`)
                       {analyticsList?.results[0]?.featureEngineeredData && Object.keys(analyticsList?.results[0]?.featureEngineeredData).length > 0 && Object.keys(analyticsList?.results[0]?.featureEngineeredData).map((item2, index) => (
                         <th scope="col" className="px-6 py-3" key={index}>
                           <SortBtnComponent
-                          feildKey={`featureEngineeredData.${item2}`}
-                          sortOrder={sortOrder}
-                          sortKey={sortKey}
-                        >
-                          {item2}
-                        </SortBtnComponent>
+                            feildKey={`featureEngineeredData.${item2}`}
+                            sortOrder={sortOrder}
+                            sortKey={sortKey}
+                          >
+                            {item2}
+                          </SortBtnComponent>
                         </th>
                       ))}
                       <th scope="col" className="px-6 py-3 text-right">
@@ -1134,7 +1148,7 @@ ${nc2}`)
                   </div>
                 </div>
               </div>
-            ):""}
+            ) : ""}
             {featureEngineeringPopup ? (
               <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50">
                 <div className="relative w-full max-w-md max-h-full">
@@ -1182,15 +1196,15 @@ ${nc2}`)
                         className="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
                         onClick={() => featureEngineeringCodeUpdater.update(params.codingActivityId, featureEngineeringCode)}
                       >
-                        {featureEngineeringCodeUpdater.loading?"Saving...":"Save Code"}
+                        {featureEngineeringCodeUpdater.loading ? "Saving..." : "Save Code"}
                       </button>
                       <button
                         data-modal-hide="popup-modal"
                         type="button"
                         className="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
-                        onClick={() => applyFeatureEngineering({currentPage:1})}
+                        onClick={() => applyFeatureEngineering({ currentPage: 1 })}
                       >
-                        {isApplyingfeatureEngineering? "Applying...":"Apply"}
+                        {isApplyingfeatureEngineering ? "Applying..." : "Apply"}
                       </button>
                       <button
                         data-modal-hide="popup-modal"
@@ -1206,15 +1220,15 @@ ${nc2}`)
                   </div>
                 </div>
               </div>
-            ):""}
+            ) : ""}
             {imagePopup ? (
               <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50"
-              onClick={() => setImagePopup(null)}
+                onClick={() => setImagePopup(null)}
               >
                 <div className="relative w-full max-w-md max-h-full">
                   <div className="relative rounded-lg shadow bg-gray-700"
-                  
-                  onClick={(e) => e.stopPropagation()}
+
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <button
                       type="button"
@@ -1274,7 +1288,7 @@ ${nc2}`)
                   </div>
                 </div>
               </div>
-            ):""}
+            ) : ""}
             {issuePopup ? (
               <div className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex justify-center items-center bg-gray-50/50"
                 onClick={() => setIssuePopup(null)}
@@ -1343,7 +1357,7 @@ ${nc2}`)
                   </div>
                 </div>
               </div>
-            ):""}
+            ) : ""}
           </div>
         </div>
       </div>
