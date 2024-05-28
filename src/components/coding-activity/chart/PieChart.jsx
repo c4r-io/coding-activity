@@ -90,7 +90,7 @@ export const PieChart = ({ width = 500, height = 500, data = defaultData }) => {
           fontSize={10}
           style={{ fill: "#ffffff", }}
         >
-          ({data[i].value.toFixed(0)})
+          ({typeof(data[i].value) == 'number'?data[i].value.toFixed(0):data[i].value})
         </text>
       </g>
     );

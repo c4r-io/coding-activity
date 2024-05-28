@@ -8,88 +8,157 @@ import mongodbClient from '@/config/mongodbClient';
 // @desc Get all videoClipLists
 // @route GET api/videoClipLists
 // @acess Privet
-const defaultAnalytics = [
-  { name: "Linux", value: 20 },
-  { name: "Windows", value: 30 },
-  { name: "Mac os", value: 50 },
-];
-function countIdenticalValues(array, key) {
-  const countMap = {};
+import _, { mean } from 'lodash'
 
-  array.forEach(item => {
-    const keys = key.split('.');
-    let value = item;
-    for (const k of keys) {
-      value = value[k];
-    }
+function convertToPieChartData(array) {
+  // Step 1: Clean and normalize the data
+  const cleanedData = array
+    .filter(item => item.label !== null && item.value !== null) // Remove null values
+    .map(item => ({
+      label: String(item.label).replace(/"/g, ''), // Remove quotes from labels
+      value: String(item.value).split(';')[0].split(' ')[0] // Clean value, take the first part before any semicolon or space
+    }));
 
-    if (value !== undefined) {
-      if (!countMap[value]) {
-        countMap[value] = 1;
-      } else {
-        countMap[value]++;
-      }
+  // Step 2: Count occurrences of each label
+  const labelCount = {};
+  cleanedData.forEach(item => {
+    if (labelCount[item.label]) {
+      labelCount[item.label]++;
+    } else {
+      labelCount[item.label] = 1;
     }
   });
 
-  const result = [];
-  for (const value in countMap) {
-    result.push({ name: value, value: countMap[value] });
+  // Step 3: Calculate the percentage for each label
+  const totalCount = cleanedData.length;
+  const pieChartData = Object.keys(labelCount).map(label => ({
+    label: label,
+    name: label,
+    value: (labelCount[label].toFixed(2)),
+    valueInPercent: ((labelCount[label] / totalCount * 100).toFixed(2))
+  }));
+
+  return pieChartData;
+}
+function groupByPiChart(rawData, groupByAttr, targetAttr, reduction = false) {
+  const data = rawData.map(item => {
+    const grpBy = groupByAttr.split('.');
+    const grpByVal = grpBy.reduce((acc, cur) => acc && acc[cur], item);
+    const targBy = targetAttr.split('.');
+    const targByVal = targBy.reduce((acc, cur) => acc && acc[cur], item);
+    return {
+      [grpBy]: grpByVal,
+      [targBy]: targByVal
+    };
+  })
+  console.log(data)
+  const grouped = _.groupBy(data, groupByAttr);
+
+  const mode = arr => {
+    const frequency = {};
+    let maxFreq = 0;
+    let mode = null;
+
+    for (const item of arr) {
+      frequency[item] = (frequency[item] || 0) + 1;
+      if (frequency[item] > maxFreq) {
+        maxFreq = frequency[item];
+        mode = item;
+      }
+    }
+
+    return mode;
+  };
+
+  const groupedMode = _.mapValues(grouped, values => mode(values.map(d => d[targetAttr])));
+
+  let result = [];
+  if (reduction) {
+    result = _.map(groupedMode, (value, key) => ({
+      [groupByAttr]: key,
+      [targetAttr]: value
+    }));
+  } else {
+    result = data.map(d => ({
+      ...d,
+      [targetAttr]: groupedMode[d[groupByAttr]]
+    }));
   }
 
-  return result;
+  // Convert result to the specified format
+  const formattedResult = result.map(item => ({
+    label: item[groupByAttr],
+    value: item[targetAttr]
+  }));
+
+  return convertToPieChartData(formattedResult);
 }
-function calculateAnalytics(array, key, key2) {
-  const analytics = {};
+function calculateHistogram(data, bins) {
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const binWidth = (max - min) / bins;
 
-  array.forEach(item => {
-    const keys = key.split('.');
-    const value1 = keys.reduce((acc, cur) => acc && acc[cur], item);
-
-    const keys2 = key2.split('.');
-    const value2 = keys2.reduce((acc, cur) => acc && acc[cur], item);
-
-    if (value1 !== undefined && value2 !== undefined) {
-      // const label = `${value1}-${value2}`;
-      const label = `${value2}`;
-      if (analytics[label]) {
-        analytics[label]++;
-      } else {
-        analytics[label] = 1;
-      }
+  const histogram = Array(bins).fill(0);
+  const histogramData = Array.from({ length: bins }, (v, i) => {
+    return {
+      binStart: (min + i * binWidth).toFixed(2),
+      binEnd: (min + (i + 1) * binWidth).toFixed(2),
+      count: 0,
+      label: `${(min + i * binWidth).toFixed(2)} - ${(min + (i + 1) * binWidth).toFixed(2)}`,
+      value: 0
     }
   });
 
-  const result = Object.entries(analytics).map(([label, value]) => ({
-    name: label,
-    label,
-    value
-  }));
-
-  return result;
-}
-function calculateHistogramBins(data, binSize) {
-  // Determine the minimum and maximum values in the dataset
-  const values = data.map(item => item.value);
-  const minValue = Math.min(...values);
-  const maxValue = Math.max(...values);
-
-  // Calculate the number of bins needed
-  const binCount = Math.ceil((maxValue - minValue + 1) / binSize);
-
-  // Initialize bins
-  const bins = Array(binCount).fill(0).map((_, index) => ({
-    label: `${minValue + index * binSize} - ${minValue + (index + 1) * binSize - 1}`,
-    value: 0
-  }));
-
-  // Distribute the values into bins
-  data.forEach(item => {
-    const binIndex = Math.floor((item.value - minValue) / binSize);
-    bins[binIndex].value++;
+  data.forEach(value => {
+    let binIndex = Math.floor((value - min) / binWidth);
+    if (binIndex === bins) binIndex--; // To handle the max value case
+    histogram[binIndex]++;
   });
 
-  return bins;
+  return histogramData.map((item, index) => {
+    if(histogram[index]){
+      item.count = histogram[index];
+      item.value = histogram[index];
+    }
+    return item;
+  });
+}
+function groupByHistogram(rawData, groupByAttr, targetAttr, reduction = false, bins = 5) {
+  let targByAttr = "";
+  let grpByAttr = "";
+  const data = rawData.map(item => {
+    const grpBy = groupByAttr.split('.');
+    grpByAttr = grpBy[grpBy.length - 1];
+    const grpByVal = grpBy.reduce((acc, cur) => acc && acc[cur], item);
+    const targBy = targetAttr.split('.');
+    targByAttr = targBy[targBy.length - 1];
+    const targByVal = targBy.reduce((acc, cur) => acc && acc[cur], item);
+    return {
+      [grpByAttr]: grpByVal,
+      [targByAttr]: targByVal
+    };
+  })
+  const groupedData = data.reduce((acc, item) => {
+    const key = item[grpByAttr];
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(item[targByAttr]);
+    return acc;
+  }, {});
+  
+  // console.log(groupedData)
+  const result = Object.keys(groupedData).map(key => {
+    const values = groupedData[key];
+    const avg = mean(values);
+    return reduction ? { [grpByAttr]: key, [targByAttr]: avg } : values.map(value => ({ [grpByAttr]: key, [targByAttr]: avg }));
+  });
+  
+  const op = reduction ? result : result.flat();
+  const histogram = op.map(entry => entry[targByAttr]).sort((a, b) => a - b);
+  // console.log(histogram)
+  // return op
+  return calculateHistogram(histogram, bins)
 }
 
 function findMaxRepeatedString(arr) {
@@ -115,7 +184,7 @@ function findMaxRepeatedString(arr) {
   // Return the maximum repeated string and its count
   return { string: maxString, count: maxCount };
 }
-function calculateAnalyticsPieChart({ array, key, key2 }) {
+function calculateAnalyticsPieChart({ array, key }) {
   const analytics = {};
   const analyticsArray = [];
   let analyticsArrayKeys = [];
@@ -124,15 +193,9 @@ function calculateAnalyticsPieChart({ array, key, key2 }) {
     const keys = key.split('.');
     const value1 = keys.reduce((acc, cur) => acc && acc[cur], item);
 
-    let keys2 = null, value2 = null;
-    if (key2) {
-      keys2 = key2.split('.');
-      value2 = keys2.reduce((acc, cur) => acc && acc[cur], item);
-    }
-
     if (value1 !== undefined) {
       // const label = `${value1}-${value2}`;
-      const label = value2 ? `${value2}` : `${value1}`;
+      const label = `${value1}`;
       analyticsArray.push({
         label: label,
         value: value1
@@ -144,12 +207,7 @@ function calculateAnalyticsPieChart({ array, key, key2 }) {
   analyticsArrayKeys.forEach((key) => {
     const value = analyticsArray.filter((item) => item.label === key).map((item) => item.value);
     // console.log(key, value)
-    const maxRepeated = findMaxRepeatedString(value)
-    if (key2) {
-      analytics[`${key}-${maxRepeated.string}`] = value.length
-    } else {
-      analytics[`${key}`] = value.length
-    }
+    analytics[`${key}`] = value.length
   })
   // console.log(analyticsArrayKeys, analyticsArray)
   // console.log(analytics)
@@ -161,7 +219,7 @@ function calculateAnalyticsPieChart({ array, key, key2 }) {
   }));
   return result;
 }
-function calculateAnalyticsHistogram({ array, key, key2, bins = 5 }) {
+function calculateAnalyticsHistogram({ array, key, bins = 5 }) {
   const analytics = {};
   const analyticsMaxList = [];
   const analyticsReploted = []
@@ -172,15 +230,9 @@ function calculateAnalyticsHistogram({ array, key, key2, bins = 5 }) {
     const keys = key.split('.');
     const value1 = keys.reduce((acc, cur) => acc && acc[cur], item);
 
-    let keys2 = null, value2 = null;
-    if (key2) {
-      keys2 = key2.split('.');
-      value2 = keys2.reduce((acc, cur) => acc && acc[cur], item);
-    }
-
     if (value1 !== undefined) {
       // const label = `${value1}-${value2}`;
-      const label = value2 ? `${value2}` : `${value1}`;
+      const label = `${value1}`;
       analyticsArray.push({
         label: label,
         value: value1
@@ -244,6 +296,10 @@ export async function GET(req, res) {
   let yAnalyticsKey = null;
   let histogramValidKey = [];
   let bins = 5;
+  let reduction = false;
+  if (req.nextUrl.searchParams.get('reduction')) {
+    reduction = req.nextUrl.searchParams.get('reduction');
+  }
   if (req.nextUrl.searchParams.get('analyticsKey')) {
     analyticsKey = req.nextUrl.searchParams.get('analyticsKey');
   }
@@ -279,14 +335,27 @@ export async function GET(req, res) {
     findFromDbApi.sort(req.nextUrl.searchParams.get('sort'))
   }
   const results = await findFromDbApi.exec();
-  const barchart = calculateAnalyticsHistogram({ array: analyticsForChart, key2: yAnalyticsKey, key: analyticsKey, bins: bins })
   const codingActivity = await CodingActivity.findById(keywords.codingActivity).select('featureEngineeringCode');
+
+  const getPiChartData = () => {
+    if (yAnalyticsKey) {
+      return groupByPiChart(analyticsForChart, analyticsKey, yAnalyticsKey, reduction)
+    };
+    return calculateAnalyticsPieChart({ array: analyticsForChart, key: analyticsKey })
+  }
+  const getHistogramChartData = () => {
+    if (yAnalyticsKey) {
+      return groupByHistogram(analyticsForChart, yAnalyticsKey, analyticsKey,  reduction, bins)
+    }
+    return calculateAnalyticsHistogram({ array: analyticsForChart, key: analyticsKey, bins: bins });
+  }
+
   return Response.json({
     results,
     page,
     pages: Math.ceil(count / pageSize),
-    analytics: histogramValidKey.includes(analyticsKey) ? false : calculateAnalyticsPieChart({ array: analyticsForChart, key: analyticsKey }),
-    barAnalytics: histogramValidKey.includes(analyticsKey) ? barchart : histogramValidKey.includes(analyticsKey),
+    analytics: histogramValidKey.includes(analyticsKey) ? false : getPiChartData(),
+    barAnalytics: histogramValidKey.includes(analyticsKey) ? getHistogramChartData() : false,
     codingActivity
   }, {
     status: 200,
@@ -312,7 +381,7 @@ export async function POST(req) {
   await connectMongoDB();
   if (body.get('session')) {
     const analyticsById = await Analytics.findById(body.get('session'));
-    if (!analyticsById.sessionStartTime) {
+    if (!analyticsById?.sessionStartTime) {
       analyticsById.sessionStartTime = body.get('time');
     } else {
       analyticsById.sessionEndTime = body.get('time');
@@ -388,18 +457,18 @@ export async function PUT(req) {
   const body = await req.json()
   const client = await mongodbClient;
   const db = client.db();
-  const upd=[]
+  const upd = []
   for (const updatedData of body.updateDataList) {
     const id = updatedData._id;
     delete updatedData._id;
     const analytics = await db
       .collection("analytics")
       .find();
-      // .updateOne({ _id: id }, { $set: {...updatedData} });
-      upd.push({id,analytics})
+    // .updateOne({ _id: id }, { $set: {...updatedData} });
+    upd.push({ id, analytics })
 
   }
-  return Response.json({ message: 'Analytics updated', upd,d:body.updateDataList });
+  return Response.json({ message: 'Analytics updated', upd, d: body.updateDataList });
 }
 
 

@@ -51,6 +51,7 @@ export const useDeleteByIds = (url) => {
   }
 }
 export const uiCOntentDefault = {
+  canvasAnotations: [],
   "chatprompt": {
     "headerElement": "# Office Hours \n\n # are in!",
     "footerElement": "Everyone needs help sometimes! Rigorous Raven is here to \\\n help. **Click on the part of the activity you need help with.**",
@@ -1218,6 +1219,7 @@ export const useAnalytics = () => {
   const send = async (callbackSuccess, callbackError) => {
     const data = {}
     data['time'] = Date.now();
+    data['sessionStartTime'] = Date.now();
     data['codingActivity'] = uiData._id;
     const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
     if (clientAnalyticsSessionExist) {
@@ -1240,15 +1242,15 @@ export const useAnalytics = () => {
         callbackSuccess(response.data)
       }
     } catch (error) {
-      if (error?.response?.status == 401) {
-        toast.error(error.response.data.message + ". Login to try again.", {
-          position: "top-center",
-        });
-      } else {
-        toast.error(error.message, {
-          position: "top-center",
-        });
-      }
+      // if (error?.response?.status == 401) {
+      //   toast.error(error.response.data.message + ". Login to try again.", {
+      //     position: "top-center",
+      //   });
+      // } else {
+      //   toast.error(error.message, {
+      //     position: "top-center",
+      //   });
+      // }
       if (callbackError) {
         callbackError(error)
       }
@@ -1278,6 +1280,7 @@ export const useInitClientAnalytics = () => {
     }
     const data = {}
     data.time = Date.now();
+    data.sessionStartTime = Date.now();
     data.codingActivity = uiData._id;
     const uidIdExist = localStorage.getItem('analytics-uid-id');
     if (uidIdExist) {

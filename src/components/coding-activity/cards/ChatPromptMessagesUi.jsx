@@ -313,7 +313,7 @@ const FollowUpAskQuestionUi = () => {
 
             setIsLoading(false);
         } catch (error) {
-            console.log(error);
+            console.error(error);
             setIsLoading(false);
             errorAnalytics.send({
                 issueCode: 5002,

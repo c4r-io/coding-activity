@@ -79,17 +79,7 @@ export async function PUT(req, context) {
       body.get('attachment')
     ) {
       const filename = { data: body.get('attachment') };
-      if (!analytics.attachment1) {
-        analytics.attachment1 = filename;
-      }
-      else if (analytics.attachment1 && !analytics.attachment2) {
-        analytics.attachment2 = filename;
-      }
-      else if (analytics.attachment2 && !analytics.attachment3) {
-        analytics.attachment3 = filename;
-      } else {
-        analytics.attachmentList.push(filename)
-      }
+      analytics.attachmentList.push(filename)
     }
     const updatedAnalytics = await analytics.save();
     return Response.json({ ...updatedAnalytics._doc });

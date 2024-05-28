@@ -305,10 +305,10 @@ const Page = ({ params }) => {
               </div>
             </div>
             <CodeExecutorDevelopmentView codingActivityId={params.codingActivityId} uiDataFromDb={codingActivityListResponse} >
-              <Link href={`/dashboard/coding-activity/${params.codingActivityId}/submissions`}>
+              {/* <Link href={`/dashboard/coding-activity/${params.codingActivityId}/submissions`}>
                 <button className="me-2 px-4 py-2 bg-yellow-500 text-white rounded-md mb-4 "
                 >Submissions</button>
-              </Link>
+              </Link> */}
               {/* <Link href={`/dashboard/coding-activity/${params.codingActivityId}/chat-feedback`}>
                 <button className="me-2 px-4 py-2 bg-yellow-500 text-white rounded-md mb-4 "
                 >Feedback List</button>

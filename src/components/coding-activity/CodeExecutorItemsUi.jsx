@@ -47,7 +47,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
       console.log(response.data);
       setListLoading(false);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setListLoading(false);
       if (error?.response?.status == 401) {
         toast.error(error.response.data.message + ", Login to try again.", {
@@ -76,7 +76,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
       setListLoading(false);
       getvideoClipListsList(page);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setListLoading(false);
     }
   };
@@ -276,7 +276,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
                             Analytics
                           </button>
                         </Link>
-                        <Link href={`/dashboard/coding-activity/${item._id}/submissions`}>
+                        {/* <Link href={`/dashboard/coding-activity/${item._id}/submissions`}>
                           <button
                             type="button"
                             className="edit_button bg-orange-500"
@@ -284,7 +284,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
                           >
                             Submissions
                           </button>
-                        </Link>
+                        </Link> */}
                         <button
                           type="button"
                           className="edit_button  bg-orange-500"

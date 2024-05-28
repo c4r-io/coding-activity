@@ -23,7 +23,7 @@ export function Terminal({ webR, terminalInterface }) {
     if (divRef.current) {
       divRef.current.addEventListener('keydown', handleShortcuts, true);
       return () => {
-        divRef.current.removeEventListener('keydown', handleShortcuts);
+        divRef.current?.removeEventListener('keydown', handleShortcuts);
       };
     }
   }, [handleShortcuts]);
