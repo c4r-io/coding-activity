@@ -13,8 +13,9 @@ function EditMystMdElementWrapper({ children, className, path, buttonEditor = fa
         const splittedPath = path.split(".");
         const nd = splittedPath.reduce((acc, curr) => {
             if (curr) {
-                return acc[curr];
+                return acc?.[curr];
             }
+            return acc;
         }, uiData?.uiContent)
         return nd
     }

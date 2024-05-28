@@ -381,7 +381,7 @@ export async function POST(req) {
   await connectMongoDB();
   if (body.get('session')) {
     const analyticsById = await Analytics.findById(body.get('session'));
-    if (!analyticsById.sessionStartTime) {
+    if (!analyticsById?.sessionStartTime) {
       analyticsById.sessionStartTime = body.get('time');
     } else {
       analyticsById.sessionEndTime = body.get('time');

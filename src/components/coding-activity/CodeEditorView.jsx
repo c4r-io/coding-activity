@@ -478,11 +478,11 @@ print(opdt)
 
                 </div>
                 <div className="progressive w-1/2 m-2">
-                  <EditTextElementWrapper
+                  {/* <EditTextElementWrapper
                     className={`unclicked py-2 px-3 w-full !text-sm text-center`}
                     path={"editorview.editorActionBtn"}
                     buttonEditor={true}
-                  >
+                  > */}
 
                     <button
                       className={`${isCodeExecuting ? "clicked" : "unclicked"
@@ -501,7 +501,7 @@ print(opdt)
                     >
                       {isCodeExecuting ? <div className="w-full flex justify-center items-center"><img className="w-6 h-6" src="/images/loading.gif" /></div> : uiData?.uiContent?.editorview?.editorActionBtn}
                     </button>
-                  </EditTextElementWrapper>
+                  {/* </EditTextElementWrapper> */}
                 </div>
               </div>
               {(uiData.devmode || uiData.activityCodeRuntime === "Web-R") &&
@@ -513,9 +513,8 @@ print(opdt)
               }
               {(!uiData.devmode && uiData.activityCodeRuntime === "Web-R") ?
                 <div className="px-3 w-full">
-                  {/* <WebRApp.Terminal /> */}
+                  <WebRApp.Terminal />
                   <WebRApp.Plot />
-
                 </div> : ""
               }
               {!uiData?.openReportUi && executedCodeOutput && (
