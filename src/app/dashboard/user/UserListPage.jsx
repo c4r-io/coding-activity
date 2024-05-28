@@ -65,7 +65,7 @@ const UserListPage = () => {
       console.log(response.data);
       setListLoading(false);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setListLoading(false);
       if (error?.response?.status == 401) {
         toast.error(error.response.data.message + ', Login to try again.', {

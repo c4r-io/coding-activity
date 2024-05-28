@@ -104,7 +104,7 @@ const AnalyticsPage = ({ analyticsListData, params, searchParams }) => {
       console.log(response.data);
       setListLoading(false);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setListLoading(false);
       if (error?.response?.status == 401) {
         toast.error(error.response.data.message + ', Login to try again.', {
@@ -286,14 +286,13 @@ ${nc2}`)
       setFeatureEngList(jsonop);
     } catch (error) {
       if (apiCallCount < 3) {
-        console.log("error: ", error);
         console.log("retrying in 3 seconds");
         getReadyPyodide();
         setTimeout(() => {
           runFeatureEngineering(apiCallCount + 1);
         }, 1000)
       } else {
-        console.log(error);
+        console.error(error);
       }
     }
   }
@@ -320,14 +319,12 @@ ${nc2}`)
       await updateFeatureEngineering({ currentPage, pages, results: jsonop })
     } catch (error) {
       if (apiCallCount < 3) {
-        console.log("error: ", error);
-        console.log("retrying in 3 seconds");
         getReadyPyodide();
         setTimeout(() => {
           runFEPyodide({ apiCallCount: apiCallCount + 1, currentPage, pages, results });
         }, 1000)
       } else {
-        console.log(error);
+        console.error(error);
       }
     }
   }
@@ -351,7 +348,7 @@ ${nc2}`)
       await runFEPyodide({ apiCallCount: 0, currentPage: data.page, pages: data.pages, results: data.results })
       // setIsApplyingfeatureEngineering(false);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setIsApplyingfeatureEngineering(false);
       toast.error(error.message, {
         position: 'top-center',
@@ -378,7 +375,7 @@ ${nc2}`)
         setIsApplyingfeatureEngineering(false);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setIsApplyingfeatureEngineering(false);
       toast.error(error.message, {
         position: 'top-center',
@@ -647,15 +644,6 @@ ${nc2}`)
                         issueList
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        attachment1
-                      </th>
-                      <th scope="col" className="px-6 py-3">
-                        attachment2
-                      </th>
-                      <th scope="col" className="px-6 py-3">
-                        attachment3
-                      </th>
-                      <th scope="col" className="px-6 py-3">
                         attachmentList
                       </th>
                       <th scope="col" className="px-6 py-3">
@@ -908,27 +896,6 @@ ${nc2}`)
                                 onClick={() => setIssuePopup(item?.issueList)}
                               >
                                 {item?.issueList?.length > 0 ? "Click To See" : "No Additional Issue"}
-                              </button>
-                            </td>
-                            <td className="px-6 py-4">
-                              <button className={`${item?.attachment1 ? "text-ui-violet" : "pointer-events-none"}`}
-                                onClick={() => setImagePopup([item?.attachment1])}
-                              >
-                                {item?.attachment1 ? "Attachment" : "No Attachment"}
-                              </button>
-                            </td>
-                            <td className="px-6 py-4">
-                              <button className={`${item?.attachment2 ? "text-ui-violet" : "pointer-events-none"}`}
-                                onClick={() => setImagePopup([item?.attachment2])}
-                              >
-                                {item?.attachment2 ? "Attachment" : "No Attachment"}
-                              </button>
-                            </td>
-                            <td className="px-6 py-4">
-                              <button className={`${item?.attachment3 ? "text-ui-violet" : "pointer-events-none"}`}
-                                onClick={() => setImagePopup([item?.attachment3])}
-                              >
-                                {item?.attachment3 ? "Attachment" : "No Attachment"}
                               </button>
                             </td>
                             <td className="px-6 py-4">
@@ -1294,7 +1261,7 @@ ${nc2}`)
                 onClick={() => setIssuePopup(null)}
               >
                 <div className="relative w-full max-w-md max-h-full">
-                  <div className="relative rounded-lg shadow bg-gray-700"
+                  <div className="relative rounded-lg shadow bg-black"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <button
@@ -1337,11 +1304,21 @@ ${nc2}`)
                         />
                       </svg>
                       <div className='p-2 rounded-md overflow-auto text-white'>
-                        {issuePopup.map((item, index) => (
-                          <div key={index}>
-                            {typeof item === 'object' ? JSON.stringify(item) : item}
+                        {issuePopup.map((item, index) => {
+                        const itemS = JSON.parse(item);
+                        return (
+                          <div key={index} className={`pb-2 flex text-left text-xs ${itemS.type == "error"? "text-red-600":itemS.type == "warn"? "text-yellow-600":"text-white"}`}>
+                            <div className='w-3/4'>
+                            {itemS.message.map((item2, index2) => (
+                              <div key={index2 + item2}>
+                                {"-\>"} {" "}
+                              {(typeof(item2) == "object"?JSON.stringify(item2):item2 )}
+                              </div>
+                            ))}
+                            </div>
+                            <div className='text-xs w-1/4'>{itemS.timestamp}</div>
                           </div>
-                        ))}
+                        )})}
                       </div>
                       <button
                         data-modal-hide="popup-modal"

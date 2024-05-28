@@ -23,7 +23,7 @@ const Page = async ({ searchParams }) => {
   try {
     data = await getCodeExecutorActivityList()
   } catch (error) {
-    console.log("error getting styles", error)
+    console.error("error getting styles", error)
   }
   return (
     <>

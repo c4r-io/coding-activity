@@ -31,7 +31,7 @@ export const useFilterValues = () => {
             setLoading(false);
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
             setLoading(false);
             if (error?.response?.status == 401) {
                 toast.error(error.response.data.message + ', Login to try again.', {
@@ -69,7 +69,7 @@ export const useUpdateFeatureEngineeringCode = () => {
             setLoading(false);
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
             setLoading(false);
             if (error?.response?.status == 401) {
                 toast.error(error.response.data.message + ', Login to try again.', {

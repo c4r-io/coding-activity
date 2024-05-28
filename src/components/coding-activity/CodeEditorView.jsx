@@ -332,7 +332,7 @@ print(opdt)
         })
       }
       // getReadyPyodide()
-      console.log(error);
+      console.error(error);
     }
   };
   const issueAnalytics = useIssueAnalytics();
@@ -513,7 +513,7 @@ print(opdt)
               }
               {(!uiData.devmode && uiData.activityCodeRuntime === "Web-R") ?
                 <div className="px-3 w-full">
-                  <WebRApp.Terminal />
+                  {/* <WebRApp.Terminal /> */}
                   <WebRApp.Plot />
 
                 </div> : ""

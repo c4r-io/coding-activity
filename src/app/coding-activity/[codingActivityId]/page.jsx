@@ -21,7 +21,7 @@ const Page = async ({ params }) => {
     data = response.results
     // console.log('response ', data)
   } catch (error) {
-    console.log("error getting styles", error)
+    console.error("error getting styles", error)
   }
 
   return (
