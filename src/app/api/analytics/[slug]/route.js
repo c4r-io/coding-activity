@@ -81,25 +81,6 @@ export async function PUT(req, context) {
         })
       }
     }
-    if (body.get('issue')) {
-      if (!analytics.submission1.issue) {
-        analytics.submission1.issue = body.get('issue');
-        analytics.submission1.attachment = { data: body.get('attachment') };
-      }
-      else if (analytics.submission1.issue && !analytics.submission2.issue) {
-        analytics.submission2.issue = body.get('issue');
-        analytics.submission2.attachment = { data: body.get('attachment') };
-      }
-      else if (analytics.submission2.issue && !analytics.submission3.issue) {
-        analytics.submission3.issue = body.get('issue');
-        analytics.submission3.attachment = { data: body.get('attachment') };
-      } else {
-        analytics.submissionList.push({
-          issue: body.get('issue'),
-          attachment: { data: body.get('attachment') }
-        })
-      }
-    }
     if (body.get('issueCode')) {
       if (!analytics.error1.errorCode) {
         analytics.error1.errorCode = body.get('errorCode');
