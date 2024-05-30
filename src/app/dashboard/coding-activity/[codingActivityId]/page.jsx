@@ -68,7 +68,8 @@ const Page = ({ params }) => {
   }, [activityCodeRuntime])
   const [gptModelList, setGptModelList] = useState([]);
   const getGPTModels = async () => {
-    const url = 'https://author-dashboard-theta.vercel.app/api/chatgpt/gpt_4_vision_preview';
+    const origin = location.origin
+    const url = `${origin}/api/chatgpt/gpt_4_vision_preview`;
     // const url = 'http://localhost:3030/api/chatgpt/gpt_4_vision_preview';
     const modelsFromSessionStorage = sessionStorage.getItem('gptModels');
     if(modelsFromSessionStorage){

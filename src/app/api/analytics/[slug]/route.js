@@ -63,24 +63,63 @@ export async function PUT(req, context) {
       analytics.issueList.push(body.get('consoleIssue'))
     }
     if (body.get('issue')) {
-      if (!analytics.issue1) {
-        analytics.issue1 = body.get('issue');
+      if (!analytics.submission1.issue) {
+        analytics.submission1.issue = body.get('issue');
+        analytics.submission1.attachment = { data: body.get('attachment') };
       }
-      else if (analytics.issue1 && !analytics.issue2) {
-        analytics.issue2 = body.get('issue');
+      else if (analytics.submission1.issue && !analytics.submission2.issue) {
+        analytics.submission2.issue = body.get('issue');
+        analytics.submission2.attachment = { data: body.get('attachment') };
       }
-      else if (analytics.issue2 && !analytics.issue3) {
-        analytics.issue3 = body.get('issue');
+      else if (analytics.submission2.issue && !analytics.submission3.issue) {
+        analytics.submission3.issue = body.get('issue');
+        analytics.submission3.attachment = { data: body.get('attachment') };
       } else {
-        analytics.issueList.push(body.get('issue'))
+        analytics.submissionList.push({
+          issue: body.get('issue'),
+          attachment: { data: body.get('attachment') }
+        })
       }
     }
-    if (
-      body.get('attachment')
-    ) {
-      const filename = { data: body.get('attachment') };
-      analytics.attachmentList.push(filename)
+    if (body.get('issue')) {
+      if (!analytics.submission1.issue) {
+        analytics.submission1.issue = body.get('issue');
+        analytics.submission1.attachment = { data: body.get('attachment') };
+      }
+      else if (analytics.submission1.issue && !analytics.submission2.issue) {
+        analytics.submission2.issue = body.get('issue');
+        analytics.submission2.attachment = { data: body.get('attachment') };
+      }
+      else if (analytics.submission2.issue && !analytics.submission3.issue) {
+        analytics.submission3.issue = body.get('issue');
+        analytics.submission3.attachment = { data: body.get('attachment') };
+      } else {
+        analytics.submissionList.push({
+          issue: body.get('issue'),
+          attachment: { data: body.get('attachment') }
+        })
+      }
     }
+    if (body.get('issueCode')) {
+      if (!analytics.error1.errorCode) {
+        analytics.error1.errorCode = body.get('errorCode');
+        analytics.error1.description = { data: body.get('description') };
+      }
+      else if (analytics.error1.errorCode && !analytics.error2.errorCode) {
+        analytics.error2.errorCode = body.get('errorCode');
+        analytics.error2.description = { data: body.get('description') };
+      }
+      else if (analytics.error2.errorCode && !analytics.error3.errorCode) {
+        analytics.error3.errorCode = body.get('errorCode');
+        analytics.error3.description = { data: body.get('description') };
+      } else {
+        analytics.errorList.push({
+          errorCode: body.get('errorCode'),
+          description: { data: body.get('description') }
+        })
+      }
+    }
+
     const updatedAnalytics = await analytics.save();
     return Response.json({ ...updatedAnalytics._doc });
     // end if

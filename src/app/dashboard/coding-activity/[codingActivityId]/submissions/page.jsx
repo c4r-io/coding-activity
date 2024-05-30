@@ -282,7 +282,7 @@ const Page = ({ params, searchParams }) => {
                               {item?.issueType}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.issueCode}
+                              {item?.errorCode}
                             </td>
                             <td className="px-6 py-4 text-right">
                               <div className="inline-flex space-x-1 items-center text-base font-semibold text-white">

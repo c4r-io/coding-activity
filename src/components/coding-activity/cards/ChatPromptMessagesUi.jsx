@@ -282,7 +282,8 @@ const FollowUpAskQuestionUi = () => {
             const messagesFormated = [...newMessageList, newMessage]
             messagesFormated.unshift(systemPrompt)
             // const messagesFormated = [...messages.messageList, newMessage]
-            const url = 'https://author-dashboard-theta.vercel.app/api/chatgpt/gpt_4_vision_preview';
+            const origin = location.origin
+            const url = `${origin}/api/chatgpt/gpt_4_vision_preview`;
             // const url = 'http://localhost:3030/api/chatgpt/gpt_4_vision_preview';
             const request = await fetch(url, {
                 method: 'POST',
@@ -328,7 +329,7 @@ const FollowUpAskQuestionUi = () => {
             console.error(error);
             setIsLoading(false);
             errorAnalytics.send({
-                issueCode: 5000,
+                errorCode: 5000,
                 description: "GPT API Error",
             })
         }
@@ -474,7 +475,7 @@ const FollowUpReviewActionUi = () => {
             },
             (error) => {
                 errorAnalytics.send({
-                    issueCode: 5001,
+                    errorCode: 5001,
                     description: "Feedback API Error",
                 })
             }

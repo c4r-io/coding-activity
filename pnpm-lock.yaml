@@ -150,7 +150,7 @@ dependencies:
     specifier: ^3.3.2
     version: 3.3.2
   openai:
-    specifier: ^4.38.2
+    specifier: ^4.38.5
     version: 4.38.5
   pyodide:
     specifier: ^0.25.1

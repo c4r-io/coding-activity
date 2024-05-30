@@ -1334,7 +1334,7 @@ export const useIssueAnalytics = () => {
   const send = async (e, callbackSuccess, callbackError) => {
     const data = { ...e }
     // acceptable data
-    // { issueCode
+    // { errorCode
     // issueType
     // description }
     data['codingActivity'] = uiData._id;
@@ -1392,7 +1392,7 @@ export const useErrorAnalytics = () => {
   const send = async (e, callbackSuccess, callbackError) => {
     const data = { ...e }
     // acceptable data
-    // { issueCode
+    // { errorCode
     // issueType
     // description }
     data['codingActivity'] = uiData._id;
