@@ -1,3 +1,4 @@
+export const maxDuration = 60; 
 import OpenAI from "openai";
 const apiKey = process.env.OPENAI_API_KEY;
 // Pass the API key when creating the OpenAI object
