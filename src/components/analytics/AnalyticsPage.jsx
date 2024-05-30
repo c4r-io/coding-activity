@@ -1309,7 +1309,7 @@ ${nc2}`)
                       </svg>
                       <div className='p-2 rounded-md overflow-auto'>
                         {errorPopup.map((item, index) => (
-                          <div>
+                          <div key={index}>
                             <div>{item.errorCode}</div>
                             <div>{item.description}</div>
                           </div>
