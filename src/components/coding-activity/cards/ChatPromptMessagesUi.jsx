@@ -295,7 +295,7 @@ const FollowUpAskQuestionUi = () => {
             const response = await request.json();
 
             // fetch again asking the api about how he is feeling about his reply and add the feeling to the response message, make sure the api reponse with this kywords only "neutral" or "supportive" or "warning" or "concerned" or "delighted" or "amazed" or "complicated" or "potentially frustrating" so that I can show related emoji based on the response
-            const feelingRequest = await fetch('https://author-dashboard-theta.vercel.app/api/chatgpt/gpt_4_vision_preview', {
+            const feelingRequest = await fetch(url, {
                 method: 'POST',
                 headers: { // multipart form data
                     'Content-Type': 'multipart/form-data',
