@@ -26,6 +26,7 @@ import { useErrorAnalytics, useInitClientAnalytics, useIssueAnalytics } from "..
 import ChatView from "./ChatView.jsx";
 import { useDebounceEffect } from "../hooks/useDebounceEffect.jsx";
 import WebRApp from "./webrRepl/WebRApp.jsx";
+import EditTextElementWrapperForEditor from "./editors/EditTextElementWrapperForEditor.jsx";
 
 const demoCode = `
 # Python code demo
@@ -113,22 +114,6 @@ export default function CodeEditorView() {
     // await micropip.install("scikit-learn"); // showing problem
     // await micropip.install("scipy"); // showing problem
   }
-  // vanila react way
-  // useEffect(() => {
-  //   if (pyodide.current == null) {
-  //     const script = document.createElement("script");
-  //     script.src = "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js";
-  //     script.type = "text/javascript";
-  //     document.head.appendChild(script);
-  //     pyodideLoaded.current = true;
-  //     console.log("pyodide script added");
-  //   }
-  //   if (pyodideLoaded.current == true) {
-  //     console.log("pyodide loaded");
-
-  //     getReadyPyodide();
-  //   }
-  // }, [pyodideLoaded.current]);
   const handleOnChange = (e) => {
     setCode(e);
     dispatchMessages({ type: "setCode", payload: e })
@@ -306,7 +291,7 @@ print(opdt)
             error: error,
           });
           errorAnalytics.send({
-            consoleIssue: typeof(error) == 'string' ? error : JSON.stringify(error),
+            consoleIssue: typeof (error) == 'string' ? error : JSON.stringify(error),
           })
           // setExecutedCodeErrorOutput("Error: " + error);
         }
@@ -328,7 +313,7 @@ print(opdt)
         });
         setIsCodeExecuting(false);
         errorAnalytics.send({
-          consoleIssue: typeof(error) == 'string' ? error : JSON.stringify(error),
+          consoleIssue: typeof (error) == 'string' ? error : JSON.stringify(error),
         })
       }
       // getReadyPyodide()
@@ -398,7 +383,7 @@ print(opdt)
       }
     });
   };
-
+  const [editorButton, setEditorButton] = useState(false);
   return (
     <div className="annotation code-editor-container">
       <Script
@@ -421,16 +406,27 @@ print(opdt)
           <div className={`ps-4 pe-14 widget `}>
             <div className="mx-3 p-1 pb-0 border-x-2 space-y-3 border-ui-violet rounded-xl bg-[#171819] text-white">
               <div className="p-3 pb-0 mt-3 relative group">
-                {!uiData.devmode && uiData.activityCodeRuntime === "Web-R" ?
-                  <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />
-                  :
-                  <CodeMirrorEidtor
-                    value={code}
-                    onChange={(e) => {
-                      handleOnChange(e);
-                    }}
-                    height={`${uiData?.uiContent?.defaults?.code?.split("\n").length * 19.5 + 20}px`}
-                  />
+                {
+                  editorButton ?
+                    <Fragment>
+                      {uiData.activityCodeRuntime === "Pyodide" && <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />}
+                      {uiData.activityCodeRuntime === "Python Aws Api" && <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />}
+                      {uiData.activityCodeRuntime === "Web-R" && <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />}
+                    </Fragment> :
+                    <Fragment>
+                      {
+                        !uiData.devmode && uiData.activityCodeRuntime === "Web-R" ?
+                          <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />
+                          :
+                          <CodeMirrorEidtor
+                            value={code}
+                            onChange={(e) => {
+                              handleOnChange(e);
+                            }}
+                            height={`${uiData?.uiContent?.defaults?.code?.split("\n").length * 19.5 + 20}px`}
+                          />
+                      }
+                    </Fragment>
                 }
                 {(uiData.activityCodeRuntime === "Pyodide" || uiData.activityCodeRuntime === "Python Aws Api") &&
                   <div className="buttons absolute top-[10px] right-[10px]">
@@ -478,12 +474,13 @@ print(opdt)
 
                 </div>
                 <div className="progressive w-1/2 m-2">
-                  {/* <EditTextElementWrapper
+                  <EditTextElementWrapperForEditor
                     className={`unclicked py-2 px-3 w-full !text-sm text-center`}
                     path={"editorview.editorActionBtn"}
                     buttonEditor={true}
-                  > */}
-
+                    editorButton={editorButton}
+                    setEditorButton={setEditorButton}
+                  >
                     <button
                       className={`${isCodeExecuting ? "clicked" : "unclicked"
                         } py-2 px-3 w-full !text-sm`}
@@ -501,67 +498,70 @@ print(opdt)
                     >
                       {isCodeExecuting ? <div className="w-full flex justify-center items-center"><img className="w-6 h-6" src="/images/loading.gif" /></div> : uiData?.uiContent?.editorview?.editorActionBtn}
                     </button>
-                  {/* </EditTextElementWrapper> */}
+                  </EditTextElementWrapperForEditor>
                 </div>
               </div>
-              {(uiData.devmode || uiData.activityCodeRuntime === "Web-R") &&
-                <div className={`${isWebRImage || uiData.devmode ? '' : 'hidden'}`}>
-                  <DrawerArround>
-                    <canvas id="plot-canvas" className="bg-white w-full" width="1008" height="1008"></canvas>
-                  </DrawerArround>
-                </div>
-              }
-              {(!uiData.devmode && uiData.activityCodeRuntime === "Web-R") ?
+              {editorButton ?
                 <div className="px-3 w-full">
                   <WebRApp.Terminal />
                   <WebRApp.Plot />
-                </div> : ""
+                </div> :
+                <Fragment>
+                  {(!uiData.devmode && uiData.activityCodeRuntime === "Web-R") ?
+                    <div className="px-3 w-full">
+                      <WebRApp.Terminal />
+                      <WebRApp.Plot />
+                    </div> : ""
+                  }
+                </Fragment>
               }
-              {!uiData?.openReportUi && executedCodeOutput && (
-                <div className="px-3 space-y-3">
-                  <div className="divider w-full"></div>
-                  <div className="relative group">
-                    <button
-                      className="absolute top-0 right-0 text-white group-hover:block hidden"
-                      onClick={() => {
-                        setExecutedCodeOutput(null);
-                      }}
-                    >
-                      <MdClear />
-                    </button>
-                    <div
-                      className="px-2 py-1 codeoutput-bg text-white"
-                      id="codeoutput-bg"
-                    >
-                      {(typeof executedCodeOutput?.output == "string" || executedCodeOutput?.error) &&
-                        <div
-                          className={`w-full codeoutput-bg runtime-output ${!executedCodeOutput?.error
-                            ? "text-white"
-                            : "text-red-600"
-                            }`}
-                        >
-                          {executedCodeOutput?.error ||
-                            executedCodeOutput?.output?.toString() ||
-                            "No output found"}
-                        </div>
-                      }
-                      {executedCodeOutput?.images && executedCodeOutput?.images.length > 0 &&
-                        <DrawerArround>
-                          {executedCodeOutput?.images.map((img, index) => (
-                            <img
-                              key={index}
-                              src={`${img}`}
-                              alt="output"
-                              className="w-full h-auto"
-                            />
-                          ))}
-                        </DrawerArround>
-                      }
+              {
+                (uiData.activityCodeRuntime === "Pyodide" || uiData.activityCodeRuntime === "Python Aws Api")
+                && !uiData?.openReportUi && executedCodeOutput && (
+                  <div className="px-3 space-y-3">
+                    <div className="divider w-full"></div>
+                    <div className="relative group">
+                      <button
+                        className="absolute top-0 right-0 text-white group-hover:block hidden"
+                        onClick={() => {
+                          setExecutedCodeOutput(null);
+                        }}
+                      >
+                        <MdClear />
+                      </button>
+                      <div
+                        className="px-2 py-1 codeoutput-bg text-white"
+                        id="codeoutput-bg"
+                      >
+                        {(typeof executedCodeOutput?.output == "string" || executedCodeOutput?.error) &&
+                          <div
+                            className={`w-full codeoutput-bg runtime-output ${!executedCodeOutput?.error
+                              ? "text-white"
+                              : "text-red-600"
+                              }`}
+                          >
+                            {executedCodeOutput?.error ||
+                              executedCodeOutput?.output?.toString() ||
+                              "No output found"}
+                          </div>
+                        }
+                        {executedCodeOutput?.images && executedCodeOutput?.images.length > 0 &&
+                          <DrawerArround>
+                            {executedCodeOutput?.images.map((img, index) => (
+                              <img
+                                key={index}
+                                src={`${img}`}
+                                alt="output"
+                                className="w-full h-auto"
+                              />
+                            ))}
+                          </DrawerArround>
+                        }
 
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
               {uiData?.openReportUi && (
                 <div className="px-3 space-y-3">
                   <div className="divider w-full"></div>

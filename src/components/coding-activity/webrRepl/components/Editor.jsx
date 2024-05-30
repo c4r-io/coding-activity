@@ -97,7 +97,8 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
   const [files, setFiles] = React.useState([]);
   const [activeFileIdx, setActiveFileIdx] = React.useState(0);
   const runSelectedCode = React.useRef(() => {
-    throw new Error('Unable to run code, webR not initialised.');
+    console.error('Unable to run code, webR not initialised.');
+    // throw new Error('Unable to run code, webR not initialised.');
   });
 
   const activeFile = files[activeFileIdx];
@@ -144,7 +145,8 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
     const compl = await completionMethods.current.retrieveCompletions();
     const options = compl.values.map((val) => {
       if (!val) {
-        throw new Error('Missing values in completion result.');
+        return console.error('Missing values in completion result.');
+        // throw new Error('Missing values in completion result.');
       }
       return { label: val };
     });
@@ -198,7 +200,8 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
         webR.writeConsole("source('/tmp/.webRtmp-source', echo = TRUE, max.deparse.length = Inf)");
       }, (reason) => {
         console.error(reason);
-        throw new Error(`Can't run selected R code. See the JavaScript console for details.`);
+        console.error(`Can't run selected R code. See the JavaScript console for details.`);
+        // throw new Error(`Can't run selected R code. See the JavaScript console for details.`);
       });
     };
   }, [editorView]);
@@ -225,7 +228,8 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
       webR.writeConsole("source('/tmp/.webRtmp-source', echo = TRUE, max.deparse.length = Inf)");
     }, (reason) => {
       console.error(reason);
-      throw new Error(`Can't run selected R code. See the JavaScript console for details.`);
+      console.error(`Can't run selected R code. See the JavaScript console for details.`);
+      // throw new Error(`Can't run selected R code. See the JavaScript console for details.`);
     });
   }, [syncActiveFileState, editorView]);
   React.useEffect(() => {
@@ -244,7 +248,8 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
       void filesInterface.refreshFilesystem();
     }, (reason) => {
       console.error(reason);
-      throw new Error(`Can't save editor contents. See the JavaScript console for details.`);
+      console.error(`Can't save editor contents. See the JavaScript console for details.`);
+      // throw new Error(`Can't save editor contents. See the JavaScript console for details.`);
     });
   }, [syncActiveFileState, editorView]);
 

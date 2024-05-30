@@ -15,7 +15,7 @@ function EditMystMdElementWrapperForAnotation({ className, children, onUpdate, t
                 <Fragment>
                     {editorFocused == "mystmd-editor-focused" ?
                         <Fragment>
-                            <textarea className={`${className} html-editor !text-left w-[250px]`}
+                            <textarea className={`${className?className:""} html-editor !text-left w-[250px]`}
                                 style={{ height: heightOfPreview + "px" }}
                                 autoFocus={editorFocused == "mystmd-editor-focused"}
                                 onChange={(e) => {
@@ -27,9 +27,9 @@ function EditMystMdElementWrapperForAnotation({ className, children, onUpdate, t
                         :
                         <div
                             ref={previewElement}
-                            className={`${className}`}
+                            className={`${className?className:""}`}
                             tabIndex={1}
-                            title={`${className}`}
+                            title={`${className?className:""}`}
                             onFocus={(e) => {
                                 if (uiData.devmode) {
                                     setHeightOfPreview(previewElement?.current?.clientHeight)

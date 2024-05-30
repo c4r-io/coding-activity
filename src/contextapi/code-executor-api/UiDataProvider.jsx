@@ -806,6 +806,10 @@ export const UiDataProvider = ({ children }) => {
       case "setContent": {
         const content = JSON.parse(JSON.stringify(state.uiContent));
         // content[action.payload.key] = action.payload.data;
+        // console.log(action.payload)
+        if(!action.payload.key){
+          return state
+        }
         if (action.payload.key.includes(".")) {
           const keys = action.payload.key.split(".");
           let nestedContent = content;

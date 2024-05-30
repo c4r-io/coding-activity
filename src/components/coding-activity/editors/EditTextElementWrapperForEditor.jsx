@@ -2,7 +2,8 @@ import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider';
 import debouncer from '@/utils/debouncer';
 import React, { Fragment, useEffect, useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
-function EditTextElementWrapper({ children, className, path, buttonEditor = false }) {
+import { IoCloseCircleSharp } from 'react-icons/io5';
+function EditTextElementWrapperForEditor({ children, className, path, buttonEditor = false, editorButton = false, setEditorButton }) {
     const previewElement = React.useRef(null);
     const [heightOfPreview, setHeightOfPreview] = React.useState(40);
     const [editorFocused, setEditorFocused] = React.useState('');
@@ -33,8 +34,30 @@ function EditTextElementWrapper({ children, className, path, buttonEditor = fals
     }
     const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 400)
     return (
-        <div>
-         {uiData.devmode ?
+        <div className='relative'>
+            <div className={`p-1 absolute top-0 right-0 translate-y-[-100%] ${uiData.devmode ? "":"hidden"}`}>
+                {editorButton ?
+                    <button className='bg-orange-300 text-white px-2 py-1 rounded'
+                        onClick={() => setEditorButton(false)}
+                        title='Done Edit Annotation Message Box'
+                    >
+                        <IoCloseCircleSharp />
+                    </button>
+                    :
+                    <button className='bg-ui-violet text-white px-2 py-1 rounded'
+                        onClick={() => setEditorButton(true)}
+                        title='Edit Annotation Message Box'
+                    >
+                        <FaEdit />
+                    </button>
+                }
+            </div>
+            {editorButton && uiData.devmode ?
+                <div >
+                    {children}
+                </div> :
+                <Fragment>
+                    {uiData.devmode ?
                         <Fragment>
                             {editorFocused == "chatprompt-top-headertext-editor" ?
                                 <Fragment>
@@ -86,8 +109,10 @@ function EditTextElementWrapper({ children, className, path, buttonEditor = fals
                         :
                         children
                     }
+                </Fragment>
+            }
         </div>
     );
 }
 
-export default EditTextElementWrapper;
+export default EditTextElementWrapperForEditor;
