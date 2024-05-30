@@ -155,3 +155,10 @@ path:
 methods:
 get, put, delete
 ```
+
+## error codes
+
+| Error Code | Description |
+|------------|-------------|
+| 5000        | GPT API Error |
+| 5001        | Feedback API Error  |

@@ -25,13 +25,17 @@ const terminalInterface = {
 
 const filesInterface = {
   refreshFilesystem: () => Promise.resolve(),
-  openFileInEditor: () => { throw new Error('Unable to open file, editor not initialised.'); },
+  openFileInEditor: () => { 
+    console.error('Unable to open file, editor not initialised.');
+    // throw new Error('Unable to open file, editor not initialised.');
+   },
 };
 
 const plotInterface = {
   newPlot: () => { return; },
   drawImage: () => {
-    throw new Error('Unable to plot, plotting not initialised.');
+    // throw new Error('Unable to plot, plotting not initialised.');
+    console.error('Unable to plot, plotting not initialised.')
   },
 };
 
@@ -102,7 +106,8 @@ void (async () => {
           webR.writeConsole(command);
         }, (reason) => {
           console.error(reason);
-          throw new Error(`An error occurred reading from the R console terminal.`);
+          console.error(`An error occurred reading from the R console terminal.`);
+          // throw new Error(`An error occurred reading from the R console terminal.`);
         });
         break;
       case 'canvas':
@@ -112,7 +117,8 @@ void (async () => {
         await handlePagerMessage(output);
         break;
       case 'closed':
-        throw new Error('The webR communication channel has been closed');
+        console.error('The webR communication channel has been closed');
+        // throw new Error('The webR communication channel has been closed');
       default:
         console.error(`Unimplemented output type: ${output.type}`);
         console.error(output.data);
