@@ -116,7 +116,7 @@ function calculateHistogram(data, bins) {
   });
 
   return histogramData.map((item, index) => {
-    if(histogram[index]){
+    if (histogram[index]) {
       item.count = histogram[index];
       item.value = histogram[index];
     }
@@ -146,14 +146,14 @@ function groupByHistogram(rawData, groupByAttr, targetAttr, reduction = false, b
     acc[key].push(item[targByAttr]);
     return acc;
   }, {});
-  
+
   // console.log(groupedData)
   const result = Object.keys(groupedData).map(key => {
     const values = groupedData[key];
     const avg = mean(values);
     return reduction ? { [grpByAttr]: key, [targByAttr]: avg } : values.map(value => ({ [grpByAttr]: key, [targByAttr]: avg }));
   });
-  
+
   const op = reduction ? result : result.flat();
   const histogram = op.map(entry => entry[targByAttr]).sort((a, b) => a - b);
   // console.log(histogram)
@@ -345,7 +345,7 @@ export async function GET(req, res) {
   }
   const getHistogramChartData = () => {
     if (yAnalyticsKey) {
-      return groupByHistogram(analyticsForChart, yAnalyticsKey, analyticsKey,  reduction, bins)
+      return groupByHistogram(analyticsForChart, yAnalyticsKey, analyticsKey, reduction, bins)
     }
     return calculateAnalyticsHistogram({ array: analyticsForChart, key: analyticsKey, bins: bins });
   }
@@ -369,10 +369,10 @@ export async function GET(req, res) {
 // @desc Post videoClipList
 // @route POST api/videoClipLists
 // @acess Privet
-function calculateTimeDifference(activity) {
+function calculateTimeDifference(sessionStartTime,sessionEndTime) {
 
-  const startTime = activity.sessionTime.start;
-  const endTime = activity.sessionTime.end;
+  const startTime = sessionStartTime;
+  const endTime = sessionEndTime;
   const difference = endTime - startTime;
   return difference / 1000; // Convert milliseconds to seconds
 }
@@ -385,7 +385,7 @@ export async function POST(req) {
       analyticsById.sessionStartTime = body.get('time');
     } else {
       analyticsById.sessionEndTime = body.get('time');
-      analyticsById.ssessionDuration = calculateTimeDifference(analyticsById);
+      analyticsById.ssessionDuration = calculateTimeDifference(analyticsById.sessionStartTime, analyticsById.sessionEndTime);
     }
     await analyticsById.save();
     return Response.json({ ...analyticsById._doc });
@@ -404,6 +404,15 @@ export async function POST(req) {
     org: 'unknown',
     postal: 'unknown',
     timezone: 'unknown',
+  }
+  if (ipinfo.region) {
+    dataToSave.region = ipinfo.region;
+  }
+  if (ipinfo.country) {
+    dataToSave.country = ipinfo.country;
+  }
+  if (ipinfo.postal) {
+    dataToSave.postal = ipinfo.postal;
   }
   if (ipinfo.city) {
     dataToSave.city = ipinfo.city;
@@ -434,6 +443,16 @@ export async function POST(req) {
     //   continent: timezone[0],
     //   city: timezone[1],
     // }
+  }
+  if (body.get('screenWidth')) {
+    dataToSave.screenWidth = body.get('screenWidth');
+  }
+  if (body.get('screenHeight')) {
+    dataToSave.screenHeight = body.get('screenHeight');
+  }
+  if (body.get('screenWidth') &&
+    body.get('screenHeight')) {
+    dataToSave.aspectRatio = body.get('screenWidth') / body.get('screenHeight');
   }
   const createdAnalytics = await Analytics.create({
     uid: body.get('uid'),
