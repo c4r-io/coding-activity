@@ -453,3 +453,22 @@ textarea.html-editor {
   cursor: crosshair !important;
 }
 
+
+
+
+.annotation-tool-text-container .mystmd-preview-container blockquote,
+.annotation-tool-text-container .mystmd-preview-container dd,
+.annotation-tool-text-container .mystmd-preview-container dl,
+.annotation-tool-text-container .mystmd-preview-container figure,
+.annotation-tool-text-container .mystmd-preview-container h1,
+.annotation-tool-text-container .mystmd-preview-container h2,
+.annotation-tool-text-container .mystmd-preview-container h3,
+.annotation-tool-text-container .mystmd-preview-container h4,
+.annotation-tool-text-container .mystmd-preview-container h5,
+.annotation-tool-text-container .mystmd-preview-container h6,
+.annotation-tool-text-container .mystmd-preview-container hr,
+.annotation-tool-text-container .mystmd-preview-container p,
+.annotation-tool-text-container .mystmd-preview-container pre {
+  margin: 0 !important;
+  color: inherit !important;
+}
