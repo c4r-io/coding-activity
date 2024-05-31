@@ -630,18 +630,7 @@ ${nc2}`)
                         </button>
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        <div>
-                          issue1
-                        </div>
-                      </th>
-                      <th scope="col" className="px-6 py-3">
-                        issue2
-                      </th>
-                      <th scope="col" className="px-6 py-3">
-                        issue3
-                      </th>
-                      <th scope="col" className="px-6 py-3">
-                        issueList
+                        submissions
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <div>
@@ -894,47 +883,15 @@ ${nc2}`)
                               </button>
                             </td>
                             <td className="px-6 py-4">
-                              {item?.submission1?.issue ?
+                              {item?.submissions ?
                                 <Fragment>
-                                  <button className={`${item?.submission1?.issue ? "text-ui-violet" : "pointer-events-none"}`}
-                                    onClick={() => setIssuePopup([item?.submission1])}
+                                  <button className={`${item?.submissions ? "text-ui-violet" : "pointer-events-none"}`}
+                                    onClick={() => setIssuePopup(item?.submissions)}
                                   >
-                                    {item?.submission1?.issue ? "Attachment" : "No Issue"}
+                                    Show
                                   </button>
-                                  <div>{item?.submission1?.issue}</div>
                                 </Fragment>
-                                : "No Issue"}
-                            </td>
-                            <td className="px-6 py-4">
-                              {item?.submission2?.issue ?
-                                <Fragment>
-                                  <button className={`${item?.submission2?.issue ? "text-ui-violet" : "pointer-events-none"}`}
-                                    onClick={() => setIssuePopup([item?.submission2])}
-                                  >
-                                    {item?.submission2?.issue ? "Attachment" : "No Issue"}
-                                  </button>
-                                  <div>{item?.submission2?.issue}</div>
-                                </Fragment>
-                                : "No Issue"}
-                            </td>
-                            <td className="px-6 py-4">
-                              {item?.submission3?.issue ?
-                                <Fragment>
-                                  <button className={`${item?.submission3?.issue ? "text-ui-violet" : "pointer-events-none"}`}
-                                    onClick={() => setIssuePopup([item?.submission3])}
-                                  >
-                                    {item?.submission3?.issue ? "Attachment" : "No Issue"}
-                                  </button>
-                                  <div>{item?.submission3?.issue}</div>
-                                </Fragment>
-                                : "No Issue"}
-                            </td>
-                            <td className="px-6 py-4">
-                              <button className={`${item?.submissionList?.length > 0 ? "text-ui-violet" : "pointer-events-none"}`}
-                                onClick={() => setIssuePopup(item?.submissionList)}
-                              >
-                                {item?.submissionList?.length > 0 ? "Click To See" : "No Additional Issue"}
-                              </button>
+                                : "No Submissions"}
                             </td>
                             <td className="px-6 py-4">
                               {item?.error1?.errorCode ?
@@ -951,7 +908,7 @@ ${nc2}`)
                               {item?.error2?.errorCode ?
                                 <Fragment>
                                   <button className={`${item?.error2?.errorCode ? "text-ui-violet" : "pointer-events-none"}`}
-                                    onClick={() => setIssuePopup([item?.error2])}
+                                    onClick={() => setErrorPopup([item?.error2])}
                                   >
                                     {item?.error2?.errorCode}
                                   </button>
@@ -962,7 +919,7 @@ ${nc2}`)
                               {item?.error3?.errorCode ?
                                 <Fragment>
                                   <button className={`${item?.error3?.errorCode ? "text-ui-violet" : "pointer-events-none"}`}
-                                    onClick={() => setIssuePopup([item?.error3])}
+                                    onClick={() => setErrorPopup([item?.error3])}
                                   >
                                     {item?.error3?.errorCode}
                                   </button>
@@ -971,7 +928,7 @@ ${nc2}`)
                             </td>
                             <td className="px-6 py-4">
                               <button className={`${item?.errorList?.length > 0 ? "text-ui-violet" : "pointer-events-none"}`}
-                                onClick={() => setIssuePopup(item?.errorList)}
+                                onClick={() => setErrorPopup(item?.errorList)}
                               >
                                 {item?.errorList?.length > 0 ? "Click To See" : "No Additional Issue"}
                               </button>
@@ -1380,9 +1337,17 @@ ${nc2}`)
                       <div className='p-2 rounded-md overflow-auto text-white'>
                         {issuePopup.map((item, index) => {
                           return (
-                            <div key={index} className={`pb-2 flex text-left text-xs`}>
-                              <div>{item.issue}</div>
-                              <img className='py-2 rounded-sm' src={item?.attachment?.data} />
+                            <div key={index} className={`pb-2 text-left text-xs border-b border-gray-500`}>
+                              <div>issue : {item?.issue}</div>
+                              <div>feedback : {item?.feedback}</div>
+                              <div className='text-xs whitespace-pre-wrap'>report : {item?.report ? JSON.stringify(item?.report, null, 2) : ""}</div>
+                              <div>attachment :
+                              </div>
+                              <div className='ml-2'>data :
+                                {item?.attachment ?
+                                  <img className='py-2 rounded-sm' src={item?.attachment?.data} />
+                                  : ""}
+                              </div>
                             </div>
                           )
                         })}
