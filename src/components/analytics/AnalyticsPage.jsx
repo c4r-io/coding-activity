@@ -840,6 +840,26 @@ ${nc2}`)
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <SortBtnComponent
+                          feildKey={"screenWidth"}
+                          sortOrder={sortOrder}
+                          sortKey={sortKey}
+                        >
+                          {/* AspectRatio */}
+                          screenWidth
+                        </SortBtnComponent>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <SortBtnComponent
+                          feildKey={"screenHeight"}
+                          sortOrder={sortOrder}
+                          sortKey={sortKey}
+                        >
+                          {/* AspectRatio */}
+                          screenHeight
+                        </SortBtnComponent>
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <SortBtnComponent
                           feildKey={"aspectRatio"}
                           sortOrder={sortOrder}
                           sortKey={sortKey}
@@ -989,6 +1009,12 @@ ${nc2}`)
                             </td>
                             <td className="px-6 py-4">
                               {item?.deviceVersion}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.screenWidth}
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.screenHeight}
                             </td>
                             <td className="px-6 py-4">
                               {item?.aspectRatio}

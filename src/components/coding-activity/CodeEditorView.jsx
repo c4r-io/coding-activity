@@ -77,7 +77,6 @@ export default function CodeEditorView() {
   const handleExpandBottomSection = () => {
     dispatchUiData({ type: 'setOpenReportUi', payload: !uiData.openReportUi })
   };
-
   useEffect(() => {
     if (uiData.devmode) {
       dispatchUiData({ type: 'setOpenReportUi', payload: true })
@@ -335,6 +334,7 @@ print(opdt)
     }, (data) => {
       setIssueDiscription(null);
       setIssueAttachment(null);
+      handleExpandBottomSection();
     }, (e) => {
       console.error(e)
     })
