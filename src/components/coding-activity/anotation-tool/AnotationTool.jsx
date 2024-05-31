@@ -34,21 +34,6 @@ const AnotationTool = ({ children, defaultValue, onUpdate, editable, showAddOnHo
         }
     }, [defaultValue]);
 
-    const updateDefaultPosition = () => {
-        const canvas = canvasRef.current;
-        if (canvas && annotations && annotations?.length > 0) {
-            const { offsetWidth: canvasWidth, offsetHeight: canvasHeight } = canvas;
-            const convertedAnnotationsToPercentage = annotations.map(annotation => ({
-                ...annotation,
-                left: annotation.left / canvasWidth * 100,
-                top: annotation.top / canvasHeight * 100,
-                width: annotation.width / canvasWidth * 100,
-                height: annotation.height / canvasHeight * 100
-            }));
-            setAnnotationsPercentage(convertedAnnotationsToPercentage);
-        }
-    }
-
     const addAnnotation = () => {
         const canvas = canvasRef.current;
         if (canvas) {
@@ -200,6 +185,8 @@ const AnotationTool = ({ children, defaultValue, onUpdate, editable, showAddOnHo
                         ...ann,
                         messageBoxHeight: annotation.messageBoxHeight,
                         messageBoxWidth: annotation.messageBoxWidth,
+                        messageBoxBgColor: annotation.messageBoxBgColor,
+                        messageBoxTextColor: annotation.messageBoxTextColor,
                         fontSize: annotation.fontSize
                     };
                 }
@@ -241,7 +228,7 @@ const AnotationTool = ({ children, defaultValue, onUpdate, editable, showAddOnHo
         setShowTooltip(modfied)
     }
     const handleHideTooltip = (index) => {
-        setShowTooltip((state,i)=>false)
+        setShowTooltip((state, i) => false)
     }
     return (
         <div className='w-full relative group/anotationcanvas'>
@@ -275,32 +262,32 @@ const AnotationTool = ({ children, defaultValue, onUpdate, editable, showAddOnHo
                             />
                         }
                         <div className='absolute z-[1001] m-[5px]'
-                            style={{ left: `${annotation.left}px`, top: `${annotation.top}px` }}
+                            style={{ left: `${annotation.left}px`, top: `${annotation.top}px`, color: annotation.messageBoxTextColor }}
                         >
                             <div className='group/anotation'
                             >
-                                <div className={`${editable ? "hidden" : `${showTooltip[index]?"hidden":"block animate-pulse"}`} ${annotation?.notationPosition == "left" ? "absolute left-2 -bottom-2" : "absolute right-2 -bottom-2"} w-3 h-3 rounded-full bg-ui-violet`}
+                                <div className={`${editable ? "hidden" : `${showTooltip[index] ? "hidden" : "block animate-pulse"}`} ${annotation?.notationPosition == "left" ? "absolute left-2 -bottom-2" : "absolute right-2 -bottom-2"} w-3 h-3 rounded-full bg-ui-violet`}
                                     style={{ backgroundColor: annotation.messageBoxBgColor }}
                                     onMouseOver={() => handleShowTooltip(index)}
-                                    // onMouseLeave={() => handleHideTooltip(index)}
+                                // onMouseLeave={() => handleHideTooltip(index)}
                                 ></div>
-                                <div className={`${editable ? "" : `${showTooltip[index]?"opacity-100":"opacity-0"}`} ${annotation?.notationPosition == "left" ? "absolute left-2 -bottom-2" : "absolute right-2 -bottom-2"} w-0 h-0 border-l-8 border-r-8 border-t-8 border-t-ui-violet border-l-transparent border-r-transparent`}
+                                <div className={`${editable ? "" : `${showTooltip[index] ? "opacity-100" : "opacity-0"}`} ${annotation?.notationPosition == "left" ? "absolute left-2 -bottom-2" : "absolute right-2 -bottom-2"} w-0 h-0 border-l-8 border-r-8 border-t-8 border-t-ui-violet border-l-transparent border-r-transparent`}
                                     style={{ borderTopColor: annotation.messageBoxBgColor }}
                                     onClick={() =>
                                         editable && toggleNotation(annotation.id)
                                     }
                                     onMouseOver={() => handleShowTooltip(index)}
                                     onMouseLeave={() => handleHideTooltip(index)}
-                                    ></div>
-                                <div className={`${editable ? "" : `${showTooltip[index]?"opacity-100":"opacity-0 pointer-events-none"}`} bg-ui-violet rounded shadow-lg`}
-                                    style={{ fontSize: annotation.fontSize + "px" }}
+                                ></div>
+                                <div className={`${editable ? "" : `${showTooltip[index] ? "opacity-100" : "opacity-0 pointer-events-none"}`}  rounded shadow-lg`}
+                                    style={{ fontSize: annotation.fontSize + "px",backgroundColor: annotation.messageBoxBgColor  }}
                                     onMouseOver={() => handleShowTooltip(index)}
                                     onMouseLeave={() => handleHideTooltip(index)}
                                 >
                                     <div className={`absolute top-0 right-0 -translate-y-[100%] ${editable ? "" : "hidden"}`}>
                                         <EditableToolTip onRemove={removeAnotation} annotation={annotation} onUpdate={updateMessageBox} />
                                     </div>
-                                    <div className='p-2 rounded whitespace-pre overflow-auto text-white annotation-tool-text-container'
+                                    <div className='p-2 rounded whitespace-pre overflow-auto annotation-tool-text-container'
                                         style={{ width: (annotation.messageBoxWidth - 10) + "px", height: (annotation.messageBoxHeight - 18) + "px", fontSize: annotation.fontSize + "px !important" }}
                                     >
                                         <div
@@ -331,12 +318,16 @@ const EditableToolTip = ({ onRemove, onUpdate, annotation }) => {
     const [width, setWidth] = React.useState(annotation.messageBoxWidth);
     const [height, setHeight] = React.useState(annotation.messageBoxHeight);
     const [fontSize, setFontSize] = React.useState(annotation.fontSize);
+    const [messageBoxBgColor, setMessageBoxBgColor] = React.useState(annotation.messageBoxBgColor);
+    const [messageBoxTextColor, setMessageBoxTextColor] = React.useState(annotation.messageBoxTextColor);
 
     useEffect(() => {
         if (!isUpdatedOnce.current && annotation) {
             setWidth(annotation.messageBoxWidth);
             setHeight(annotation.messageBoxHeight);
             setFontSize(annotation.fontSize);
+            setMessageBoxBgColor(annotation.messageBoxBgColor);
+            setMessageBoxTextColor(annotation.messageBoxTextColor);
             isUpdatedOnce.current = true;
         }
     }, [annotation])
@@ -347,6 +338,14 @@ const EditableToolTip = ({ onRemove, onUpdate, annotation }) => {
     const updateHeight = (e) => {
         setHeight(e);
         onUpdate({ ...annotation, messageBoxHeight: e });
+    }
+    const updateBgColor = (e) => {
+        setMessageBoxBgColor(e);
+        onUpdate({ ...annotation, messageBoxBgColor: e });
+    }
+    const updateColor = (e) => {
+        setMessageBoxTextColor(e);
+        onUpdate({ ...annotation, messageBoxTextColor: e });
     }
     const updateFontSize = (e) => {
         setFontSize(e);
@@ -398,6 +397,24 @@ const EditableToolTip = ({ onRemove, onUpdate, annotation }) => {
                                     </input>
                                 </div> */}
                                 <div className='p-1 flex justify-center items-center  text-black'>
+                                    <div>Text </div>
+                                    <input className='ml-1 rounded w-14'
+                                        type='color'
+                                        value={messageBoxTextColor}
+                                        onChange={(e) => updateColor(e.target.value)}
+                                    >
+                                    </input>
+                                </div>
+                                <div className='p-1 flex justify-center items-center  text-black'>
+                                    <div>BG</div>
+                                    <input className='ml-1 rounded w-14'
+                                        type='color'
+                                        value={messageBoxBgColor}
+                                        onChange={(e) => updateBgColor(e.target.value)}
+                                    >
+                                    </input>
+                                </div>
+                                <div className='p-1 flex justify-center items-center  text-black'>
                                     <div>Font Scale</div>
                                     <input className='ml-1 bg-gray-300 text-black px-2 py-1 rounded w-14'
                                         type='number'
@@ -411,7 +428,8 @@ const EditableToolTip = ({ onRemove, onUpdate, annotation }) => {
                     </div>
                     :
                     <div className='p-1'>
-                        <button className='bg-ui-violet text-white px-2 py-1 rounded' onClick={() => setIsEditing(true)}
+                        <button className=' px-2 py-1 rounded' onClick={() => setIsEditing(true)}
+                        style={{backgroundColor: annotation.messageBoxBgColor, color: annotation.messageBoxTextColor}}
                             title='Edit Annotation Message Box'
                         >
                             <FaEdit />

@@ -55,6 +55,7 @@ const allCss = `
 .mystmd-preview-container p,
 .mystmd-preview-container pre {
   margin: 0 !important;
+  color: #000000;
 }
 
 /* code-editor-container css start */
