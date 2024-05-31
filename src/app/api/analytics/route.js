@@ -369,13 +369,7 @@ export async function GET(req, res) {
 // @desc Post videoClipList
 // @route POST api/videoClipLists
 // @acess Privet
-function calculateTimeDifference(sessionStartTime,sessionEndTime) {
 
-  const startTime = sessionStartTime;
-  const endTime = sessionEndTime;
-  const difference = endTime - startTime;
-  return difference / 1000; // Convert milliseconds to seconds
-}
 export async function POST(req) {
   const body = await req.formData();
   await connectMongoDB();
@@ -385,7 +379,6 @@ export async function POST(req) {
       analyticsById.sessionStartTime = body.get('time');
     } else {
       analyticsById.sessionEndTime = body.get('time');
-      analyticsById.ssessionDuration = calculateTimeDifference(analyticsById.sessionStartTime, analyticsById.sessionEndTime);
     }
     await analyticsById.save();
     return Response.json({ ...analyticsById._doc });
