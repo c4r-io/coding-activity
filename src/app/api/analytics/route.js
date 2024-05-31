@@ -412,17 +412,11 @@ export async function POST(req) {
   }
   if (ipinfo.loc) {
     const loc = ipinfo.loc.split(',');
-    // ipinfo.latitude = loc[0];
-    // ipinfo.longitude = loc[1];
     dataToSave.latitude = loc[0];
     dataToSave.longitude = loc[1];
   }
   if (ipinfo.org) {
     const org = ipinfo.org.split(' ');
-    // ipinfo.asn = {
-    //   asn: org[0],
-    //   name: org.slice(1).join(' '),
-    // }
     dataToSave.org = ipinfo.org;
     dataToSave.asn = org[0];
     dataToSave.asnName = org.slice(1).join(' ');
@@ -430,23 +424,8 @@ export async function POST(req) {
   if (ipinfo.timezone) {
     dataToSave.timezone = ipinfo.timezone;
     dataToSave.continent = ipinfo.timezone.split('/')[0];
-    // const timezone = ipinfo.timezone.split('/');
-    // ipinfo.timezone = {
-    //   tz: `${timezone[0]}/${timezone[1]}`,
-    //   continent: timezone[0],
-    //   city: timezone[1],
-    // }
   }
-  if (body.get('screenWidth')) {
-    dataToSave.screenWidth = body.get('screenWidth');
-  }
-  if (body.get('screenHeight')) {
-    dataToSave.screenHeight = body.get('screenHeight');
-  }
-  if (body.get('screenWidth') &&
-    body.get('screenHeight')) {
-    dataToSave.aspectRatio = body.get('screenWidth') / body.get('screenHeight');
-  }
+
   const createdAnalytics = await Analytics.create({
     uid: body.get('uid'),
     device: body.get('device') || req.headers.get("sec-ch-ua-platform"),

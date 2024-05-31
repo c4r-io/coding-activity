@@ -3,7 +3,7 @@ import React, { Fragment } from 'react'
 import { UiDataContext } from "@/contextapi/code-executor-api/UiDataProvider.jsx";
 import { ChatMessagesContext } from "@/contextapi/code-executor-api/ChatMessagesProvider.jsx";
 import MarkdownRenderer from './MardownRenderer.jsx';
-import { useChatFeedback, useErrorAnalytics } from '@/components/hooks/ApiHooks.jsx';
+import { useChatFeedback, useErrorAnalytics, useIssueAnalytics } from '@/components/hooks/ApiHooks.jsx';
 import UploadImageWrapper from '../editors/EditUploadImageWrapper.jsx';
 import EditTextElementWrapper from '../editors/EditTextElementWrapper.jsx';
 import EditMystMdElementWrapper from '../editors/EditMystMdElementWrapper.jsx';
@@ -124,6 +124,8 @@ const AssistantMessageUi = ({ prompt }) => {
 }
 const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
     const { uiData, dispatchUiData } = React.useContext(UiDataContext);
+    const { messages, dispatchMessages } = React.useContext(ChatMessagesContext);
+
     // remove fullstop from feeling if it exists and convert it to lowercase
     feeling = feeling.replace(/\./g, '').toLowerCase();
 
@@ -139,6 +141,11 @@ const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
     }
 
     const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 400)
+    const issueAnalytics = useIssueAnalytics();
+    const handleCloseChatPrompt = () => {
+        dispatchUiData({ type: 'setScreen', payload: 'editor' });
+        dispatchMessages({ type: "setTakeScreenshot", payload: false });
+    }
     return (
 
         <AnotationTool defaultValue={uiData.uiContent.chatPromptAssistantMessageAnotations}
@@ -192,7 +199,13 @@ const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
                                     >
                                         <button className='unclicked btn'
                                             onClick={() => {
-                                                dispatchUiData({ type: 'setOpenReportUi', payload: true });
+                                                // dispatchUiData({ type: 'setOpenReportUi', payload: true });
+                                                issueAnalytics.send({
+                                                    report: JSON.stringify(messages.messageList)
+                                                }, () => {
+                                                    // on success callback
+                                                    handleCloseChatPrompt();
+                                                })
                                             }}
                                         >{uiData?.uiContent?.chatprompt?.followupReportBtn}</button>
                                     </EditTextElementWrapper>

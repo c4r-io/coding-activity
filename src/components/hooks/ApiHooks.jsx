@@ -1172,17 +1172,18 @@ export const useUploadImage = () => {
 export const useChatFeedback = () => {
   const [loading, setLoading] = React.useState(false);
   const send = async (data, callbackSuccess, callbackError) => {
-    const authUserExist = localStorage.getItem('auth-user');
-    const authUser = authUserExist ? JSON.parse(authUserExist) : null;
+    const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
+    if (!clientAnalyticsSessionExist) {
+      return
+    }
     const config = {
-      method: "post",
-      url: "/api/chat-feedback",
+      method: "put",
+      url: "/api/analytics/"+clientAnalyticsSessionExist,
       headers: {
         "Content-Type": "multipart/form-data",
       },
       data: {
         ...data,
-        user: authUser._id
       }
     };
     setLoading(true);

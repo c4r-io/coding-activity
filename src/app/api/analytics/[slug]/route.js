@@ -59,28 +59,37 @@ export async function PUT(req, context) {
   if (analytics) {
     // convert to js object
     const body = await req.formData();
+    if (body.get('feedback')) {
+      analytics.submissions.push({ feedback: body.get('feedback') })
+    }
+    if (body.get('issue') && body.get('attachment')) {
+      analytics.submissions.push({ issue: body.get('issue'), attachment: { data: body.get('attachment') } })
+    }
+    if (body.get('report')) {
+      analytics.submissions.push({ report: JSON.parse(body.get('report')) })
+    }
     if (body.get('consoleIssue')) {
       analytics.issueList.push(body.get('consoleIssue'))
     }
-    if (body.get('issue')) {
-      if (!analytics.submission1.issue) {
-        analytics.submission1.issue = body.get('issue');
-        analytics.submission1.attachment = { data: body.get('attachment') };
-      }
-      else if (analytics.submission1.issue && !analytics.submission2.issue) {
-        analytics.submission2.issue = body.get('issue');
-        analytics.submission2.attachment = { data: body.get('attachment') };
-      }
-      else if (analytics.submission2.issue && !analytics.submission3.issue) {
-        analytics.submission3.issue = body.get('issue');
-        analytics.submission3.attachment = { data: body.get('attachment') };
-      } else {
-        analytics.submissionList.push({
-          issue: body.get('issue'),
-          attachment: { data: body.get('attachment') }
-        })
-      }
-    }
+    // if (body.get('issue')) {
+    //   if (!analytics.submission1.issue) {
+    //     analytics.submission1.issue = body.get('issue');
+    //     analytics.submission1.attachment = { data: body.get('attachment') };
+    //   }
+    //   else if (analytics.submission1.issue && !analytics.submission2.issue) {
+    //     analytics.submission2.issue = body.get('issue');
+    //     analytics.submission2.attachment = { data: body.get('attachment') };
+    //   }
+    //   else if (analytics.submission2.issue && !analytics.submission3.issue) {
+    //     analytics.submission3.issue = body.get('issue');
+    //     analytics.submission3.attachment = { data: body.get('attachment') };
+    //   } else {
+    //     analytics.submissionList.push({
+    //       issue: body.get('issue'),
+    //       attachment: { data: body.get('attachment') }
+    //     })
+    //   }
+    // }
     if (body.get('issueCode')) {
       if (!analytics.error1.errorCode) {
         analytics.error1.errorCode = body.get('errorCode');

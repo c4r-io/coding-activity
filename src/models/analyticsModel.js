@@ -98,54 +98,60 @@ const analyticsSchema = mongoose.Schema(
     aspectRatio: {
       type: Number,
     },
+    submissions: [{
+      issue: { type: String },
+      attachment: { type: Object },
+      feedback: { type: String },
+      report: { type: Object },
+    }],
     submission1: {
-      issue:{type: String},
-      attachment:{type: Object},
+      issue: { type: String },
+      attachment: { type: Object },
     },
     submission2: {
-      issue:{type: String},
-      attachment:{type: Object},
-    },   
+      issue: { type: String },
+      attachment: { type: Object },
+    },
     submission3: {
-      issue:{type: String},
-      attachment:{type: Object},
-    },  
+      issue: { type: String },
+      attachment: { type: Object },
+    },
     submissionList: [{
-      issue:{type: String},
-      attachment:{type: Object},
-    }],   
+      issue: { type: String },
+      attachment: { type: Object },
+    }],
     error1: {
-      errorCode:{
+      errorCode: {
         type: Number,
       },
-      description:{
+      description: {
         type: String,
       }
     },
     error2: {
-      errorCode:{
+      errorCode: {
         type: Number,
       },
-      description:{
+      description: {
         type: String,
       }
-    },   
+    },
     error3: {
-      errorCode:{
+      errorCode: {
         type: Number,
       },
-      description:{
+      description: {
         type: String,
       }
-    },  
+    },
     errorList: [{
-      errorCode:{
+      errorCode: {
         type: Number,
       },
-      description:{
+      description: {
         type: String,
       }
-    }], 
+    }],
     featureEngineeredData: {
       type: Object,
     },
@@ -172,8 +178,8 @@ analyticsSchema.pre('save', function (next) {
   if (this.screenWidth && this.screenHeight) {
     this.aspectRatio = (this.screenWidth / this.screenHeight).toFixed(2);
   }
-  if(this.sessionStartTime && this.sessionEndTime){
-    this.sessionDuration = (this.sessionEndTime - this.sessionStartTime)/1000;
+  if (this.sessionStartTime && this.sessionEndTime) {
+    this.sessionDuration = ((this.sessionEndTime - this.sessionStartTime) / 1000).toFixed(2);
   }
   next();
 }
