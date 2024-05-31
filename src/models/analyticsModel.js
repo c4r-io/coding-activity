@@ -168,7 +168,17 @@ analyticsSchema.remove(['analyticsById.ipinfo', 'analyticsById.sessionTime']);
 
 //   return `${(this.screenWidth / this.screenHeight).toFixed(2)}`
 // });
+analyticsSchema.pre('save', function (next) {
+  if (this.screenWidth && this.screenHeight) {
+    this.aspectRatio = (this.screenWidth / this.screenHeight).toFixed(2);
+  }
+  if(this.sessionStartTime && this.sessionEndTime){
+    this.sessionDuration = (this.sessionEndTime - this.sessionStartTime)/1000;
+  }
+  next();
+}
 
+);
 const Analytics =
   mongoose.models.Analytics ||
   mongoose.model('Analytics', analyticsSchema);
