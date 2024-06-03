@@ -78,9 +78,9 @@ export default function CodeEditorView() {
     dispatchUiData({ type: 'setOpenReportUi', payload: !uiData.openReportUi })
   };
   useEffect(() => {
-    if (uiData.devmode) {
-      dispatchUiData({ type: 'setOpenReportUi', payload: true })
-    }
+    // if (uiData.devmode) {
+    //   dispatchUiData({ type: 'setOpenReportUi', payload: true })
+    // }
     setCode(uiData?.uiContent?.defaults?.code || "")
   }, [uiData.devmode, uiData?.uiContent?.defaults?.code])
   const initClientAnalytics = useInitClientAnalytics()
@@ -406,28 +406,11 @@ print(opdt)
           <div className={`ps-4 pe-14 widget `}>
             <div className="mx-3 p-1 pb-0 border-x-2 space-y-3 border-ui-violet rounded-xl bg-[#171819] text-white">
               <div className="p-3 pb-0 mt-3 relative group">
-                {
-                  editorButton ?
-                    <Fragment>
-                      {uiData.activityCodeRuntime === "Pyodide" && <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />}
-                      {uiData.activityCodeRuntime === "Python Aws Api" && <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />}
-                      {uiData.activityCodeRuntime === "Web-R" && <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />}
-                    </Fragment> :
-                    <Fragment>
-                      {
-                        !uiData.devmode && uiData.activityCodeRuntime === "Web-R" ?
-                          <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />
-                          :
-                          <CodeMirrorEidtor
-                            value={code}
-                            onChange={(e) => {
-                              handleOnChange(e);
-                            }}
-                            height={`${uiData?.uiContent?.defaults?.code?.split("\n").length * 19.5 + 20}px`}
-                          />
-                      }
-                    </Fragment>
-                }
+                <Fragment>
+                  {uiData.activityCodeRuntime === "Pyodide" && <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />}
+                  {uiData.activityCodeRuntime === "Python Aws Api" && <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />}
+                  {uiData.activityCodeRuntime === "Web-R" && <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />}
+                </Fragment>
                 {(uiData.activityCodeRuntime === "Pyodide" || uiData.activityCodeRuntime === "Python Aws Api") &&
                   <div className="buttons absolute top-[10px] right-[10px]">
                     <div className="progressive">
@@ -474,12 +457,10 @@ print(opdt)
 
                 </div>
                 <div className="progressive w-1/2 m-2">
-                  <EditTextElementWrapperForEditor
+                  <EditTextElementWrapper
                     className={`unclicked py-2 px-3 w-full !text-sm text-center`}
                     path={"editorview.editorActionBtn"}
                     buttonEditor={true}
-                    editorButton={editorButton}
-                    setEditorButton={setEditorButton}
                   >
                     <button
                       className={`${isCodeExecuting ? "clicked" : "unclicked"
@@ -498,22 +479,15 @@ print(opdt)
                     >
                       {isCodeExecuting ? <div className="w-full flex justify-center items-center"><img className="w-6 h-6" src="/images/loading.gif" /></div> : uiData?.uiContent?.editorview?.editorActionBtn}
                     </button>
-                  </EditTextElementWrapperForEditor>
+                  </EditTextElementWrapper>
                 </div>
               </div>
-              {editorButton ?
+
+              {(uiData.activityCodeRuntime === "Web-R") ?
                 <div className="px-3 w-full">
                   <WebRApp.Terminal />
                   <WebRApp.Plot />
-                </div> :
-                <Fragment>
-                  {(!uiData.devmode && uiData.activityCodeRuntime === "Web-R") ?
-                    <div className="px-3 w-full">
-                      <WebRApp.Terminal />
-                      <WebRApp.Plot />
-                    </div> : ""
-                  }
-                </Fragment>
+                </div> : ""
               }
               {
                 (uiData.activityCodeRuntime === "Pyodide" || uiData.activityCodeRuntime === "Python Aws Api")
@@ -641,7 +615,7 @@ print(opdt)
                 </div>
               )}
               <div className="px-3 space-y-3">
-                <div style={{ display: `${uiData.devmode || uiData.screen === 'chat' ? 'block' : 'none'}` }}>
+                <div style={{ display: `${uiData.screen === 'chat' ? 'block' : 'none'}` }}>
                   <ChatView />
                 </div>
               </div>

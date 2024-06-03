@@ -4,6 +4,32 @@ import debouncer from '@/utils/debouncer';
 import React, { Fragment, useEffect, useState } from 'react';
 
 function EditMystMdElementWrapper({ children, className, path, buttonEditor = false }) {
+    const { uiData, dispatchUiData } = React.useContext(UiDataContext);
+    // State to store the base64 string
+    const handleClick = (event) => {
+        if (event.ctrlKey || event.metaKey) {
+        if (uiData.devmode) {
+            event.stopPropagation()
+            openIntoEditor();
+        }
+        }
+    };
+
+    const openIntoEditor = () => {
+        if (uiData.devmode) {
+            dispatchUiData({ type: "setActivePath", payload: {path, type:"text"}  })
+        }
+    }
+    return (
+        <div
+            onClick={handleClick}
+            onClickCapture={handleClick}
+        >
+            {children}
+        </div>
+    );
+}
+function EditMystMdElementWrapperBackup({ children, className, path, buttonEditor = false }) {
     const previewElement = React.useRef(null);
     const [heightOfPreview, setHeightOfPreview] = React.useState(40);
     const [editorFocused, setEditorFocused] = React.useState('');
@@ -20,6 +46,11 @@ function EditMystMdElementWrapper({ children, className, path, buttonEditor = fa
         return nd
     }
     const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 400)
+    useEffect(() => {
+        if (uiData.devmode) {
+            dispatchUiData({ type: "setActivePath", payload: path })
+        }
+    }, [editorFocused])
     return (
         <div>
             {uiData.devmode ?
@@ -30,7 +61,7 @@ function EditMystMdElementWrapper({ children, className, path, buttonEditor = fa
                                 <input className={`${className} html-editor`}
                                     autoFocus={editorFocused == "mystmd-editor-focused"}
                                     onChange={(e) => {
-                                            dispatchUiDataWithDebounce({ type: 'setContent', payload: { key: path, data: e.target.value } })
+                                        dispatchUiDataWithDebounce({ type: 'setContent', payload: { key: path, data: e.target.value } })
                                     }}
                                     defaultValue={getDefaultData()}
                                     onBlur={() => setEditorFocused("")}></input>

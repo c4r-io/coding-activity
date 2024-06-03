@@ -2,6 +2,32 @@ import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider';
 import debouncer from '@/utils/debouncer';
 import React, { Fragment, useEffect, useState } from 'react';
 function EditTextContentElementWrapper({ children, className, path, buttonEditor = false }) {
+    const { uiData, dispatchUiData } = React.useContext(UiDataContext);
+    // State to store the base64 string
+    const handleClick = (event) => {
+        if (event.ctrlKey || event.metaKey) {
+        if (uiData.devmode) {
+            event.stopPropagation()
+            openIntoEditor();
+        }
+        }
+    };
+
+    const openIntoEditor = () => {
+        if (uiData.devmode) {
+            dispatchUiData({ type: "setActivePath", payload: {path, type:"text"} })
+        }
+    }
+    return (
+        <div
+        onClick={handleClick}
+        onClickCapture={handleClick}
+        >
+            {children}
+        </div>
+    );
+}
+function EditTextContentElementWrapperBackup({ children, className, path, buttonEditor = false }) {
     const previewElement = React.useRef(null);
     const [heightOfPreview, setHeightOfPreview] = React.useState(40);
     const [editorFocused, setEditorFocused] = React.useState('');

@@ -40,9 +40,194 @@ function UploadImageWrapper({ children, className, path, stylePath, styles }) {
                     return acc[curr];
                 }
             }, uiData?.uiContent)
-            
+
             const data = new FormData();
-            if(prev && prev.startsWith("/api/public")){
+            if (prev && prev.startsWith("/api/public")) {
+                const prevId = prev.split("/").pop();
+                data.append('imageId', prevId);
+            }
+            data.append('image', file);
+            await uploadImageHook.upload(data, (d) => {
+                // success callback
+                console.log("uploaded data: ", d)
+                // const reader = new FileReader();
+                // reader.onload = (e) => {
+                //     const base64String = e.target.result;
+                //     setBase64Image(base64String);
+                //     console.log("Base64 Image String: ", path, base64String);
+                //     dispatchUiData({ type: 'setContent', payload: { key: path, data: base64String } });
+                // };
+                // reader.readAsDataURL(file);
+                dispatchUiData({ type: 'setContent', payload: { key: path, data: `/api/public/${d._id}` } });
+                setEditorFocused("")
+            }, (e) => {
+                // error callback
+                console.log("error: ", e)
+            });
+
+        }
+    };
+
+    const handleStyleEditWithDebounce = () => {
+        if (stylePath) {
+            dispatchUiData({
+                type: 'setContent', payload: {
+                    key: stylePath, data: {
+                        top: Number(top),
+                        left: Number(left),
+                        width: Number(width),
+                        height: Number(height),
+                        rotateAngle: Number(rotateAngle),
+
+                    }
+                }
+            });
+        }
+    }
+    const handleResize = (style, isShiftKey, type) => {
+        // type is a string and it shows which resize-handler you clicked
+        // e.g. if you clicked top-right handler, then type is 'tr'
+        let { top, left, width, height } = style;
+        top = Math.round(top);
+        left = Math.round(left);
+        width = Math.round(width);
+        height = Math.round(height);
+        setWidth(width);
+        setHeight(height);
+        setTop(top);
+        setLeft(left);
+        handleStyleEditWithDebounce()
+    };
+
+    const handleRotate = (angle) => {
+        setRotateAngle(angle);
+        handleStyleEditWithDebounce()
+    };
+
+    const handleDrag = (deltaX, deltaY) => {
+        setLeft(left => left + deltaX);
+        setTop(top => top + deltaY);
+        handleStyleEditWithDebounce()
+    };
+    // State to store the base64 string
+    const handleClick = (event) => {
+        if (event.ctrlKey || event.metaKey) {
+            event.stopPropagation()
+            openIntoEditor();
+            if (stylePath && !resisable) {
+                setResisable(state => !state)
+            }
+        }
+    };
+
+    const openIntoEditor = () => {
+        if (uiData.devmode) {
+            dispatchUiData({ type: "setActivePath", payload: { path, type: "image" } })
+        }
+    }
+    return (
+        <div
+            onClick={handleClick}
+            onClickCapture={handleClick}
+        >
+
+            {uiData.devmode ?
+                <Fragment>
+                    <div
+                        tabIndex={1}
+                        title={`${className}`}
+                        // onClick={() => {
+                        //     if (stylePath && !resisable) {
+                        //         setResisable(state => !state)
+                        //     }
+                        //     dispatchUiData({ type: 'setHighlightClass', payload: className });
+                        // }}
+                        onBlur={() => {
+                            setResisable(false)
+                        }}
+                        style={stylePath ? {
+                            position: "absolute",
+                            left: 0 + "px",
+                            top: 0 + "px",
+                            width: 100 + "%",
+                            height: 100 + "%",
+                        } : {}}
+                    >
+                        {children}
+                        {resisable &&
+                            <div
+                                className={`${resisable ? '' : 'hidden'}`}
+                                style={{
+                                    zIndex: 10000,
+                                    position: "absolute",
+                                    left: 0 + "px",
+                                    top: 0 + "px",
+                                    width: 100 + "%",
+                                    height: 100 + "%",
+                                }}
+                            >
+                                <ResizableRect
+                                    left={left}
+                                    top={top}
+                                    width={width}
+                                    height={height}
+                                    rotateAngle={rotateAngle}
+                                    zoomable="n, w, s, e, nw, ne, se, sw"
+                                    onRotate={
+                                        handleRotate}
+                                    onResize={
+                                        handleResize}
+                                    onDrag={
+                                        handleDrag}
+                                >
+                                </ResizableRect>
+                            </div>
+                        }
+                    </div>
+                </Fragment> : children
+            }
+        </div>
+    );
+}
+function UploadImageWrapperBackup({ children, className, path, stylePath, styles }) {
+    const [editorFocused, setEditorFocused] = React.useState('');
+    const alreadyUpdated = React.useRef(false);
+    const uploadImageHook = useUploadImage();
+    const { uiData, dispatchUiData } = React.useContext(UiDataContext);
+    const [resisable, setResisable] = useState(false);
+    const [left, setLeft] = useState(622);
+    const [top, setTop] = useState(10);
+    const [width, setWidth] = useState(270);
+    const [height, setHeight] = useState(270);
+    const [rotateAngle, setRotateAngle] = useState(0);
+    React.useEffect(() => {
+        if (styles
+            && alreadyUpdated.current <= 2
+        ) {
+            alreadyUpdated.current += 1;
+            setLeft(styles?.left || 0)
+            setTop(styles?.top || 0)
+            setWidth(styles?.width || 200)
+            setHeight(styles?.height || 200)
+            setRotateAngle(styles?.rotateAngle || 0)
+        }
+
+    }, [styles])
+
+    // State to store the base64 string
+    const [base64Image, setBase64Image] = useState('');
+    // Function to convert image to base64
+    const handleFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const prev = path.split(".").reduce((acc, curr) => {
+                if (curr) {
+                    return acc[curr];
+                }
+            }, uiData?.uiContent)
+
+            const data = new FormData();
+            if (prev && prev.startsWith("/api/public")) {
                 const prevId = prev.split("/").pop();
                 data.append('imageId', prevId);
             }

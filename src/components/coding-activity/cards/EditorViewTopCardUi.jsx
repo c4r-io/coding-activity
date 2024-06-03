@@ -10,10 +10,18 @@ import debouncer from "@/utils/debouncer";
 const TopCardUi = () => {
   const { uiData, dispatchUiData } = React.useContext(UiDataContext);
   const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 400)
-
+  const openIntoEditor = (index) => {
+    if(index === -1) return;
+    if(index == null) return;
+    if(index === undefined) return;
+    if (uiData.devmode) {
+      dispatchUiData({ type: "setActivePath", payload: { path: `editorViewTopCardAnotations[${index}]`, type: "annotation" } })
+    }
+  }
   return (
     <Fragment>
       <AnotationTool defaultValue={uiData.uiContent?.editorViewTopCardAnotations}
+        onUpdateIndex={openIntoEditor}
         onUpdate={(value) => {
           dispatchUiDataWithDebounce({ type: 'setContent', payload: { key: "editorViewTopCardAnotations", data: value } })
         }}

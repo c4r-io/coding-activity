@@ -16,7 +16,14 @@ const ChatPromptTopCardUi = ({ headerText }) => {
         dispatchMessages({ type: "setTakeScreenshot", payload: false });
     }
     const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 400)
-
+  const openIntoEditor = (index) => {
+    if(index === -1) return;
+    if(index == null) return;
+    if(index === undefined) return;
+    if (uiData.devmode) {
+      dispatchUiData({ type: "setActivePath", payload: { path: `chatPromptTopCardUiAnotations[${index}]`, type: "annotation" } })
+    }
+  }
     return (
         <div>
             <AnotationTool defaultValue={uiData.uiContent?.chatPromptTopCardUiAnotations}
@@ -25,6 +32,7 @@ const ChatPromptTopCardUi = ({ headerText }) => {
                 }}
                 editable={uiData.devmode}
                 showAddOnHover
+        onUpdateIndex={openIntoEditor}
             >
                 <div className='chat-prompt-top-card-container'>
                     <button className='chat-prompt-top-card-close-icon'
