@@ -4,7 +4,7 @@ import { MdCloudUpload } from "react-icons/md";
 import { IoCloseCircle } from "react-icons/io5";
 import ResizableRect from "react-resizable-rotatable-draggable";
 import { useUploadImage } from '@/components/hooks/ApiHooks';
-function UploadImageWrapper({ children, className, path, stylePath, styles }) {
+function UploadImageWrapper({ children, className,cssContent, path, stylePath, styles }) {
     const [editorFocused, setEditorFocused] = React.useState('');
     const alreadyUpdated = React.useRef(false);
     const uploadImageHook = useUploadImage();
@@ -122,7 +122,7 @@ function UploadImageWrapper({ children, className, path, stylePath, styles }) {
 
     const openIntoEditor = () => {
         if (uiData.devmode) {
-            dispatchUiData({ type: "setActivePath", payload: { path, type: "image" } })
+            dispatchUiData({ type: "setActivePath", payload: { path, type: "image",cssContent: cssContent ? cssContent :"global" } })
         }
     }
     return (
@@ -136,12 +136,6 @@ function UploadImageWrapper({ children, className, path, stylePath, styles }) {
                     <div
                         tabIndex={1}
                         title={`${className}`}
-                        // onClick={() => {
-                        //     if (stylePath && !resisable) {
-                        //         setResisable(state => !state)
-                        //     }
-                        //     dispatchUiData({ type: 'setHighlightClass', payload: className });
-                        // }}
                         onBlur={() => {
                             setResisable(false)
                         }}

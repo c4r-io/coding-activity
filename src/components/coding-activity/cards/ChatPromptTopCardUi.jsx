@@ -45,6 +45,7 @@ const ChatPromptTopCardUi = ({ headerText }) => {
                         path={"chatPromptTopCardAvater.data"}
                         stylePath={"chatPromptTopCardAvater.styles"}
                         styles={uiData?.uiContent?.chatPromptTopCardAvater?.styles}
+                        cssContent={"cssContent.chatPromptTopCardUi"}
                     >
                         <img className='chat-prompt-top-card-container-avater'
                             src={uiData?.uiContent?.chatPromptTopCardAvater?.data ? uiData?.uiContent?.chatPromptTopCardAvater?.data : "/imoje-charecters/raven-rigorous.png"}
@@ -63,6 +64,7 @@ const ChatPromptTopCardUi = ({ headerText }) => {
                             <EditMystMdElementWrapper
                                 className={`chat-prompt-top-card-container-header-text`}
                                 path={"chatprompt.headerElement"}
+                                cssContent={"cssContent.chatPromptTopCardUi"}
                             >
                                 <div
                                     className='chat-prompt-top-card-container-header-text'
@@ -76,6 +78,7 @@ const ChatPromptTopCardUi = ({ headerText }) => {
                             <EditMystMdElementWrapper
                                 className={`chat-prompt-top-card-container-footer-text`}
                                 path={"chatprompt.footerElement"}
+                                cssContent={"cssContent.chatPromptTopCardUi"}
                             >
                                 <div
                                     className='chat-prompt-top-card-container-footer-text'

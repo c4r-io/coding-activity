@@ -114,11 +114,12 @@ export default function CodeEditorView() {
     // await micropip.install("scipy"); // showing problem
   }
   const handleOnChange = (e) => {
+    console.log("code", e);
     setCode(e);
     dispatchMessages({ type: "setCode", payload: e })
-    if (uiData.devmode) {
-      dispatchUiData({ type: 'setContent', payload: { key: "defaults.code", data: e } });
-    }
+    // if (uiData.devmode) {
+    // }
+    dispatchUiData({ type: 'setContent', payload: { key: "defaults.code", data: e } });
   };
 
 
@@ -409,7 +410,12 @@ print(opdt)
                 <Fragment>
                   {uiData.activityCodeRuntime === "Pyodide" && <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />}
                   {uiData.activityCodeRuntime === "Python Aws Api" && <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />}
-                  {uiData.activityCodeRuntime === "Web-R" && <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />}
+                  {uiData.activityCodeRuntime === "Web-R" &&
+                    <>
+                      <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />
+                      <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />
+                    </>
+                  }
                 </Fragment>
                 {(uiData.activityCodeRuntime === "Pyodide" || uiData.activityCodeRuntime === "Python Aws Api") &&
                   <div className="buttons absolute top-[10px] right-[10px]">
@@ -419,6 +425,7 @@ print(opdt)
                         className={`unclicked py-0.5 px-3 rounded-sm pep8-formatter-button text-center`}
                         path={"editorview.editorPep8Btn"}
                         buttonEditor={true}
+                        cssContent={"cssContent.editorviewPep8Btn"}
                       >
                         <button
                           className={`${isCodeFormating ? "clicked" : "unclicked"
@@ -440,6 +447,7 @@ print(opdt)
                     className={`unclicked py-2 px-3 w-full !text-sm text-center`}
                     path={"editorview.editorNeedHelpBtn"}
                     buttonEditor={true}
+                    cssContent={"cssContent.editorNeedHelpBtn"}
                   >
                     <button
                       className={`${isTakingHelpAttachScreenshot ? "clicked" : "unclicked"
@@ -461,6 +469,7 @@ print(opdt)
                     className={`unclicked py-2 px-3 w-full !text-sm text-center`}
                     path={"editorview.editorActionBtn"}
                     buttonEditor={true}
+                    cssContent={"cssContent.editorActionBtn"}
                   >
                     <button
                       className={`${isCodeExecuting ? "clicked" : "unclicked"
@@ -555,6 +564,7 @@ print(opdt)
                     className={`buttons passive unclicked attach-screenshot-button-input`}
                     path={"editorview.editorActionAttachScreenshot"}
                     buttonEditor={true}
+                    cssContent={"cssContent.editorActionAttachScreenshot"}
                   >
                     <Fragment>
                       <div className="mt-0 w-full h-20 relative">
@@ -599,6 +609,7 @@ print(opdt)
                         className={`unclicked py-2 px-3 w-full h-12  flex justify-center items-center`}
                         path={"editorview.editorActionSubmitAttachment"}
                         buttonEditor={true}
+                        cssContent={"cssContent.editorActionSubmitAttachment"}
                       >
                         <button
                           className={`${issueAnalytics.loading

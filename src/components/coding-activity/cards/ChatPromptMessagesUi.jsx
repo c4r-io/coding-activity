@@ -46,19 +46,10 @@ const UserMessageUi = ({ prompt }) => {
             <div className='chat-prompt-user-message-text-container'>
                 <div>
                     <div className='chat-prompt-user-message-container-header-text-container'>
-                        {/* <EditTextElementWrapper
-                            className={`chat-prompt-user-message-container-header-text`}
-                            path={"chatprompt.userMessageTitle"}
-                        >
-                            <h3
-                                className='chat-prompt-user-message-container-header-text'
-                                dangerouslySetInnerHTML={{ __html: uiData?.uiContent?.chatprompt?.userMessageTitle }}
-                            >
-                            </h3>
-                        </EditTextElementWrapper> */}
                         <EditMystMdElementWrapper
                             className={`chat-prompt-user-message-container-header-text`}
                             path={"chatprompt.userMessageTitle"}
+                            cssContent={"cssContent.chatPromptUserMessage"}
                         >
                             <div
                                 className='chat-prompt-user-message-container-header-text'
@@ -89,19 +80,11 @@ const AssistantMessageUi = ({ prompt }) => {
             <div className='chat-prompt-assistant-message-text-container'>
                 <div>
                     <div className='chat-prompt-assistant-message-container-header-text-container'>
-                        {/* <EditTextElementWrapper
-                            className={`chat-prompt-assistant-message-container-header-text`}
-                            path={"chatprompt.assistantMessageHeaderTitle"}
-                        >
-                            <h3
-                                className='chat-prompt-assistant-message-container-header-text'
-                                dangerouslySetInnerHTML={{ __html: uiData?.uiContent?.chatprompt?.assistantMessageHeaderTitle }}
-                            >
-                            </h3>
-                        </EditTextElementWrapper> */}
+                   
                         <EditMystMdElementWrapper
                             className={`chat-prompt-assistant-message-container-header-text`}
                             path={"chatprompt.assistantMessageHeaderTitle"}
+                            cssContent={"cssContent.chatPromptAssistantMessage"}
                         >
                             <div
                                 className='chat-prompt-assistant-message-container-header-text'
@@ -169,19 +152,10 @@ const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
                 <div className='chat-prompt-assistant-message-follow-up-text-container'>
                     <div className='chat-prompt-assistant-message-follow-up-content'>
 
-                        {/* <EditTextElementWrapper
-                        className={`chat-prompt-assistant-message-follow-up-container-header-text`}
-                        path={"chatprompt.chatprompotFollowUpTitle"}
-                    >
-                        <h3
-                            className='chat-prompt-assistant-message-follow-up-container-header-text'
-                            dangerouslySetInnerHTML={{ __html: uiData?.uiContent?.chatprompt?.chatprompotFollowUpTitle.replace("{feeling}", feeling) }}
-                        >
-                        </h3>
-                    </EditTextElementWrapper> */}
                         <EditMystMdElementWrapper
                             className={`chat-prompt-assistant-message-follow-up-container-header-text`}
                             path={"chatprompt.chatprompotFollowUpTitle"}
+                            cssContent={"cssContent.chatPromptFollowUpAndAssistantMessage"}
                         >
                             <div
                                 className='chat-prompt-assistant-message-follow-up-container-header-text'
@@ -204,6 +178,7 @@ const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
                                         className={`unclicked btn`}
                                         path={"chatprompt.followupReportBtn"}
                                         buttonEditor={true}
+                                        cssContent={"cssContent.chatPromptFollowUpAndAssistantMessage"}
                                     >
                                         <button className='unclicked btn'
                                             onClick={() => {
@@ -223,6 +198,7 @@ const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
                                         className={`unclicked btn btn-big-x-padding`}
                                         path={"chatprompt.followupSatisfiedBtn"}
                                         buttonEditor={true}
+                                        cssContent={"cssContent.chatPromptFollowUpAndAssistantMessage"}
                                     >
                                         <button className='unclicked btn btn-big-x-padding'
                                             onClick={() => {
@@ -238,6 +214,7 @@ const FollowUpAndAssistantMessageUi = ({ prompt, feeling }) => {
                                         className={`unclicked btn btn-big-x-padding`}
                                         path={"chatprompt.followupAskMoreBtn"}
                                         buttonEditor={true}
+                                        cssContent={"cssContent.chatPromptFollowUpAndAssistantMessage"}
                                     >
                                         <button className='unclicked btn btn-big-x-padding'
                                             onClick={() => {
@@ -407,51 +384,7 @@ const FollowUpAskQuestionUi = () => {
                                 <img src='/images/left-arrow.svg' />
                             </button>
                             <div className='chat-prompt-ask-followup-premade-question-list-container'>
-                                {/* {uiData.devmode ?
-                                    <Fragment>
-                                        {editorFocused == "predefineQuestionList" ?
-
-                                            <Fragment>
-                                                <StringArrayInput
-                                                    defaultValues={uiData?.uiContent?.chatprompt?.predefineQuestionList}
-                                                    onUpdate={(e) => {
-                                                        dispatchUiData({ type: 'setContent', payload: { key: 'chatprompt.predefineQuestionList', data: e } });
-                                                    }}
-                                                />
-                                                <button className='bg-green-700 px-8 py-1 w-full text-base rounded-sm' onClick={() => setEditorFocused("")}>Done</button>
-                                            </Fragment>
-
-                                            :
-                                            <div className='chat-prompt-ask-followup-premade-question-list'
-                                                ref={predefineQuestionListRef}
-                                                tabIndex={1}
-                                                title=".chat-prompt-ask-followup-premade-question-list"
-                                                onFocus={(e) => setEditorFocused("predefineQuestionList")}
-                                            >
-                                                {uiData?.uiContent?.chatprompt?.predefineQuestionList.map((question, index) => {
-                                                    return (
-                                                        <div key={index} className='chat-prompt-ask-followup-premade-single-question'
-                                                        >
-                                                            <button className='chat-prompt-ask-followup-premade-question-btn'>{question}</button>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        }
-                                    </Fragment>
-                                    :
-                                    <div ref={predefineQuestionListRef} className='chat-prompt-ask-followup-premade-question-list'>
-                                        {uiData?.uiContent?.chatprompt?.predefineQuestionList.map((question, index) => {
-                                            return (
-                                                <div key={index} className='chat-prompt-ask-followup-premade-single-question'
-                                                    onClick={() => { setPrompt(question) }}
-                                                >
-                                                    <button className='chat-prompt-ask-followup-premade-question-btn'>{question}</button>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                } */}
+                              
                                 <div ref={predefineQuestionListRef} className='chat-prompt-ask-followup-premade-question-list'
                                     onClick={(e) => handleClickStringArray(e,"chatprompt.predefineQuestionList")}
                                 >
@@ -492,6 +425,7 @@ const FollowUpAskQuestionUi = () => {
                                     className={`unclicked ask-followup-button text-center`}
                                     path={"chatprompt.followupAskCustomQuestionBtn"}
                                     buttonEditor={true}
+                                    cssContent={"cssContent.chatPromptFollowUpQuestion"}
                                 >
                                     <button className={`unclicked ask-followup-button`}
                                         style={{ pointerEvents: isLoading ? 'none' : 'auto' }}
@@ -582,19 +516,11 @@ const FollowUpReviewActionUi = () => {
                 <div className='chat-prompt-user-review-action-text-container'>
                     <div>
                         <div className='chat-prompt-user-review-action-container-header-text-container'>
-                            {/* <EditTextElementWrapper
-                            className={`chat-prompt-user-review-action-container-header-text`}
-                            path={"chatprompt.followUpReviewTitle"}
-                        >
-                            <h3
-                                className='chat-prompt-user-review-action-container-header-text'
-                                dangerouslySetInnerHTML={{ __html: uiData?.uiContent?.chatprompt?.followUpReviewTitle }}
-                            >
-                            </h3>
-                        </EditTextElementWrapper> */}
+                       
                             <EditMystMdElementWrapper
                                 className={`chat-prompt-user-review-action-container-header-text`}
                                 path={"chatprompt.followUpReviewTitle"}
+                                cssContent={"cssContent.chatPromptFollowUpReview"}
                             >
                                 <div
                                     className='chat-prompt-user-review-action-container-header-text'
@@ -609,6 +535,7 @@ const FollowUpReviewActionUi = () => {
                             ><UploadImageWrapper
                                 className="feedback-review-like-image"
                                 path={"feedbackReviewLikeImage.data"}
+                                cssContent={"cssContent.chatPromptFollowUpReview"}
 
                             >
                                     <img className='feedback-review-like-image'
@@ -623,6 +550,7 @@ const FollowUpReviewActionUi = () => {
                                 <UploadImageWrapper
                                     className="feedback-review-unlike-image"
                                     path={"feedbackReviewUnLikeImage.data"}
+                                    cssContent={"cssContent.chatPromptFollowUpReview"}
                                 >
                                     <img className='feedback-review-unlike-image'
                                         src={uiData?.uiContent?.feedbackReviewUnLikeImage?.data ? uiData?.uiContent?.feedbackReviewUnLikeImage?.data : "/imoje-charecters/like-image.png"}

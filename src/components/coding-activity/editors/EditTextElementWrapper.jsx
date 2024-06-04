@@ -2,7 +2,7 @@ import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider';
 import debouncer from '@/utils/debouncer';
 import React, { Fragment, useEffect, useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
-function EditTextElementWrapper({ children, className, path, buttonEditor = false }) {
+function EditTextElementWrapper({ children, cssContent, path, buttonEditor = false }) {
     const { uiData, dispatchUiData } = React.useContext(UiDataContext);
     // State to store the base64 string
     const handleClick = (event) => {
@@ -16,7 +16,7 @@ function EditTextElementWrapper({ children, className, path, buttonEditor = fals
 
     const openIntoEditor = () => {
         if (uiData.devmode) {
-            dispatchUiData({ type: "setActivePath", payload: {path, type:"text"}  })
+            dispatchUiData({ type: "setActivePath", payload: {path, type:"text",cssContent: cssContent ? cssContent :"global"}  })
         }
     }
     return (

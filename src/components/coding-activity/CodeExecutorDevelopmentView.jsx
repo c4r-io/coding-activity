@@ -23,76 +23,6 @@ export default function CodeExecutorDevelopmentView({ codingActivityId, uiDataFr
     reduUndu.updateMainStack(uiData.uiContent)
   }, [uiData.uiContent])
 
-  // :DONE: Implement undo redo functionality as a custom hook
-  // const [undoStack, setUndoStack] = useState([]);
-  // const [redoStack, setRedoStack] = useState([]);
-  // const [isUndoing, setIsUndoing] = useState(false);
-  // const [isRedoing, setIsRedoing] = useState(false);
-
-  // const undo = React.useCallback(() => {
-  //   console.log("undu ", undoStack)
-  //   if (undoStack.length > 0) {
-  //     setIsUndoing(true);
-  //     const previousContent = undoStack[undoStack.length - 1];
-  //     setUndoStack(prev => prev.slice(0, -1));
-  //     dispatchUiData({ type: 'replaceContent', payload: JSON.parse(JSON.stringify(previousContent)) })
-  //     setRedoStack(prev => [...prev, JSON.parse(JSON.stringify(previousContent))]);
-  //   }
-  // },[uiData.uiContent, isUndoing, undoStack, redoStack])
-
-  // // Redo the last undone action
-  // const redo = React.useCallback(() => {
-  //   console.log("redu ", redoStack)
-  //   if (redoStack.length > 0) {
-  //     setIsRedoing(true);
-  //     const nextContent = redoStack[redoStack.length - 1];
-  //     dispatchUiData({ type: 'replaceContent', payload: JSON.parse(JSON.stringify(nextContent)) })
-  //     setRedoStack(prev => prev.slice(0, -1));
-  //     setUndoStack(prev => [...prev, JSON.parse(JSON.stringify(nextContent))]);
-  //   }
-  // },[uiData.uiContent, isRedoing, undoStack, redoStack])
-  // React.useEffect(() => {
-  //   const handleKeyDown = (event) => {
-  //     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
-  //       if (event.shiftKey) {
-  //         redo();
-  //       } else {
-  //         undo();
-  //       }
-  //       event.preventDefault();
-  //     }
-  //   };
-  //   window.addEventListener('keydown', handleKeyDown);
-  //   return () => {
-  //     window.removeEventListener('keydown', handleKeyDown);
-  //   };
-  // }, [undo, redo]);
-
-  // useDebounceEffect(() => {
-  //   if (!(isRedoing || isUndoing)) {
-  //     if (JSON.stringify(uiData.uiContent) !== JSON.stringify(undoStack[undoStack.length - 1])) {
-  //       console.log("not same state")
-  //       setUndoStack(prev => {
-  //         if (prev.length > 20) {
-  //           return [...prev.slice(1), JSON.parse(JSON.stringify(uiData.uiContent))];
-  //         }
-  //         return [...prev, JSON.parse(JSON.stringify(uiData.uiContent))];
-  //       });
-  //       setRedoStack([]);
-  //     } else {
-  //       console.log("same state")
-  //     }
-  //   }
-  //   console.log("debounce effect", isRedoing, isUndoing)
-  //   if (isRedoing) {
-  //     setIsRedoing(false)
-  //   }
-  //   if (isUndoing) {
-  //     setIsUndoing(false)
-  //   }
-  //   console.log("debounce effect", isRedoing, isUndoing)
-  // }, 600, [uiData.uiContent])
-
   return (
     <div className="max-h-max min-w-[800px] pb-2">
       {/* <AllContextProviders> */}
@@ -110,7 +40,7 @@ export default function CodeExecutorDevelopmentView({ codingActivityId, uiDataFr
               </div>
             </div> : ""
           } */}
-        <div className="p-1 w-[750px] border relative border-dashed border-gray-400">
+        <div className="p-1 w-[750px] relative">
 
           {/* <div className="absolute top-0 left-0 z-50">
               {cssEditor ?

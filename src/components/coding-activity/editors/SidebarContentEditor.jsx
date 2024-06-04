@@ -5,6 +5,7 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import { MdCloudUpload, MdDelete } from 'react-icons/md';
 import StringArrayInput from '../StringArrayInput';
+import MonacoCodeEditor from '../MonacoCodeEditor';
 
 const SidebarContentEditor = () => {
     const [mystmd, setMystmd] = useState('');
@@ -38,6 +39,33 @@ const SidebarContentEditor = () => {
             return ''
         }
     }
+    const getDefaultcssContentData = () => {
+        if (uiData?.activePath) {
+            const splittedPath = uiData?.activePath?.cssContent.split(".");
+            const nd = splittedPath.reduce((acc, curr) => {
+                if (curr) {
+                    if (curr.includes('[')) {
+                        const index = curr.split('[')[1].split(']')[0]
+                        return acc?.[curr.split('[')[0]][index]
+                    }
+                    return acc?.[curr];
+                }
+                return acc;
+            }, uiData?.uiContent)
+            return nd
+        } else {
+            return ''
+        }
+    }
+
+    const handleOnChange = (e) => {
+        // window.location.reload();
+        dispatchUiData({ type: 'setContent', payload: { key: uiData?.activePath?.cssContent, data: e.target.value } })
+        // console.log("changing css data")
+    }
+    const handleChangeWithDebounce = debouncer(
+        handleOnChange, 1000
+    )
     return (
         <div>
             {uiData?.activePath &&
@@ -48,7 +76,7 @@ const SidebarContentEditor = () => {
                         <div>
                             <h4 className='text-lg'>Edit content</h4>
                             <textarea
-                                className={`bg-white text-black w-full h-40 p-1 rounded-sm`}
+                                className={`bg-white text-black w-full h-56 p-1 rounded-sm`}
                                 value={getDefaultData()}
                                 onChange={(e) => {
                                     dispatchUiData({ type: 'setContent', payload: { key: uiData?.activePath?.path, data: e.target.value } })
@@ -162,7 +190,25 @@ const SidebarContentEditor = () => {
                             </div>
                         </div>
                     }
-                    {/* <button onClick={handleSave}>Save</button> */}
+                    <div>
+                        <h4 className='text-lg'>Edit Css</h4>
+                        <textarea
+                            className={`bg-white text-black w-full h-56 p-1 rounded-sm`}
+                            value={getDefaultcssContentData()}
+                            onChange={(e) => {
+                                dispatchUiData({ type: 'setContent', payload: { key: uiData?.activePath?.cssContent, data: e.target.value } })
+                            }}
+                            defaultValue={getDefaultcssContentData()}
+                        />
+
+                        {/* <MonacoCodeEditor
+                            value={getDefaultcssContentData() || ""}
+                            onChange={(e) => handleChangeWithDebounce(e)}
+                            height={"300px"}
+                            width={"100%"}
+                            language="css"
+                        /> */}
+                    </div>
                 </>
             }
         </div>
@@ -170,3 +216,151 @@ const SidebarContentEditor = () => {
 };
 
 export default SidebarContentEditor;
+
+const cssProperties = {
+    color: 'color',
+    backgroundColor: 'color',
+    fontSize: 'number',
+    width: 'number',
+    height: 'number',
+    margin: 'number',
+    padding: 'number',
+    border: 'text',
+    borderRadius: 'number',
+    borderWidth: 'number',
+    borderColor: 'color',
+    borderStyle: ['none', 'solid', 'dotted', 'dashed', 'double', 'groove', 'ridge', 'inset', 'outset'],
+    opacity: 'number',
+    zIndex: 'number',
+    top: 'number',
+    left: 'number',
+    right: 'number',
+    bottom: 'number',
+    position: ['static', 'relative', 'absolute', 'fixed', 'sticky'],
+    display: ['block', 'inline', 'inline-block', 'flex', 'grid', 'none'],
+    flexDirection: ['row', 'row-reverse', 'column', 'column-reverse'],
+    justifyContent: ['flex-start', 'flex-end', 'center', 'space-between', 'space-around', 'space-evenly'],
+    alignItems: ['stretch', 'flex-start', 'flex-end', 'center', 'baseline'],
+    flexWrap: ['nowrap', 'wrap', 'wrap-reverse'],
+    overflow: ['visible', 'hidden', 'scroll', 'auto'],
+    overflowX: ['visible', 'hidden', 'scroll', 'auto'],
+    overflowY: ['visible', 'hidden', 'scroll', 'auto'],
+    cursor: ['auto', 'default', 'pointer', 'wait', 'text', 'move', 'not-allowed'],
+    visibility: ['visible', 'hidden', 'collapse'],
+    textAlign: ['left', 'right', 'center', 'justify'],
+    textDecoration: ['none', 'underline', 'overline', 'line-through'],
+    textTransform: ['none', 'capitalize', 'uppercase', 'lowercase'],
+    lineHeight: 'number',
+    letterSpacing: 'number',
+    fontWeight: ['normal', 'bold', 'bolder', 'lighter', '100', '200', '300', '400', '500', '600', '700', '800', '900'],
+    fontFamily: 'text',
+    boxShadow: 'text',
+    backgroundImage: 'text',
+    backgroundSize: ['auto', 'cover', 'contain'],
+    backgroundPosition: 'text',
+    backgroundRepeat: ['repeat', 'no-repeat', 'repeat-x', 'repeat-y'],
+    clip: 'text',
+    colorScheme: ['normal', 'light', 'dark'],
+    direction: ['ltr', 'rtl'],
+    display: ['block', 'inline', 'inline-block', 'flex', 'grid', 'none'],
+    flex: 'text',
+    float: ['left', 'right', 'none'],
+    gridTemplateColumns: 'text',
+    gridTemplateRows: 'text',
+    justifySelf: ['start', 'end', 'center', 'stretch'],
+    marginBottom: 'number',
+    marginLeft: 'number',
+    marginRight: 'number',
+    marginTop: 'number',
+    maxHeight: 'number',
+    maxWidth: 'number',
+    minHeight: 'number',
+    minWidth: 'number',
+    outline: 'text',
+    outlineColor: 'color',
+    outlineOffset: 'number',
+    outlineStyle: ['none', 'solid', 'dotted', 'dashed', 'double', 'groove', 'ridge', 'inset', 'outset'],
+    outlineWidth: 'number',
+    paddingBottom: 'number',
+    paddingLeft: 'number',
+    paddingRight: 'number',
+    paddingTop: 'number',
+    pointerEvents: ['auto', 'none'],
+    resize: ['none', 'both', 'horizontal', 'vertical'],
+    scrollBehavior: ['auto', 'smooth'],
+    transition: 'text',
+    transitionDelay: 'text',
+    transitionDuration: 'text',
+    transitionProperty: 'text',
+    transitionTimingFunction: 'text',
+    userSelect: ['auto', 'none', 'text', 'all'],
+    verticalAlign: ['baseline', 'sub', 'super', 'top', 'text-top', 'middle', 'bottom', 'text-bottom'],
+    whiteSpace: ['normal', 'nowrap', 'pre', 'pre-line', 'pre-wrap'],
+    wordBreak: ['normal', 'break-all', 'keep-all', 'break-word'],
+    wordSpacing: 'number',
+    writingMode: ['horizontal-tb', 'vertical-rl', 'vertical-lr'],
+};
+
+const CssEditor = () => {
+    const [styles, setStyles] = useState({});
+    const [selectedElement, setSelectedElement] = useState('element');
+
+    const handleStyleChange = (property, value) => {
+        setStyles({
+            ...styles,
+            [property]: value,
+        });
+    };
+
+    return (
+        <div>
+            <div>
+                {Object.keys(cssProperties).map((property) => (
+                    <div key={property} style={{ marginBottom: '10px' }}>
+                        <label>{property}</label>
+                        {cssProperties[property] === 'number' && (
+                            <input
+                                type="number"
+                                value={styles[property] || ''}
+                                onChange={(e) => handleStyleChange(property, e.target.value)}
+                            />
+                        )}
+                        {cssProperties[property] === 'color' && (
+                            <input
+                                type="color"
+                                value={styles[property] || ''}
+                                onChange={(e) => handleStyleChange(property, e.target.value)}
+                            />
+                        )}
+                        {Array.isArray(cssProperties[property]) && (
+                            <select
+                                value={styles[property] || ''}
+                                onChange={(e) => handleStyleChange(property, e.target.value)}
+                            >
+                                <option value="">Select {property}</option>
+                                {cssProperties[property].map((option) => (
+                                    <option key={option} value={option}>
+                                        {option}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                        {cssProperties[property] === 'text' && !Array.isArray(cssProperties[property]) && (
+                            <input
+                                type="text"
+                                value={styles[property] || ''}
+                                onChange={(e) => handleStyleChange(property, e.target.value)}
+                            />
+                        )}
+                    </div>
+                ))}
+            </div>
+            <div>
+                <h3>Preview</h3>
+                <div id="element" style={styles}>
+                    This is a preview element
+                </div>
+            </div>
+        </div>
+    );
+};

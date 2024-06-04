@@ -216,10 +216,10 @@ const Page = ({ params }) => {
           </div>
         </LayoutComponent.RightSidebar>
         <LayoutComponent.Main>
-          <div className="p-4 bg-gray-700">
-            <div className="p-4 border-2 border-dashed rounded-lg border-gray-600">
+          <div className="p-1 bg-gray-700  h-full">
+            <div className="p-2 border-2 border-dashed rounded-lg border-gray-600 h-full">
 
-              <div className="mx-auto py-4 px-4 md:px-0">
+              <div className="mx-auto py-4 px-4 md:px-0 overflow-auto">
 
                 <div className={`${!editAdditionalInfo ? "hidden" : "block"} `}>
                   <div className="mb-6">
@@ -276,24 +276,6 @@ const Page = ({ params }) => {
                       {gptModelList.map((model, index) => {
                         return <option key={index} value={model.id}>{changeCase.capitalCase(model.id)}</option>
                       })}
-                      {/* <option value="gpt-4-turbo">GPT-4 Turbo</option>
-      <option value="gpt-4o">GPT-4 Turbo (2024-04-09)</option>
-      <option value="gpt-4-turbo-preview">GPT-4 Turbo Preview</option>
-      <option value="gpt-4-0125-preview">GPT-4 (0125 Preview)</option>
-      <option value="gpt-4-1106-preview">GPT-4 (1106 Preview)</option>
-      <option value="gpt-4-vision-preview">GPT-4 Vision Preview</option>
-      <option value="gpt-4-1106-vision-preview">GPT-4 (1106 Vision Preview)</option>
-      <option value="gpt-4">GPT-4</option>
-      <option value="gpt-4-0613">GPT-4 (0613)</option>
-      <option value="gpt-4-32k">GPT-4 (32k)</option>
-      <option value="gpt-4-32k-0613">GPT-4 (32k 0613)</option>
-      <option value="gpt-3.5-turbo-0125">GPT-3.5 Turbo (0125)</option>
-      <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-      <option value="gpt-3.5-turbo-1106">GPT-3.5 Turbo (1106)</option>
-      <option value="gpt-3.5-turbo-instruct">GPT-3.5 Turbo Instruct</option>
-      <option value="gpt-3.5-turbo-16k">GPT-3.5 Turbo (16k)</option>
-      <option value="gpt-3.5-turbo-0613">GPT-3.5 Turbo (0613)</option>
-      <option value="gpt-3.5-turbo-16k-0613">GPT-3.5 Turbo (16k 0613)</option> */}
                     </select>
 
                   </div>
@@ -343,14 +325,6 @@ const Page = ({ params }) => {
                   </div>
                 </div>
                 <CodeExecutorDevelopmentView codingActivityId={params.codingActivityId} uiDataFromDb={codingActivityListResponse} >
-                  {/* <Link href={`/dashboard/coding-activity/${params.codingActivityId}/submissions`}>
-    <button className="me-2 px-4 py-2 bg-yellow-500 text-white rounded-md mb-4 "
-    >Submissions</button>
-  </Link> */}
-                  {/* <Link href={`/dashboard/coding-activity/${params.codingActivityId}/chat-feedback`}>
-    <button className="me-2 px-4 py-2 bg-yellow-500 text-white rounded-md mb-4 "
-    >Feedback List</button>
-  </Link> */}
                   <Link href={`/coding-activity/${params.codingActivityId}`}>
                     <button className="me-2 px-4 py-2 bg-violet-500 text-white rounded-md mb-4 "
                     >Preview</button>

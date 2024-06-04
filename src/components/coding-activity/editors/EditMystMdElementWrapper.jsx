@@ -3,7 +3,7 @@ import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider';
 import debouncer from '@/utils/debouncer';
 import React, { Fragment, useEffect, useState } from 'react';
 
-function EditMystMdElementWrapper({ children, className, path, buttonEditor = false }) {
+function EditMystMdElementWrapper({ children, cssContent, path, buttonEditor = false }) {
     const { uiData, dispatchUiData } = React.useContext(UiDataContext);
     // State to store the base64 string
     const handleClick = (event) => {
@@ -17,7 +17,7 @@ function EditMystMdElementWrapper({ children, className, path, buttonEditor = fa
 
     const openIntoEditor = () => {
         if (uiData.devmode) {
-            dispatchUiData({ type: "setActivePath", payload: {path, type:"text"}  })
+            dispatchUiData({ type: "setActivePath", payload: {path, type:"text",cssContent: cssContent ? cssContent :"global"}  })
         }
     }
     return (

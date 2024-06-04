@@ -2,13 +2,9 @@
 import { api } from '@/utils/apibase';
 import { getToken } from '@/utils/token';
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect, useContext } from 'react';
-import { UserContext } from '@/contextapi/UserProvider';
-import ReactQuill from 'react-quill';
+import { useState, useEffect } from 'react';
 import 'react-quill/dist/quill.snow.css';
 import Sidebar from '@/components/Sidebar';
-import { select } from 'd3';
 const Page = ({ params }) => {
   const [analyticsList, setAnalyticsList] =
     useState(null);

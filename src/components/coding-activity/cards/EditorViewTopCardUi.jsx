@@ -6,20 +6,34 @@ import EditMystMdElementWrapper from "../editors/EditMystMdElementWrapper";
 import MystPreviewTwContainer from "@/components/mystmdpreview/MystPreviewTwContainer";
 import AnotationTool from "../anotation-tool/AnotationTool";
 import debouncer from "@/utils/debouncer";
+import CustomSlider from "@/components/customElements/CustomSlider/CustomSlider";
 
 const TopCardUi = () => {
   const { uiData, dispatchUiData } = React.useContext(UiDataContext);
   const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 400)
   const openIntoEditor = (index) => {
-    if(index === -1) return;
-    if(index == null) return;
-    if(index === undefined) return;
+    if (index === -1) return;
+    if (index == null) return;
+    if (index === undefined) return;
     if (uiData.devmode) {
       dispatchUiData({ type: "setActivePath", payload: { path: `editorViewTopCardAnotations[${index}]`, type: "annotation" } })
     }
   }
+  const [value, setValue] = useState(50);
+
+  const handleSliderChange = (newValue) => {
+    setValue(newValue);
+  };
+
+
   return (
     <Fragment>
+      {/* <div className="p-4">
+        
+      <h1>Custom Slider</h1>
+      <CustomSlider min={0} max={100} step={1} value={value} onChange={handleSliderChange} />
+      <p>Value: {value}</p>
+      </div> */}
       <AnotationTool defaultValue={uiData.uiContent?.editorViewTopCardAnotations}
         onUpdateIndex={openIntoEditor}
         onUpdate={(value) => {
@@ -34,6 +48,7 @@ const TopCardUi = () => {
               path={"codeEditorTopCardImage.data"}
               stylePath={"codeEditorTopCardImage.styles"}
               styles={uiData?.uiContent?.codeEditorTopCardImage?.styles}
+              cssContent={"cssContent.editorviewTopCard"}
             >
               <img
                 className="card-image"
@@ -56,6 +71,7 @@ const TopCardUi = () => {
                 <EditMystMdElementWrapper
                   className={`text-element-container-inner-1-text`}
                   path={"editorview.headerTitle"}
+                  cssContent={"cssContent.editorviewTopCard"}
                 >
                   <div
                     className='text-element-container-inner-1-text'
@@ -63,27 +79,6 @@ const TopCardUi = () => {
                     <MystPreviewTwContainer data={uiData?.uiContent?.editorview?.headerTitle || ""} />
                   </div>
                 </EditMystMdElementWrapper>
-                {/* <EditMystMdElementWrapper
-              className={`content`}
-              path={"editorview.headerBodyTitle"}
-            >
-              <div
-                className='content'
-              >
-                <MystPreviewTwContainer data={uiData?.uiContent?.editorview?.headerBodyTitle || ""} />
-              </div>
-            </EditMystMdElementWrapper>
-            <EditMystMdElementWrapper
-              className={`footer`}
-              path={"editorview.headerFooterTitle"}
-            >
-              <div
-                className='footer'
-              >
-                <MystPreviewTwContainer data={uiData?.uiContent?.editorview?.headerFooterTitle || ""} />
-
-              </div>
-            </EditMystMdElementWrapper> */}
               </div>
             </div>
           </div>
