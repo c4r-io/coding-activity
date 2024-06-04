@@ -53,9 +53,9 @@ const MainView = ({ devmode, codingActivityId, uiDataFromDb }) => {
         dispatchUiData({ type: 'setActivityId', payload: codingActivityId });
       }, 600)
     }
-    if (devmode) {
-      dispatchMessages({ type: 'setMessageDevMode', payload: [...devModeMessages] });
-    }
+    // if (devmode) {
+    //   dispatchMessages({ type: 'setMessageDevMode', payload: [...devModeMessages] });
+    // }
     dispatchUiData({ type: 'setDevmode', payload: devmode });
   }, [devmode, uiDataFromDb, codingActivityId])
   React.useEffect(() => {
@@ -66,27 +66,16 @@ const MainView = ({ devmode, codingActivityId, uiDataFromDb }) => {
     }
   }, [uiData.screen])
 
-  if (uiData.devmode) {
-    return (
-      <div>
-        <CodeEditorView />
-        {/* <ChatView /> */}
-      </div>
-    )
-  }
-  else {
+ 
     return (
       <div>
         <div style={{ display: `block` }} className='relative'>
           <ActivityTrackerPopup />
           <CodeEditorView />
         </div>
-        {/* <div style={{ display: `${uiData.screen === 'chat' ? 'block' : 'none'}` }}>
-          <ChatView />
-        </div> */}
       </div>
     )
-  }
+  
 }
 
 export default MainView

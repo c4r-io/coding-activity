@@ -2,7 +2,33 @@ import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider';
 import debouncer from '@/utils/debouncer';
 import React, { Fragment, useEffect, useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
-function EditTextElementWrapper({ children, className, path, buttonEditor = false }) {
+function EditTextElementWrapper({ children, cssContent, path, buttonEditor = false }) {
+    const { uiData, dispatchUiData } = React.useContext(UiDataContext);
+    // State to store the base64 string
+    const handleClick = (event) => {
+        if (event.ctrlKey || event.metaKey) {
+            if (uiData.devmode) {
+                event.stopPropagation()
+                openIntoEditor();
+            }
+        }
+    };
+
+    const openIntoEditor = () => {
+        if (uiData.devmode) {
+            dispatchUiData({ type: "setActivePath", payload: {path, type:"text",cssContent: cssContent ? cssContent :"global"}  })
+        }
+    }
+    return (
+        <div
+            onClick={handleClick}
+            onClickCapture={handleClick}
+        >
+            {children}
+        </div>
+    );
+}
+function EditTextElementWrapperBackup({ children, className, path, buttonEditor = false }) {
     const previewElement = React.useRef(null);
     const [heightOfPreview, setHeightOfPreview] = React.useState(40);
     const [editorFocused, setEditorFocused] = React.useState('');
@@ -34,58 +60,58 @@ function EditTextElementWrapper({ children, className, path, buttonEditor = fals
     const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 400)
     return (
         <div>
-         {uiData.devmode ?
+            {uiData.devmode ?
+                <Fragment>
+                    {editorFocused == "chatprompt-top-headertext-editor" ?
                         <Fragment>
-                            {editorFocused == "chatprompt-top-headertext-editor" ?
-                                <Fragment>
-                                    {buttonEditor ?
-                                        <input className={`${className} html-editor`}
-                                            style={{ height: heightOfPreview + "px" }}
-                                            autoFocus={editorFocused == "chatprompt-top-headertext-editor"}
-                                            onChange={(e) => {
-                                                dispatchUiDataWithDebounce({ type: 'setContent', payload: { key: path, data: e.target.value } });
-                                            }}
-                                            defaultValue={getDefaultData()}
-                                            onBlur={() => setEditorFocused("")}></input>
-                                        : <textarea className={`${className} html-editor`}
-                                            style={{ height: heightOfPreview + "px" }}
-                                            autoFocus={editorFocused == "chatprompt-top-headertext-editor"}
-                                            onChange={(e) => {
-                                                dispatchUiDataWithDebounce({ type: 'setContent', payload: { key: path, data: e.target.value } });
-                                            }}
-                                            defaultValue={getDefaultData()}
-                                            onBlur={() => setEditorFocused("")}></textarea>}
-                                </Fragment>
-                                :
-                                <div
-                                    ref={previewElement}
-                                    className={`${className}`}
-                                    tabIndex={1}
-                                    title={`${className}`}
-                                    onFocus={(e) => {
-                                        if (uiData.devmode) {
-                                            dispatchUiData({ type: 'setHighlightClass', payload: className });
-                                            setHeightOfPreview(previewElement?.current?.clientHeight)
-                                            setTimeout(() => {
-                                                setEditorFocused("chatprompt-top-headertext-editor")
-                                            }, 100);
-                                        }
-                                    }
-                                    }
-                                    dangerouslySetInnerHTML={{
-                                        __html: path.split(".").reduce((acc, curr) => {
-                                            if (curr) {
-                                                return acc[curr];
-                                            }
-                                        }, uiData?.uiContent)
+                            {buttonEditor ?
+                                <input className={`${className} html-editor`}
+                                    style={{ height: heightOfPreview + "px" }}
+                                    autoFocus={editorFocused == "chatprompt-top-headertext-editor"}
+                                    onChange={(e) => {
+                                        dispatchUiDataWithDebounce({ type: 'setContent', payload: { key: path, data: e.target.value } });
                                     }}
-                                >
-                                </div>
-                            }
+                                    defaultValue={getDefaultData()}
+                                    onBlur={() => setEditorFocused("")}></input>
+                                : <textarea className={`${className} html-editor`}
+                                    style={{ height: heightOfPreview + "px" }}
+                                    autoFocus={editorFocused == "chatprompt-top-headertext-editor"}
+                                    onChange={(e) => {
+                                        dispatchUiDataWithDebounce({ type: 'setContent', payload: { key: path, data: e.target.value } });
+                                    }}
+                                    defaultValue={getDefaultData()}
+                                    onBlur={() => setEditorFocused("")}></textarea>}
                         </Fragment>
                         :
-                        children
+                        <div
+                            ref={previewElement}
+                            className={`${className}`}
+                            tabIndex={1}
+                            title={`${className}`}
+                            onFocus={(e) => {
+                                if (uiData.devmode) {
+                                    dispatchUiData({ type: 'setHighlightClass', payload: className });
+                                    setHeightOfPreview(previewElement?.current?.clientHeight)
+                                    setTimeout(() => {
+                                        setEditorFocused("chatprompt-top-headertext-editor")
+                                    }, 100);
+                                }
+                            }
+                            }
+                            dangerouslySetInnerHTML={{
+                                __html: path.split(".").reduce((acc, curr) => {
+                                    if (curr) {
+                                        return acc[curr];
+                                    }
+                                }, uiData?.uiContent)
+                            }}
+                        >
+                        </div>
                     }
+                </Fragment>
+                :
+                children
+            }
         </div>
     );
 }

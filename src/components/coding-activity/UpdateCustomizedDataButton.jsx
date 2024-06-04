@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider';
 import { useUpdateUiContents } from '../hooks/ApiHooks';
 
@@ -12,6 +12,18 @@ const UpdateCustomizedDataButton = () => {
         const data = {uiContent: JSON.stringify(uiData.uiContent)}
         updateUiContentHook.update(apisavePath,data)
     }
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+                updateHandler();
+                event.preventDefault();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [updateHandler])
     return (
         <div className=''>
             <button

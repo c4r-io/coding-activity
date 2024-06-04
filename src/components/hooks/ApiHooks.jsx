@@ -1164,8 +1164,49 @@ export const useUploadImage = () => {
       setLoading(false);
     }
   };
+  const remove = async (data=[], callbackSuccess, callbackError) => {
+    dispatchUserData({ type: "checkLogin" });
+    if(data.length == 0){
+      return;
+    }
+    const config = {
+      method: "delete",
+      url: "/api/upload",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken("token")}`,
+      },
+      data:{
+        imageIds: data
+      }
+    };
+    setLoading(true);
+    try {
+      const response = await api.request(config);
+      setLoading(false);
+      if (callbackSuccess) {
+        callbackSuccess(response.data)
+      }
+    } catch (error) {
+      if (error?.response?.status == 401) {
+        toast.error(error.response.data.message + ". Login to try again.", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+        });
+      }
+      if (callbackError) {
+        callbackError(error)
+      }
+      console.error(error);
+      setLoading(false);
+    }
+  };
   return {
     upload,
+    remove,
     loading
   }
 }

@@ -62,7 +62,7 @@ import {highlightCode, classHighlighter} from "@lezer/highlight"
 
 // highlightCode(code, parser.parse(code), classHighlighter,
 //               emit, emitBreak)
-const CodeMirrorEidtor = ({value, onChange, height, language, highlights}) => {
+const CodeMirrorEidtor = ({code, handleOnChange, height, language, highlights}) => {
     const [extensions,setExtentions] = React.useState([loadLanguage(`python`)]);
     const [editorRef, setEditorRef] = React.useState(null);
     useEffect(() => {
@@ -82,9 +82,9 @@ const CodeMirrorEidtor = ({value, onChange, height, language, highlights}) => {
 
     return (
         <CodeMirror
-            value={value|| ""}
+            value={code|| ""}
             onChange={(e) => {
-                onChange(e);
+                handleOnChange(e);
             }}
             height={height || "400px"}
             theme={myTheme}

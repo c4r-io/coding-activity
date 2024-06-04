@@ -15,7 +15,11 @@ function EditTextElementWrapperForEditor({ children, className, path, buttonEdit
         const splittedPath = path.split(".");
         const nd = splittedPath.reduce((acc, curr) => {
             if (curr) {
-                return acc[curr];
+                if(curr.includes('[')){
+                    const index = curr.split('[')[1].split(']')[0]
+                    return acc?.[curr.split('[')[0]][index]
+                }
+                return acc?.[curr];
             }
         }, uiData?.uiContent)
         if (nd) {
@@ -27,7 +31,11 @@ function EditTextElementWrapperForEditor({ children, className, path, buttonEdit
         const splittedPath = path.split(".");
         const nd = splittedPath.reduce((acc, curr) => {
             if (curr) {
-                return acc[curr];
+                if(curr.includes('[')){
+                    const index = curr.split('[')[1].split(']')[0]
+                    return acc?.[curr.split('[')[0]][index]
+                }
+                return acc?.[curr];
             }
         }, uiData?.uiContent)
         return nd

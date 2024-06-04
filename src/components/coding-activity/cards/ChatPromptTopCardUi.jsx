@@ -16,7 +16,14 @@ const ChatPromptTopCardUi = ({ headerText }) => {
         dispatchMessages({ type: "setTakeScreenshot", payload: false });
     }
     const dispatchUiDataWithDebounce = debouncer(dispatchUiData, 400)
-
+  const openIntoEditor = (index) => {
+    if(index === -1) return;
+    if(index == null) return;
+    if(index === undefined) return;
+    if (uiData.devmode) {
+      dispatchUiData({ type: "setActivePath", payload: { path: `chatPromptTopCardUiAnotations[${index}]`, type: "annotation" } })
+    }
+  }
     return (
         <div>
             <AnotationTool defaultValue={uiData.uiContent?.chatPromptTopCardUiAnotations}
@@ -25,6 +32,7 @@ const ChatPromptTopCardUi = ({ headerText }) => {
                 }}
                 editable={uiData.devmode}
                 showAddOnHover
+        onUpdateIndex={openIntoEditor}
             >
                 <div className='chat-prompt-top-card-container'>
                     <button className='chat-prompt-top-card-close-icon'
@@ -37,6 +45,7 @@ const ChatPromptTopCardUi = ({ headerText }) => {
                         path={"chatPromptTopCardAvater.data"}
                         stylePath={"chatPromptTopCardAvater.styles"}
                         styles={uiData?.uiContent?.chatPromptTopCardAvater?.styles}
+                        cssContent={"cssContent.chatPromptTopCardUi"}
                     >
                         <img className='chat-prompt-top-card-container-avater'
                             src={uiData?.uiContent?.chatPromptTopCardAvater?.data ? uiData?.uiContent?.chatPromptTopCardAvater?.data : "/imoje-charecters/raven-rigorous.png"}
@@ -55,6 +64,7 @@ const ChatPromptTopCardUi = ({ headerText }) => {
                             <EditMystMdElementWrapper
                                 className={`chat-prompt-top-card-container-header-text`}
                                 path={"chatprompt.headerElement"}
+                                cssContent={"cssContent.chatPromptTopCardUi"}
                             >
                                 <div
                                     className='chat-prompt-top-card-container-header-text'
@@ -68,6 +78,7 @@ const ChatPromptTopCardUi = ({ headerText }) => {
                             <EditMystMdElementWrapper
                                 className={`chat-prompt-top-card-container-footer-text`}
                                 path={"chatprompt.footerElement"}
+                                cssContent={"cssContent.chatPromptTopCardUi"}
                             >
                                 <div
                                     className='chat-prompt-top-card-container-footer-text'

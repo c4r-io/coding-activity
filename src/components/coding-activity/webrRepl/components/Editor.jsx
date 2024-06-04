@@ -184,27 +184,27 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
     setActiveFileIdx(prevFile < 0 ? 0 : prevFile);
   };
 
-  React.useEffect(() => {
-    runSelectedCode.current = () => {
-      if (!editorView) {
-        return;
-      }
-      let code = utils.getSelectedText(editorView);
-      if (code === '') {
-        code = utils.getCurrentLineText(editorView);
-        utils.moveCursorToNextLine(editorView);
-      }
+  // React.useEffect(() => {
+  //   runSelectedCode.current = () => {
+  //     if (!editorView) {
+  //       return;
+  //     }
+  //     let code = utils.getSelectedText(editorView);
+  //     if (code === '') {
+  //       code = utils.getCurrentLineText(editorView);
+  //       utils.moveCursorToNextLine(editorView);
+  //     }
 
-      const codeArray = new TextEncoder().encode(code);
-      webR.FS.writeFile('/tmp/.webRtmp-source', codeArray).then(() => {
-        webR.writeConsole("source('/tmp/.webRtmp-source', echo = TRUE, max.deparse.length = Inf)");
-      }, (reason) => {
-        console.error(reason);
-        console.error(`Can't run selected R code. See the JavaScript console for details.`);
-        // throw new Error(`Can't run selected R code. See the JavaScript console for details.`);
-      });
-    };
-  }, [editorView]);
+  //     const codeArray = new TextEncoder().encode(code);
+  //     webR.FS.writeFile('/tmp/.webRtmp-source', codeArray).then(() => {
+  //       webR.writeConsole("source('/tmp/.webRtmp-source', echo = TRUE, max.deparse.length = Inf)");
+  //     }, (reason) => {
+  //       console.error(reason);
+  //       console.error(`Can't run selected R code. See the JavaScript console for details.`);
+  //       // throw new Error(`Can't run selected R code. See the JavaScript console for details.`);
+  //     });
+  //   };
+  // }, [editorView]);
 
   const syncActiveFileState = React.useCallback(() => {
     if (!editorView || !activeFile) {
@@ -216,14 +216,16 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
   }, [activeFile, editorView]);
 
   const runFile = React.useCallback(() => {
-    if (!editorView) {
-      return;
-    }
-    syncActiveFileState();
-    const code = editorView.state.doc.toString();
+    // if (!editorView) {
+    //   return;
+    // }
+    // syncActiveFileState();
+    // const code = editorView.state.doc.toString();
+    const code = codeFromParent;
     terminalInterface.write('\x1b[2K\r');
 
     const codeArray = new TextEncoder().encode(code);
+    console.log("web r code array ",code);
     webR.FS.writeFile('/tmp/.webRtmp-source', codeArray).then(() => {
       webR.writeConsole("source('/tmp/.webRtmp-source', echo = TRUE, max.deparse.length = Inf)");
     }, (reason) => {
@@ -231,7 +233,7 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
       console.error(`Can't run selected R code. See the JavaScript console for details.`);
       // throw new Error(`Can't run selected R code. See the JavaScript console for details.`);
     });
-  }, [syncActiveFileState, editorView]);
+  }, [codeFromParent]);
   React.useEffect(() => {
     runFile();
   }, [triggerRun]);
@@ -253,30 +255,30 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
     });
   }, [syncActiveFileState, editorView]);
 
-  React.useEffect(() => {
-    if (!editorRef.current) {
-      return;
-    }
-    const state = EditorState.create({ extensions: editorExtensions, doc: codeFromParent || "Hello", styles:{height: 300} });
-    const view = new EditorView({
-      state,
-      parent: editorRef.current,
-    });
-    setEditorView(view);
+  // React.useEffect(() => {
+  //   if (!editorRef.current) {
+  //     return;
+  //   }
+  //   const state = EditorState.create({ extensions: editorExtensions, doc: codeFromParent || "Hello", styles:{height: 300} });
+  //   const view = new EditorView({
+  //     state,
+  //     parent: editorRef.current,
+  //   });
+  //   setEditorView(view);
 
-    setFiles([{
-      name: 'Untitled1.R',
-      path: '/home/web_user/Untitled1.R',
-      ref: {
-        editorState: state,
-      }
-    }]);
+  //   setFiles([{
+  //     name: 'Untitled1.R',
+  //     path: '/home/web_user/Untitled1.R',
+  //     ref: {
+  //       editorState: state,
+  //     }
+  //   }]);
 
-    editorRef.current.style.maxHeight = `${codeFromParent?.split("\n").length * 19.5 + 20}px`
-    return function cleanup() {
-      view.destroy();
-    };
-  }, [codeFromParent]);
+  //   editorRef.current.style.maxHeight = `${codeFromParent?.split("\n").length * 19.5 + 20}px`
+  //   return function cleanup() {
+  //     view.destroy();
+  //   };
+  // }, [codeFromParent]);
 
 
   React.useEffect(() => {
@@ -337,34 +339,26 @@ export function Editor({ triggerRun,codeFromParent, webR, terminalInterface, fil
 
   const displayStyle = files.length === 0 ? { display: 'none' } : undefined;
   return (
-    <div role="region"
-      aria-label="Editor Pane"
-      className="editor"
-      style={displayStyle}
-    >
-      <div
-        aria-label="Editor"
-        aria-describedby="editor-desc"
-        className="editor-container"
-        ref={editorRef}
-      >
-      </div>
-      <p style={{ display: 'none' }} id="editor-desc">
-        This component is an instance of the <a href="https://codemirror.net/">CodeMirror</a> interactive text editor.
-        The editor has been configured so that the Tab key controls the indentation of code.
-        To move focus away from the editor, press the Escape key, and then press the Tab key directly after it.
-        Escape and then Shift-Tab can also be used to move focus backwards.
-      </p>
-      {/* <div
-        role="toolbar"
-        aria-label="Editor Toolbar"
-        className="editor-actions"
-      >
-        {isRFile && <button onClick={runFile}>
-          <FaPlay aria-hidden="true" className="icon" /> Run
-        </button>}
-      </div> */}
-    </div>
+    // <div role="region"
+    //   aria-label="Editor Pane"
+    //   className="editor"
+    //   style={displayStyle}
+    // >
+    //   <div
+    //     aria-label="Editor"
+    //     aria-describedby="editor-desc"
+    //     className="editor-container"
+    //     ref={editorRef}
+    //   >
+    //   </div>
+    //   <p style={{ display: 'none' }} id="editor-desc">
+    //     This component is an instance of the <a href="https://codemirror.net/">CodeMirror</a> interactive text editor.
+    //     The editor has been configured so that the Tab key controls the indentation of code.
+    //     To move focus away from the editor, press the Escape key, and then press the Tab key directly after it.
+    //     Escape and then Shift-Tab can also be used to move focus backwards.
+    //   </p>
+    // </div>
+    <div></div>
   );
 }
 

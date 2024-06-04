@@ -8,7 +8,7 @@ export default function MonacoCodeEditor({ onChange, value, height, width, langu
     const decorationsRef = React.useRef([]);
     useEffect(() => {
         setCode(value);
-        // console.log('value', value);
+        console.log('value from code editor', value);
     }, [value])
     const onChangeHandler = (value, event) => {
         // console.log(value, event);
@@ -263,7 +263,6 @@ export default function MonacoCodeEditor({ onChange, value, height, width, langu
         const matches = findText(highlight);
         if (matches) {
             Mark(matches.map((match) => match.range));
-            // console.log('highlight matches: ', matches.map((match) => match.range));
         }
     }, [highlight]);
     return (

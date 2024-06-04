@@ -9,7 +9,18 @@ import CodeExecutorDevelopmentView from "@/components/coding-activity/CodeExecut
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import * as changeCase from "change-case";
+import LayoutComponent from '@/components/customLayouts/LayoutComponent'; // Ensure this path is correct
+import { IoMdMenu } from 'react-icons/io';
+import { RiMenuFoldLine, RiMenuUnfoldLine } from 'react-icons/ri';
+import { AllContextProviders } from "@/contextapi/code-executor-api/AllContextProviders";
+import SidebarContentEditor from "@/components/coding-activity/editors/SidebarContentEditor";
 const Page = ({ params }) => {
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(true);
+
+  const toggleLeftSidebar = () => setIsLeftSidebarOpen(prev => !prev);
+  const toggleRightSidebar = () => setIsRightSidebarOpen(prev => !prev);
+
   const { userData, dispatchUserData } = useContext(UserContext);
   const router = useRouter();
   const [editAdditionalInfo, setEditAdditionalInfo] = useState(false);
@@ -72,7 +83,7 @@ const Page = ({ params }) => {
     const url = `${origin}/api/chatgpt/gpt_4_vision_preview`;
     // const url = 'http://localhost:3030/api/chatgpt/gpt_4_vision_preview';
     const modelsFromSessionStorage = sessionStorage.getItem('gptModels');
-    if(modelsFromSessionStorage){
+    if (modelsFromSessionStorage) {
       const models = JSON.parse(modelsFromSessionStorage);
       setGptModelList(models);
       return;
@@ -178,157 +189,160 @@ const Page = ({ params }) => {
     }
   }
   return (
-    <>
-      <Sidebar />
-      <div className="p-4 sm:ml-64 bg-gray-700 min-h-screen">
-        <div className="p-4 border-2 border-dashed rounded-lg border-gray-600">
-          <div className="container mx-auto py-4 px-4 md:px-0">
-
-            <div className={`${!editAdditionalInfo ? "hidden" : "block"} `}>
-              <div className="mb-6">
-                <label
-                  htmlFor="activityTitle"
-                  className="block mb-2 text-sm font-medium text-white"
-                >
-                  {" "}
-                  Activity Title
-                </label>
-                <input
-                  type="text"
-                  id="activityTitle"
-                  className="shadow-sm border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
-                  placeholder="Activity Title"
-                  defaultValue={codingActivityListResponse?.activityTitle}
-                  onInput={(e) => setActivityTitle(e.target.value)}
-                />
-              </div>
-              <div className="mb-6">
-                <label
-                  htmlFor="activityCodeRuntime"
-                  className="block mb-2 text-sm font-medium text-white"
-                >
-                  Select a Runtime option {activityCodeRuntime}
-                </label>
-                <select
-                  value={codingActivityListResponse?.activityCodeRuntime}
-                  onChange={(e) => setActivityCodeRuntime(e.target.value)}
-                  id="activityCodeRuntime"
-                  className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option>Choose a Runtime</option>
-                  <option value="Pyodide">Pyodide</option>
-                  <option value="Python Aws Api">Python Aws Api</option>
-                  <option value="Web-R">Web-R</option>
-                </select>
-              </div>
-              <div className="mb-6">
-                <label
-                  htmlFor="gptModel"
-                  className="block mb-2 text-sm font-medium text-white"
-                >
-                  {" "}
-                  Gpt Model
-                </label>
-                <select
-                  value={gptModel}
-                  onChange={(e) => setGptModel(e.target.value)}
-                  id="gptModel"
-                  className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option>Choose a Model</option>
-                  {gptModelList.map((model, index) => {
-                    return <option key={index} value={model.id}>{changeCase.capitalCase(model.id)}</option>
-                  })}
-                  {/* <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                  <option value="gpt-4o">GPT-4 Turbo (2024-04-09)</option>
-                  <option value="gpt-4-turbo-preview">GPT-4 Turbo Preview</option>
-                  <option value="gpt-4-0125-preview">GPT-4 (0125 Preview)</option>
-                  <option value="gpt-4-1106-preview">GPT-4 (1106 Preview)</option>
-                  <option value="gpt-4-vision-preview">GPT-4 Vision Preview</option>
-                  <option value="gpt-4-1106-vision-preview">GPT-4 (1106 Vision Preview)</option>
-                  <option value="gpt-4">GPT-4</option>
-                  <option value="gpt-4-0613">GPT-4 (0613)</option>
-                  <option value="gpt-4-32k">GPT-4 (32k)</option>
-                  <option value="gpt-4-32k-0613">GPT-4 (32k 0613)</option>
-                  <option value="gpt-3.5-turbo-0125">GPT-3.5 Turbo (0125)</option>
-                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                  <option value="gpt-3.5-turbo-1106">GPT-3.5 Turbo (1106)</option>
-                  <option value="gpt-3.5-turbo-instruct">GPT-3.5 Turbo Instruct</option>
-                  <option value="gpt-3.5-turbo-16k">GPT-3.5 Turbo (16k)</option>
-                  <option value="gpt-3.5-turbo-0613">GPT-3.5 Turbo (0613)</option>
-                  <option value="gpt-3.5-turbo-16k-0613">GPT-3.5 Turbo (16k 0613)</option> */}
-                </select>
-
-              </div>
-              <div className="mb-6">
-                <label
-                  htmlFor="codeRefPrompt"
-                  className="block mb-2 text-sm font-medium text-white"
-                >
-                  {" "}
-                  Code Ref Prompt
-                </label>
-                <textarea
-                  id="codeRefPrompt"
-                  className="shadow-sm border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
-                  placeholder="System prompt"
-                  defaultValue={codingActivityListResponse?.codeRefPrompt}
-                  onInput={(e) => setCodeRefPrompt(e.target.value)}
-                />
-              </div>
-              <div className="mb-6">
-                <label
-                  htmlFor="systemPrompt"
-                  className="block mb-2 text-sm font-medium text-white"
-                >
-                  {" "}
-                  System Prompt
-                </label>
-                <textarea
-                  id="systemPrompt"
-                  className="shadow-sm border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
-                  placeholder="System prompt"
-                  defaultValue={codingActivityListResponse?.systemPrompt}
-                  onInput={(e) => setSystemPrompt(e.target.value)}
-                />
-              </div>
-              <div>
-                <button
-                  onClick={updateInfo}
-                  className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-                >
-                  {updateLoading ? "Updating..." : "Update Additional Info"}
-                </button>
-                <button
-                  className="text-white bg-gradient-to-r from-red-500 to-yellow-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-                  onClick={() => setEditAdditionalInfo(false)}
-                >Close additional Info</button>
-              </div>
-            </div>
-            <CodeExecutorDevelopmentView codingActivityId={params.codingActivityId} uiDataFromDb={codingActivityListResponse} >
-              {/* <Link href={`/dashboard/coding-activity/${params.codingActivityId}/submissions`}>
-                <button className="me-2 px-4 py-2 bg-yellow-500 text-white rounded-md mb-4 "
-                >Submissions</button>
-              </Link> */}
-              {/* <Link href={`/dashboard/coding-activity/${params.codingActivityId}/chat-feedback`}>
-                <button className="me-2 px-4 py-2 bg-yellow-500 text-white rounded-md mb-4 "
-                >Feedback List</button>
-              </Link> */}
-              <Link href={`/coding-activity/${params.codingActivityId}`}>
-                <button className="me-2 px-4 py-2 bg-violet-500 text-white rounded-md mb-4 "
-                >Preview</button>
-              </Link>
-              <div>
-                <button
-                  className={`${editAdditionalInfo ? "hidden" : "block"} text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2`}
-                  onClick={() => setEditAdditionalInfo(true)}
-                >Settings</button>
-              </div>
-            </CodeExecutorDevelopmentView>
+    <AllContextProviders>
+      <LayoutComponent
+        isLeftSidebarOpen={isLeftSidebarOpen}
+        isRightSidebarOpen={isRightSidebarOpen}
+      >
+        {/* <LayoutComponent.Header>
+          <div className='flex justify-between content-center p-1 w-full h-full'>
+            <button onClick={toggleLeftSidebar}>
+              {isLeftSidebarOpen ? <IoMdMenu /> : <RiMenuUnfoldLine />}
+            </button>
+            <div>Content</div>
+            <button onClick={toggleRightSidebar}>
+              {isRightSidebarOpen ? <IoMdMenu /> : <RiMenuFoldLine />}
+            </button>
           </div>
-        </div>
-      </div>
-    </>
+        </LayoutComponent.Header> */}
+        <LayoutComponent.LeftSidebar>
+          <div className="p-1 w-full h-full bg-gray-800 text-white">
+          <Sidebar />
+          </div>
+        </LayoutComponent.LeftSidebar>
+        <LayoutComponent.RightSidebar>
+          <div className="p-2 w-full h-full bg-gray-800 text-white">
+            <SidebarContentEditor/>
+          </div>
+        </LayoutComponent.RightSidebar>
+        <LayoutComponent.Main>
+          <div className="p-1 bg-gray-700  h-full">
+            <div className="p-2 border-2 border-dashed rounded-lg border-gray-600 h-full">
+
+              <div className="mx-auto py-4 px-4 md:px-0 overflow-auto">
+
+                <div className={`${!editAdditionalInfo ? "hidden" : "block"} `}>
+                  <div className="mb-6">
+                    <label
+                      htmlFor="activityTitle"
+                      className="block mb-2 text-sm font-medium text-white"
+                    >
+                      {" "}
+                      Activity Title
+                    </label>
+                    <input
+                      type="text"
+                      id="activityTitle"
+                      className="shadow-sm border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
+                      placeholder="Activity Title"
+                      defaultValue={codingActivityListResponse?.activityTitle}
+                      onInput={(e) => setActivityTitle(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-6">
+                    <label
+                      htmlFor="activityCodeRuntime"
+                      className="block mb-2 text-sm font-medium text-white"
+                    >
+                      Select a Runtime option {activityCodeRuntime}
+                    </label>
+                    <select
+                      value={codingActivityListResponse?.activityCodeRuntime}
+                      onChange={(e) => setActivityCodeRuntime(e.target.value)}
+                      id="activityCodeRuntime"
+                      className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option>Choose a Runtime</option>
+                      <option value="Pyodide">Pyodide</option>
+                      <option value="Python Aws Api">Python Aws Api</option>
+                      <option value="Web-R">Web-R</option>
+                    </select>
+                  </div>
+                  <div className="mb-6">
+                    <label
+                      htmlFor="gptModel"
+                      className="block mb-2 text-sm font-medium text-white"
+                    >
+                      {" "}
+                      Gpt Model
+                    </label>
+                    <select
+                      value={gptModel}
+                      onChange={(e) => setGptModel(e.target.value)}
+                      id="gptModel"
+                      className="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option>Choose a Model</option>
+                      {gptModelList.map((model, index) => {
+                        return <option key={index} value={model.id}>{changeCase.capitalCase(model.id)}</option>
+                      })}
+                    </select>
+
+                  </div>
+                  <div className="mb-6">
+                    <label
+                      htmlFor="codeRefPrompt"
+                      className="block mb-2 text-sm font-medium text-white"
+                    >
+                      {" "}
+                      Code Ref Prompt
+                    </label>
+                    <textarea
+                      id="codeRefPrompt"
+                      className="shadow-sm border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
+                      placeholder="System prompt"
+                      defaultValue={codingActivityListResponse?.codeRefPrompt}
+                      onInput={(e) => setCodeRefPrompt(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-6">
+                    <label
+                      htmlFor="systemPrompt"
+                      className="block mb-2 text-sm font-medium text-white"
+                    >
+                      {" "}
+                      System Prompt
+                    </label>
+                    <textarea
+                      id="systemPrompt"
+                      className="shadow-sm border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm-light"
+                      placeholder="System prompt"
+                      defaultValue={codingActivityListResponse?.systemPrompt}
+                      onInput={(e) => setSystemPrompt(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <button
+                      onClick={updateInfo}
+                      className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                    >
+                      {updateLoading ? "Updating..." : "Update Additional Info"}
+                    </button>
+                    <button
+                      className="text-white bg-gradient-to-r from-red-500 to-yellow-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                      onClick={() => setEditAdditionalInfo(false)}
+                    >Close additional Info</button>
+                  </div>
+                </div>
+                <CodeExecutorDevelopmentView codingActivityId={params.codingActivityId} uiDataFromDb={codingActivityListResponse} >
+                  <Link href={`/coding-activity/${params.codingActivityId}`}>
+                    <button className="me-2 px-4 py-2 bg-violet-500 text-white rounded-md mb-4 "
+                    >Preview</button>
+                  </Link>
+                  <div>
+                    <button
+                      className={`${editAdditionalInfo ? "hidden" : "block"} text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2`}
+                      onClick={() => setEditAdditionalInfo(true)}
+                    >Settings</button>
+                  </div>
+                </CodeExecutorDevelopmentView>
+              </div>
+
+            </div>
+          </div>
+        </LayoutComponent.Main>
+      </LayoutComponent>
+    </AllContextProviders>
 
   );
 };
