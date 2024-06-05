@@ -7,7 +7,7 @@ import { useAnalytics } from '../hooks/ApiHooks';
 // Login popup had beed created to get student login details
 const ActivityTrackerPopup = () => {
     const resetInMax = 10;
-    const activitySessionCheckInMax = 22230;
+    const activitySessionCheckInMax = 30;
     const [isActivityTrackerPopupOpen, setIsActivityTrackerPopupOpen] = React.useState(true);
     const [isActivityStarted, setIsActivityStarted] = React.useState(false)
     const analytics = useAnalytics();
