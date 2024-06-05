@@ -31,7 +31,7 @@ export const UiDataProvider = ({ children }) => {
         };
       }
       case "setContent": {
-        console.log("handle delete")
+        // console.log("handle delete")
 
         const content = JSON.parse(JSON.stringify(state.uiContent));
         // content[action.payload.key] = action.payload.data;
@@ -70,6 +70,54 @@ export const UiDataProvider = ({ children }) => {
           uiContent: content,
         };
       }
+      case "addSlider": {
+        // console.log("handle delete")
+
+        const content = JSON.parse(JSON.stringify(state.uiContent));
+        // content[action.payload.key] = action.payload.data;
+        // console.log(action.payload)
+        if (!action.payload.key) {
+          return state
+        }
+        if (action.payload.key.includes(".") || action.payload.key.includes("[")) {
+          const keys = action.payload.key.split(".");
+          let nestedContent = content;
+          for (let i = 0; i < keys.length - 1; i++) {
+            if (keys[i].includes('[')) {
+              const index = keys[i].split('[')[1].split(']')[0]
+              if (!nestedContent[keys[i].split('[')[0]]) {
+                nestedContent[keys[i].split('[')[0]] = [];
+              }
+              nestedContent = nestedContent[keys[i].split('[')[0]][index];
+            } else {
+              if (!nestedContent[keys[i]]) {
+                nestedContent[keys[i]] = {};
+              }
+              nestedContent = nestedContent[keys[i]];
+            }
+          }
+          if (!action.payload.data) {
+            delete nestedContent[keys[keys.length - 1]];
+          } else {
+            if (Array.isArray(nestedContent[keys[keys.length - 1]])) {
+              nestedContent[keys[keys.length - 1]].push(action.payload.data)
+            } else {
+              nestedContent[keys[keys.length - 1]] = [action.payload.data]
+            }
+          }
+        } else {
+          if (Array.isArray(content[action.payload.key])) {
+            content[action.payload.key].push(action.payload.data)
+          } else {
+            content[action.payload.key] = [action.payload.data]
+          }
+        }
+        // console.log(content)
+        return {
+          ...state,
+          uiContent: content,
+        };
+      }
       case "replaceContent": {
         return {
           ...state,
@@ -83,11 +131,11 @@ export const UiDataProvider = ({ children }) => {
           console.log("delete called ", path)
           // Split the path string into parts (accounting for array indices)
           const parts = path.split(/\.|\[|\]/).filter(p => p);
-      
+
           // Recursively update the object
           const updateRecursively = (obj, parts) => {
             const part = parts[0];
-      
+
             // If it's the last part of the path, update the value
             if (parts.length === 1) {
               if (Array.isArray(obj)) {
@@ -97,11 +145,11 @@ export const UiDataProvider = ({ children }) => {
               delete obj[part]
               return;
             }
-      
+
             // Otherwise, proceed to the next part of the path
             updateRecursively(obj[part], parts.slice(1));
           };
-      
+
           updateRecursively(updatedObject, parts);
           // console.log("update called ", updatedObject)
           // uiObject.value = updatedObject
@@ -109,7 +157,7 @@ export const UiDataProvider = ({ children }) => {
         }
         return {
           ...state,
-          uiContent: deleteValueOfObjectByPath({path: action.payload.key}),
+          uiContent: deleteValueOfObjectByPath({ path: action.payload.key }),
           activePath: null
         };
       }

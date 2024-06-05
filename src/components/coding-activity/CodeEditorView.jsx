@@ -27,6 +27,8 @@ import ChatView from "./ChatView.jsx";
 import { useDebounceEffect } from "../hooks/useDebounceEffect.jsx";
 import WebRApp from "./webrRepl/WebRApp.jsx";
 import EditTextElementWrapperForEditor from "./editors/EditTextElementWrapperForEditor.jsx";
+import EditSliderInput from "./editors/EditSliderInput.jsx";
+import SliderInput from "./cards/SliderInput.jsx";
 
 const demoCode = `
 # Python code demo
@@ -81,8 +83,15 @@ export default function CodeEditorView() {
     // if (uiData.devmode) {
     //   dispatchUiData({ type: 'setOpenReportUi', payload: true })
     // }
-    setCode(uiData?.uiContent?.defaults?.code || "")
-  }, [uiData.devmode, uiData?.uiContent?.defaults?.code])
+    let updatedCode = uiData?.uiContent?.defaults?.code
+    if (Array.isArray(uiData?.uiContent?.slider?.codeEditorSlider)) {
+      for (const iterator of uiData?.uiContent?.slider?.codeEditorSlider) {
+        updatedCode = updatedCode.replaceAll(`{${iterator?.label}}`, iterator.value)
+      }
+    }
+    // console.log("updatedCode", updatedCode)
+    setCode(updatedCode || "")
+  }, [uiData.devmode, uiData?.uiContent?.defaults?.code, uiData?.uiContent?.slider?.codeEditorSlider])
   const initClientAnalytics = useInitClientAnalytics()
   useEffect(() => {
     if (!uiData.devmode) {
@@ -385,6 +394,9 @@ print(opdt)
     });
   };
   const [editorButton, setEditorButton] = useState(false);
+  const addSlider = (path) => {
+    dispatchUiData({ type: 'addSlider', payload: { key: path, data: { label: "Add label", sliderType: "number", max: 10, min: 0, value: 0, step: 1, options: [] } } })
+  }
   return (
     <div className="annotation code-editor-container">
       <Script
@@ -407,16 +419,21 @@ print(opdt)
           <div className={`ps-4 pe-14 widget `}>
             <div className="mx-3 p-1 pb-0 border-x-2 space-y-3 border-ui-violet rounded-xl bg-[#171819] text-white">
               <div className="p-3 pb-0 mt-3 relative group">
-                <Fragment>
-                  {uiData.activityCodeRuntime === "Pyodide" && <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />}
-                  {uiData.activityCodeRuntime === "Python Aws Api" && <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />}
-                  {uiData.activityCodeRuntime === "Web-R" &&
-                    <>
-                      <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />
-                      <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />
-                    </>
-                  }
-                </Fragment>
+                <EditTextElementWrapper
+                  className={`unclicked py-2 px-3 w-full !text-sm text-center`}
+                  path={"defaults.code"}
+                >
+                  <Fragment>
+                    {uiData.activityCodeRuntime === "Pyodide" && <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />}
+                    {uiData.activityCodeRuntime === "Python Aws Api" && <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />}
+                    {uiData.activityCodeRuntime === "Web-R" &&
+                      <>
+                        <WebRApp.Editor triggerRun={triggerWebRRun} codeFromParent={code} />
+                        <CodeMirrorEidtor code={code} handleOnChange={handleOnChange} />
+                      </>
+                    }
+                  </Fragment>
+                </EditTextElementWrapper>
                 {(uiData.activityCodeRuntime === "Pyodide" || uiData.activityCodeRuntime === "Python Aws Api") &&
                   <div className="buttons absolute top-[10px] right-[10px]">
                     <div className="progressive">
@@ -439,6 +456,25 @@ print(opdt)
                       </EditTextElementWrapper>
                     </div>
                   </div>
+                }
+              </div>
+              <div className="px-3 pt-0">
+                {uiData?.devmode &&
+                  <button
+                  className="py-2 px-3 text-sm bg-ui-violet"
+                  onClick={() => addSlider("slider.codeEditorSlider")}>Add Slider</button>
+                }
+                {
+                  (uiData?.uiContent?.slider?.codeEditorSlider &&
+                    uiData?.uiContent?.slider?.codeEditorSlider.length > 0) ?
+                    uiData?.uiContent?.slider?.codeEditorSlider.map((slider, index) => {
+                      return (
+                        <EditSliderInput key={index} path={`slider.codeEditorSlider[${index}]`}>
+                          <SliderInput path={`slider.codeEditorSlider[${index}]`} />
+                        </EditSliderInput>
+                      )
+                    }) :
+                    ""
                 }
               </div>
               <div className="px-3 pt-0 flex justify-between buttons -m-2">

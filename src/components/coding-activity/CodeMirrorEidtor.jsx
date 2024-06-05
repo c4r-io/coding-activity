@@ -4,7 +4,6 @@ import CodeMirror from "@uiw/react-codemirror";
 import { createTheme } from "@uiw/codemirror-themes";
 import { loadLanguage } from "@uiw/codemirror-extensions-langs";
 import { tags as t } from "@lezer/highlight";
-import { parser} from "@lezer/css"
 const myTheme = createTheme({
     theme: "light",
     settings: {

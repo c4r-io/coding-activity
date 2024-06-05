@@ -1,12 +1,12 @@
 "use client"
 import React, { useState, useRef, useEffect } from 'react';
-import styles from './CustomSlider.module.css';
 
-const CustomSlider = ({ min, max, step, value, onChange }) => {
+const CustomSlider = ({ min=0, max=10, step=1, value=0, onChange, children }) => {
   const [sliderValue, setSliderValue] = useState(value);
   const sliderRef = useRef(null);
   const thumbRef = useRef(null);
   const trackRef = useRef(null);
+  const blockSize = 120;
 
   useEffect(() => {
     setSliderValue(value);
@@ -43,22 +43,28 @@ const CustomSlider = ({ min, max, step, value, onChange }) => {
   };
 
   const thumbPosition = ((sliderValue - min) / (max - min)) * 100;
-
+  const calculateThumbPosition = () => {
+    const thumbPosition = ((sliderValue - min) / (max - min)) * 100;
+    const newPo = 100-8;
+    const dif = 8;
+    const newLeft = ((thumbPosition - dif) / (newPo - dif)) * 100
+    return newLeft
+  }
   return (
     <div style={{
+      padding: "0px 60px",
       position: "relative",
-      width: "100%",
-      height: "140px",
-    }} ref={sliderRef} onClick={handleClick}>
+    }}>
       <div style={{
         position: "absolute",
         top: "50%",
-        left: "0",
+        left: "2px",
         right: "0",
         height: "4px",
+        width: "calc(100% - 4px)",
         backgroundColor: "#ddd",
         transform: "translateY(-50%)",
-      }} ref={trackRef}>
+      }}>
         <div style={{
           position: "absolute",
           bottom: "-3px",
@@ -86,23 +92,54 @@ const CustomSlider = ({ min, max, step, value, onChange }) => {
         }}>
         </div>
       </div>
+    <div style={{
+      position: "relative",
+      width: "100%",
+      height: "120px",
+    }} ref={sliderRef} onClick={handleClick}>
+      <div style={{
+        position: "absolute",
+        top: "50%",
+        left: "0",
+        right: "0",
+        height: "4px",
+        backgroundColor: "#ddd",
+        transform: "translateY(-50%)",
+      }} ref={trackRef}>
+      </div>
       <div
         ref={thumbRef}
         style={{ left: `${thumbPosition}%`,
         position: "absolute",
         top: "50%",
-        width: "140px",
-        height: "140px",
-        backgroundColor: "#007bff",
-        borderRadius: "1%",
+        width: "120px",
+        height: "120px",
+        backgroundColor: "#DD8B3C",
+        borderRadius: "3%",
         transform: "translate(-50%, -50%)",
         cursor: "pointer",
+        padding: "4px",
        }}
         onMouseDown={handleMouseDown}
       >
-        <div>{sliderValue}</div>
+        <div
+          style={{
+            color: "#6E2E14",
+            whiteSpace: "pre",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "calc(100% - 2px)",
+            height: "calc(100% - 2px)",
+            webKitUserSelect: "none", 
+            msUserSelect: "none",
+            userSelect: "none", 
+          }}
+        >{children}
+        </div>
       </div>
     </div >
+    </div>
   );
 };
 
