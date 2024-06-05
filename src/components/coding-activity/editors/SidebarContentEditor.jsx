@@ -211,7 +211,7 @@ const SidebarContentEditor = () => {
                                     className={`bg-white text-black w-full p-1 rounded-sm`}
                                     value={getDefaultData()?.label}
                                     onChange={(e) => {
-                                        dispatchUiData({ type: 'setContent', payload: { key: `${uiData?.activePath?.path}.label`, data: e.target.value } })
+                                        dispatchUiData({ type: 'setContent', payload: { key: `${uiData?.activePath?.path}.label`, data: e.target.value.trim() } })
                                     }}
                                     defaultValue={getDefaultData()?.label}
                                     type="text"
