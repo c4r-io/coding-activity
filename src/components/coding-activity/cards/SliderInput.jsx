@@ -31,11 +31,11 @@ const SliderInput = ({ path }) => {
                 {
                     getDefaultData()?.sliderType !== 'options' ?
                         <CustomSlider min={getDefaultData()?.min} max={getDefaultData()?.max} step={getDefaultData()?.step} value={getDefaultData()?.value} onChange={handleSliderChange} >
-                            <p>Value: {getDefaultData()?.value}</p>
+                            <p>{getDefaultData()?.label}: {getDefaultData()?.value}</p>
                         </CustomSlider>
                         :
                         <CustomListSlider value={getDefaultData()?.value} options={getDefaultData()?.options} onChange={handleSliderChange} >
-                            <p>Value: {getDefaultData()?.value}</p>
+                            <p>{getDefaultData()?.label}: {getDefaultData()?.value}</p>
                         </CustomListSlider>
                 }
             </div>

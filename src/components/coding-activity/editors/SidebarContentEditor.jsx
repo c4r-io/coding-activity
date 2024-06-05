@@ -295,10 +295,10 @@ const SidebarContentEditor = () => {
                                 </div>
                             }
                             <button
-                                className='px-3 py-1 bg-red-600 text-base text-white'
+                                className='px-3 py-1 bg-red-600 text-base text-white mt-2'
                                 onClick={() => {
 
-                                    dispatchUiData({ type: 'setContent', payload: { key: `${uiData?.activePath?.path}`, data: null } })
+                                    dispatchUiData({ type: 'deleteContent', payload: { key: `${uiData?.activePath?.path}` } })
                                 }}
                             >
                                 Delete

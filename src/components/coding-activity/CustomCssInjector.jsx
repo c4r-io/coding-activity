@@ -26,8 +26,8 @@ const CustomCssInjector = () => {
         <div>
         <style dangerouslySetInnerHTML={{__html: uiData?.uiContent?.cssdata?.all}}>
         </style>
-        <style dangerouslySetInnerHTML={{__html: getNestedValues(uiData?.uiContent?.cssContent)}}>
-        </style>
+        {/* <style dangerouslySetInnerHTML={{__html: getNestedValues(uiData?.uiContent?.cssContent)}}>
+        </style> */}
         </div>
     )
 }
