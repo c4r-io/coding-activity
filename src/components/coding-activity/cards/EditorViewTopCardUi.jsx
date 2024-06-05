@@ -7,6 +7,7 @@ import MystPreviewTwContainer from "@/components/mystmdpreview/MystPreviewTwCont
 import AnotationTool from "../anotation-tool/AnotationTool";
 import debouncer from "@/utils/debouncer";
 import CustomSlider from "@/components/customElements/CustomSlider/CustomSlider";
+import CustomListSlider from "@/components/customElements/CustomSlider/CustomListSlider";
 
 const TopCardUi = () => {
   const { uiData, dispatchUiData } = React.useContext(UiDataContext);
@@ -19,21 +20,23 @@ const TopCardUi = () => {
       dispatchUiData({ type: "setActivePath", payload: { path: `editorViewTopCardAnotations[${index}]`, type: "annotation" } })
     }
   }
-  const [value, setValue] = useState(50);
-
-  const handleSliderChange = (newValue) => {
-    setValue(newValue);
-  };
-
-
+  const [setData, setSetData] = useState("")
+  React.useEffect(() => {
+    // if (uiData.devmode) {
+    //   dispatchUiData({ type: 'setOpenReportUi', payload: true })
+    // }
+    let updatedCode = uiData?.uiContent?.editorview?.headerTitle
+    if (Array.isArray(uiData?.uiContent?.slider?.codeEditorSlider)) {
+      for (const iterator of uiData?.uiContent?.slider?.codeEditorSlider) {
+        updatedCode = updatedCode.replaceAll(`{${iterator?.label}}`, iterator.value)
+        // console.log("updatedCode2",updatedCode.includes(`{${iterator?.label}}`),`{${iterator?.label}}`,iterator.value)
+      }
+    }
+    // console.log("updatedCode2", updatedCode)
+    setSetData(updatedCode || "")
+  }, [uiData.devmode, uiData?.uiContent?.editorview?.headerTitle, uiData?.uiContent?.slider?.codeEditorSlider])
   return (
     <Fragment>
-      {/* <div className="p-4">
-        
-      <h1>Custom Slider</h1>
-      <CustomSlider min={0} max={100} step={1} value={value} onChange={handleSliderChange} />
-      <p>Value: {value}</p>
-      </div> */}
       <AnotationTool defaultValue={uiData.uiContent?.editorViewTopCardAnotations}
         onUpdateIndex={openIntoEditor}
         onUpdate={(value) => {
@@ -76,7 +79,8 @@ const TopCardUi = () => {
                   <div
                     className='text-element-container-inner-1-text'
                   >
-                    <MystPreviewTwContainer data={uiData?.uiContent?.editorview?.headerTitle || ""} />
+                    <MystPreviewTwContainer data={setData || ""} />
+                    asdf
                   </div>
                 </EditMystMdElementWrapper>
               </div>

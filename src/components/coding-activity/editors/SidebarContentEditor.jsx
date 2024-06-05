@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { MdCloudUpload, MdDelete } from 'react-icons/md';
 import StringArrayInput from '../StringArrayInput';
 import MonacoCodeEditor from '../MonacoCodeEditor';
+import StringDropdown from '@/components/dropdown/StringDropdown';
 
 const SidebarContentEditor = () => {
     const [mystmd, setMystmd] = useState('');
@@ -190,25 +191,121 @@ const SidebarContentEditor = () => {
                             </div>
                         </div>
                     }
-                    <div>
-                        <h4 className='text-lg'>Edit Css</h4>
-                        <textarea
-                            className={`bg-white text-black w-full h-56 p-1 rounded-sm`}
-                            value={getDefaultcssContentData()}
-                            onChange={(e) => {
-                                dispatchUiData({ type: 'setContent', payload: { key: uiData?.activePath?.cssContent, data: e.target.value } })
-                            }}
-                            defaultValue={getDefaultcssContentData()}
-                        />
+                    {
+                        uiData?.activePath?.type === 'sliderinput' &&
+                        <div>
+                            <h4 className='text-lg'>Edit slider</h4>
+                            <div>
+                                <StringDropdown
+                                    optionList={["number", "options"]}
+                                    defaultSelected={getDefaultData()?.sliderType}
+                                    onUpdate={(e) => {
+                                        dispatchUiData({ type: 'setContent', payload: { key: `${uiData?.activePath?.path}.sliderType`, data: e } });
+                                    }}
+                                >
+                                </StringDropdown>
+                            </div>
+                            <div>
+                                <h4 className='text-lg'>Label</h4>
+                                <input
+                                    className={`bg-white text-black w-full p-1 rounded-sm`}
+                                    value={getDefaultData()?.label}
+                                    onChange={(e) => {
+                                        dispatchUiData({ type: 'setContent', payload: { key: `${uiData?.activePath?.path}.label`, data: e.target.value } })
+                                    }}
+                                    defaultValue={getDefaultData()?.label}
+                                    type="text"
+                                />
+                            </div>
+                            {getDefaultData()?.sliderType === 'number' &&
+                                <div>
+                                    <div>
+                                        <h4 className='text-lg'>Min</h4>
+                                        <input
+                                            className={`bg-white text-black w-full p-1 rounded-sm`}
+                                            value={getDefaultData()?.min}
+                                            onChange={(e) => {
+                                                dispatchUiData({ type: 'setContent', payload: { key: `${uiData?.activePath?.path}.min`, data: e.target.value } })
+                                            }}
+                                            defaultValue={getDefaultData()?.min}
+                                            type="number"
+                                        />
+                                    </div>
+                                    <div>
+                                        <h4 className='text-lg'>Max</h4>
+                                        <input
+                                            className={`bg-white text-black w-full p-1 rounded-sm`}
+                                            value={getDefaultData()?.max}
+                                            onChange={(e) => {
+                                                dispatchUiData({ type: 'setContent', payload: { key: `${uiData?.activePath?.path}.max`, data: e.target.value } })
+                                            }}
+                                            defaultValue={getDefaultData()?.max}
+                                            type="number"
+                                        />
+                                    </div>
+                                    <div>
+                                        <h4 className='text-lg'>Step</h4>
+                                        <input
+                                            className={`bg-white text-black w-full p-1 rounded-sm`}
+                                            value={getDefaultData()?.step}
+                                            onChange={(e) => {
+                                                dispatchUiData({ type: 'setContent', payload: { key: `${uiData?.activePath?.path}.step`, data: e.target.step } })
+                                            }}
+                                            defaultValue={getDefaultData()?.step}
+                                            type="number"
+                                        />
+                                    </div>
+                                    <div>
+                                        <h4 className='text-lg'>Default</h4>
+                                        <input
+                                            className={`bg-white text-black w-full p-1 rounded-sm`}
+                                            value={getDefaultData()?.value}
+                                            onChange={(e) => {
+                                                dispatchUiData({ type: 'setContent', payload: { key: `${uiData?.activePath?.path}.value`, data: e.target.value } })
+                                            }}
+                                            defaultValue={getDefaultData()?.value}
+                                            type="number"
+                                        />
+                                    </div>
+                                </div>
+                            }
+                            {getDefaultData()?.sliderType === 'options' &&
+                                <div>
+                                    <div>
+                                        <h4 className='text-lg'>Default</h4>
+                                        <input
+                                            className={`bg-white text-black w-full p-1 rounded-sm`}
+                                            value={getDefaultData()?.value}
+                                            onChange={(e) => {
+                                                dispatchUiData({ type: 'setContent', payload: { key: `${uiData?.activePath?.path}.value`, data: e.target.value } })
+                                            }}
+                                            defaultValue={getDefaultData()?.value}
+                                            type="text"
+                                        />
+                                    </div>
+                                    <div>
+                                        <h4 className='text-lg'>Options</h4>
+                                        <StringArrayInput
+                                            defaultValues={getDefaultData()?.options}
+                                            onUpdate={(e) => {
+                                                dispatchUiData({ type: 'setContent', payload: { key: `${uiData?.activePath?.path}.options`, data: e } });
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            }
+                            <button
+                                className='px-3 py-1 bg-red-600 text-base text-white mt-2'
+                                onClick={() => {
 
-                        {/* <MonacoCodeEditor
-                            value={getDefaultcssContentData() || ""}
-                            onChange={(e) => handleChangeWithDebounce(e)}
-                            height={"300px"}
-                            width={"100%"}
-                            language="css"
-                        /> */}
-                    </div>
+                                    dispatchUiData({ type: 'deleteContent', payload: { key: `${uiData?.activePath?.path}` } })
+                                }}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    }
+
                 </>
             }
         </div>
