@@ -24,40 +24,16 @@ export default function CodeExecutorDevelopmentView({ codingActivityId, uiDataFr
   }, [uiData.uiContent])
 
   return (
-    <div className="max-h-max min-w-[800px] pb-2">
+    <div className="max-h-max min-w-[750px] pb-2 overflow-auto">
       {/* <AllContextProviders> */}
       <CustomCssInjector />
-      <div className="mb-4 flex flex-wrap">
         {/* injected buttons as children to make all buttons in one row */}
+      {/* <div className="mb-4 flex flex-wrap">
         {children}
         <UpdateCustomizedDataButton />
-      </div>
-      <div className="flex -m-1 w-[800px] relative">
-        {/* {cssEditor ?
-            <div className=" w-[450px] h-[500px] sticky top-0 right-0">
-              <div className="border border-dashed border-gray-400">
-                <CssEditorView />
-              </div>
-            </div> : ""
-          } */}
+      </div> */}
+      <div className="flex -m-1 w-[750px] relative">
         <div className="p-1 w-[750px] relative">
-
-          {/* <div className="absolute top-0 left-0 z-50">
-              {cssEditor ?
-                <button
-                  className="bg-red-500 text-white px-4 py-1 rounded-md"
-                  onClick={() => setCssEditor(false)}
-                >
-                  Close Css Editor
-                </button> :
-                <button
-                  className="bg-cyan-500 text-white px-4 py-1 rounded-md"
-                  onClick={() => setCssEditor(true)}
-                >
-                  Open Css Editor
-                </button>
-              }
-            </div> */}
           <div
             className={`flex justify-center pt-6`}
           >
@@ -66,22 +42,6 @@ export default function CodeExecutorDevelopmentView({ codingActivityId, uiDataFr
               <ToastContainer />
             </div>
           </div>
-          {/* <div className="absolute top-0 left-0 z-50">
-              {cssEditor ?
-                <button
-                  className="bg-red-500 text-white px-4 py-1 rounded-md"
-                  onClick={() => setCssEditor(false)}
-                >
-                  Close Css Editor
-                </button> :
-                <button
-                  className="bg-cyan-500 text-white px-4 py-1 rounded-md"
-                  onClick={() => setCssEditor(true)}
-                >
-                  Open Css Editor
-                </button>
-              }
-            </div> */}
         </div>
 
       </div>

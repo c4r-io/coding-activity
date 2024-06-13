@@ -868,7 +868,7 @@ ${nc2}`)
                           aspectRatio
                         </SortBtnComponent>
                       </th>
-                      {analyticsList?.results[0]?.featureEngineeredData && Object.keys(analyticsList?.results[0]?.featureEngineeredData).length > 0 && Object.keys(analyticsList?.results[0]?.featureEngineeredData).map((item2, index) => (
+                      {analyticsList?.results && analyticsList?.results.length > 0 && analyticsList?.results[0]?.featureEngineeredData && Object.keys(analyticsList?.results[0]?.featureEngineeredData).length > 0 && Object.keys(analyticsList?.results[0]?.featureEngineeredData).map((item2, index) => (
                         <th scope="col" className="px-6 py-3" key={index}>
                           <SortBtnComponent
                             feildKey={`featureEngineeredData.${item2}`}
@@ -903,7 +903,7 @@ ${nc2}`)
                               </button>
                             </td>
                             <td className="px-6 py-4">
-                              {item?.submissions ?
+                              {item?.submissions && item?.submissions?.length > 0 ?
                                 <Fragment>
                                   <button className={`${item?.submissions ? "text-ui-violet" : "pointer-events-none"}`}
                                     onClick={() => setIssuePopup(item?.submissions)}
@@ -914,35 +914,36 @@ ${nc2}`)
                                 : "No Submissions"}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.error1?.errorCode ?
+                              {item?.error1 ?
                                 <Fragment>
-                                  <button className={`${item?.error1?.errorCode ? "text-ui-violet" : "pointer-events-none"}`}
+                                  {/* <button className={`${item?.error1 ? "text-ui-violet" : "pointer-events-none"}`}
                                     onClick={() => setIssuePopup([item?.error1])}
-                                  >
-                                    {item?.error1?.errorCode}
-                                  </button>
+                                  > */}
+
+                                  {typeof (item?.error1) == "object" ? JSON.stringify(item?.error1) : item?.error1}
+                                  {/* </button> */}
                                 </Fragment>
                                 : "No Issue"}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.error2?.errorCode ?
+                              {item?.error2 ?
                                 <Fragment>
-                                  <button className={`${item?.error2?.errorCode ? "text-ui-violet" : "pointer-events-none"}`}
+                                  {/* <button className={`${item?.error2 ? "text-ui-violet" : "pointer-events-none"}`}
                                     onClick={() => setErrorPopup([item?.error2])}
-                                  >
-                                    {item?.error2?.errorCode}
-                                  </button>
+                                  > */}
+                                  {typeof (item?.error2) == "object" ? JSON.stringify(item?.error2) : item?.error2}
+                                  {/* </button> */}
                                 </Fragment>
                                 : "No Issue"}
                             </td>
                             <td className="px-6 py-4">
-                              {item?.error3?.errorCode ?
+                              {item?.error3 ?
                                 <Fragment>
-                                  <button className={`${item?.error3?.errorCode ? "text-ui-violet" : "pointer-events-none"}`}
+                                  {/* <button className={`${item?.error3 ? "text-ui-violet" : "pointer-events-none"}`}
                                     onClick={() => setErrorPopup([item?.error3])}
-                                  >
-                                    {item?.error3?.errorCode}
-                                  </button>
+                                  > */}
+                                  {typeof (item?.error3) == "object" ? JSON.stringify(item?.error3) : item?.error3}
+                                  {/* </button> */}
                                 </Fragment>
                                 : "No Issue"}
                             </td>
@@ -1019,7 +1020,7 @@ ${nc2}`)
                             <td className="px-6 py-4">
                               {item?.aspectRatio}
                             </td>
-                            {analyticsList?.results[0]?.featureEngineeredData && Object.keys(analyticsList?.results[0]?.featureEngineeredData).length > 0 && Object.keys(analyticsList?.results[0]?.featureEngineeredData).map((item2, item2Index) => (
+                            {analyticsList?.results && analyticsList?.results.length > 0 && analyticsList?.results[0]?.featureEngineeredData && Object.keys(analyticsList?.results[0]?.featureEngineeredData).length > 0 && Object.keys(analyticsList?.results[0]?.featureEngineeredData).map((item2, item2Index) => (
                               <td scope="col" className="px-6 py-3" key={item2Index}>
                                 {analyticsList?.results[index]?.featureEngineeredData[item2]}
                               </td>
@@ -1292,9 +1293,9 @@ ${nc2}`)
                       </svg>
                       <div className='p-2 rounded-md overflow-auto'>
                         {errorPopup.map((item, index) => (
-                          <div key={index}>
-                            <div>{item.errorCode}</div>
-                            <div>{item.description}</div>
+                          <div key={index} className='py-1 border-t border-b border-gray-400'>
+                            <div className='white-space-pre text-white'>{JSON.stringify(item, null, 2)}</div>
+                            {/* <div>{item.description}</div> */}
                           </div>
                         ))}
                       </div>
