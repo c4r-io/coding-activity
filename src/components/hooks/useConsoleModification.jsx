@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const useConsoleModification = () => {
+    const [isReady, setIsReady] = useState(false);
     // Create a queue for log messages
     const logQueue = useRef([]);
     useEffect(() => {
@@ -9,9 +10,12 @@ const useConsoleModification = () => {
         const originalError = console.error;
         const originalWarn = console.warn;
         const originalInfo = console.info;
-        
+
         // Function to send log data to the backend
         const sendLogToServer = async (logData) => {
+            if (!isReady) {
+                return;
+            }
             const clientAnalyticsSessionExist = sessionStorage.getItem('client-analytics-session-id');
             if (!clientAnalyticsSessionExist) {
                 return;
@@ -54,11 +58,11 @@ const useConsoleModification = () => {
         };
 
         // Override console.log
-        // console.log = function (...args) {
-        //   const logData = { type: 'log', message: args, timestamp: new Date().toISOString() };
-        //   sendLogToServer(logData);
-        //   originalLog.apply(console, args);
-        // };
+        console.log = function (...args) {
+            const logData = { type: 'log', message: args, timestamp: new Date().toISOString() };
+            //   sendLogToServer(logData);
+            originalLog.apply(console, args);
+        };
 
         // Override console.error
         console.error = function (...args) {
@@ -70,19 +74,19 @@ const useConsoleModification = () => {
         // Override console.warn
         console.warn = function (...args) {
             const logData = { type: 'warn', message: args, timestamp: new Date().toISOString() };
-            sendLogToServer(logData);
+            // sendLogToServer(logData);
             originalWarn.apply(console, args);
         };
 
         // Override console.info
         console.info = function (...args) {
             const logData = { type: 'info', message: args, timestamp: new Date().toISOString() };
-            sendLogToServer(logData);
+            // sendLogToServer(logData);
             originalInfo.apply(console, args);
         };
 
         // Periodically retry sending logs
-        // const retryInterval = setInterval(retryLogs, 5000);
+        const retryInterval = setInterval(retryLogs, 5000);
         window.console = console;
         return () => {
             // Cleanup: Restore original console methods
@@ -90,9 +94,11 @@ const useConsoleModification = () => {
             console.error = originalError;
             console.warn = originalWarn;
             console.info = originalInfo;
-            //   clearInterval(retryInterval);
+              clearInterval(retryInterval);
         };
-    }, []);
+    }, [isReady]);
+
+    return { isReady, setIsReady };
 };
 
 export default useConsoleModification;

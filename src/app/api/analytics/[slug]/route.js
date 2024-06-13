@@ -33,8 +33,18 @@ export async function POST(req, context) {
   if (analytics) {
     // convert to js object
     const body = await req.json();
+    console.log('req', analytics,body.consoleIssue)
     if (body.consoleIssue) {
-      analytics.issueList.push(body.consoleIssue)
+      if(!analytics?.error1?.type){
+        analytics.error1 = JSON.parse(body.consoleIssue).message.join(", ")
+      }
+      else if(!analytics?.error2?.type){
+        analytics.error2 = JSON.parse(body.consoleIssue).message.join(", ")
+      }
+      else if(!analytics?.error3?.type){
+        analytics.error3 = JSON.parse(body.consoleIssue).message.join(", ")
+      }
+      analytics.errorList.push(JSON.parse(body.consoleIssue))
     }
     const updatedAnalytics = await analytics.save();
     return Response.json({ ...updatedAnalytics._doc });

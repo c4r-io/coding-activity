@@ -2,11 +2,7 @@ import { UiDataContext } from '@/contextapi/code-executor-api/UiDataProvider';
 import ResizableRect from "react-resizable-rotatable-draggable";
 import React, { useEffect } from 'react';
 import debouncer from '@/utils/debouncer';
-import EditMystMdElementWrapperForAnotation from '../editors/EditMystMdElementWrapperForAnotation';
 import MystPreviewTwContainer from '../../mystmdpreview/MystPreviewTwContainer';
-import { IoCloseCircleSharp } from "react-icons/io5";
-import { FaEdit } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
 import { BiSolidMessageRoundedDots } from "react-icons/bi";
 import { useDebounceEffect } from '@/components/hooks/useDebounceEffect';
 

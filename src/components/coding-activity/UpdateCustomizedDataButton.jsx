@@ -27,7 +27,7 @@ const UpdateCustomizedDataButton = () => {
     return (
         <div className=''>
             <button
-            className={`px-4 py-2 bg-blue-500 text-white rounded-md mb-4 ${updateUiContentHook.loading ? "cursor-not-allowed pointer-events-none" : ""}`}
+            className={`text-white bg-blue-500 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 ${updateUiContentHook.loading ? "cursor-not-allowed pointer-events-none" : ""}`}
                 onClick={() => {
                     updateHandler()
                 }}

@@ -3,9 +3,11 @@ import { setToken } from '@/utils/token';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useAnalytics } from '../hooks/ApiHooks';
+import useConsoleModification from '../hooks/useConsoleModification';
 
 // Login popup had beed created to get student login details
 const ActivityTrackerPopup = () => {
+    const consoleModification = useConsoleModification();
     const resetInMax = 10;
     const activitySessionCheckInMax = 30;
     const [isActivityTrackerPopupOpen, setIsActivityTrackerPopupOpen] = React.useState(true);
@@ -39,22 +41,23 @@ const ActivityTrackerPopup = () => {
         timeCount.current = 0
         sessionResterTimeCount.current = resetInMax
         setSessionResterTime(sessionResterTimeCount.current)
-        if(sessionReseterTimerFunction.current){
+        if (sessionReseterTimerFunction.current) {
             clearInterval(sessionReseterTimerFunction.current)
             sessionReseterTimerFunction.current = null
         }
-        if(startTimerFunction.current){
+        if (startTimerFunction.current) {
             clearInterval(startTimerFunction.current)
             startTimerFunction.current = null
         }
     }
     function startSessionTimer() {
+        consoleModification.setIsReady(true)
         analytics.send()
-        if(sessionReseterTimerFunction.current){
+        if (sessionReseterTimerFunction.current) {
             clearInterval(sessionReseterTimerFunction.current)
             sessionReseterTimerFunction.current = null
         }
-        if(startTimerFunction.current){
+        if (startTimerFunction.current) {
             clearInterval(startTimerFunction.current)
             startTimerFunction.current = null
         }

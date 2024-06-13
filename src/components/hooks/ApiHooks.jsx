@@ -1374,7 +1374,7 @@ export const useInitClientAnalytics = () => {
 export const useIssueAnalytics = () => {
   const { uiData } = React.useContext(UiDataContext);
   const [loading, setLoading] = React.useState(false);
-  const send = async (e, callbackSuccess, callbackError) => {
+  const send = async (sessionId,e, callbackSuccess, callbackError) => {
     const data = { ...e }
     // acceptable data
     // { errorCode

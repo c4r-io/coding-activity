@@ -13,7 +13,18 @@ export async function GET(req, res) {
   if (req.nextUrl.searchParams.get('feedback')) {
     keywords.feedback = req.nextUrl.searchParams.get('feedback');
   }
+  const a = 10,
+    b = 20,
+    c = await ChatFeedback.countDocuments({});
+  const r = await ChatFeedback.find({})
+    .skip(b * (a - 1))
+    .limit(b);
 
+  return Response.json({
+    r,
+    x: a,
+    y: Math.ceil(c / b),
+  })
   await connectMongoDB();
   const pageSize = Number(req.nextUrl.searchParams.get('pageSize')) || 30;
   const page = Number(req.nextUrl.searchParams.get('pageNumber')) || 1;
@@ -75,3 +86,23 @@ export async function DELETE(req, context) {
   }
 }
 
+// axiosconfig = {
+//   data:{
+//     pageSize: 10,
+//     pageNumber: 1,
+//     moredata:{
+//       name: "minhaj",
+//       age: 27
+//     },
+//     screenHeight: 1080,
+//   },
+//   params:{
+//     screenWidth: 1920,
+//     screenHeight: 1080,
+//   },
+//   headers:{
+//     'Content-Type': 'multipart/form-data',
+//     'Authorization': 'Bearer ' + token,
+//     "timeout": 1000,
+//   }
+// }

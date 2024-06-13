@@ -121,36 +121,24 @@ const analyticsSchema = mongoose.Schema(
       attachment: { type: Object },
     }],
     error1: {
-      errorCode: {
-        type: Number,
-      },
-      description: {
-        type: String,
-      }
+      type: String,
     },
     error2: {
-      errorCode: {
-        type: Number,
-      },
-      description: {
-        type: String,
-      }
+      type: String,
     },
     error3: {
-      errorCode: {
-        type: Number,
-      },
-      description: {
-        type: String,
-      }
+      type: String,
     },
     errorList: [{
-      errorCode: {
-        type: Number,
-      },
-      description: {
+      type: {
         type: String,
-      }
+      },
+      message: [{
+        type: String,
+      }],
+      timestamp: {
+        type: String,
+      },
     }],
     featureEngineeredData: {
       type: Object,
