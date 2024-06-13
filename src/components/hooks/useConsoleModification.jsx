@@ -86,7 +86,7 @@ const useConsoleModification = () => {
         };
 
         // Periodically retry sending logs
-        const retryInterval = setInterval(retryLogs, 5000);
+        // const retryInterval = setInterval(retryLogs, 5000);
         window.console = console;
         return () => {
             // Cleanup: Restore original console methods
@@ -94,7 +94,7 @@ const useConsoleModification = () => {
             console.error = originalError;
             console.warn = originalWarn;
             console.info = originalInfo;
-              clearInterval(retryInterval);
+            //   clearInterval(retryInterval);
         };
     }, [isReady]);
 
