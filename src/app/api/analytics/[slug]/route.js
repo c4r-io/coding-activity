@@ -35,13 +35,13 @@ export async function POST(req, context) {
     const body = await req.json();
     console.log('req', analytics,body.consoleIssue)
     if (body.consoleIssue) {
-      if(!analytics?.error1?.type){
+      if(!analytics?.error1){
         analytics.error1 = JSON.parse(body.consoleIssue).message.join(", ")
       }
-      else if(!analytics?.error2?.type){
+      else if(!analytics?.error2){
         analytics.error2 = JSON.parse(body.consoleIssue).message.join(", ")
       }
-      else if(!analytics?.error3?.type){
+      else if(!analytics?.error3){
         analytics.error3 = JSON.parse(body.consoleIssue).message.join(", ")
       }
       analytics.errorList.push(JSON.parse(body.consoleIssue))
