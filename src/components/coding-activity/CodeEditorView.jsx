@@ -100,7 +100,7 @@ export default function CodeEditorView() {
   }, [uiData.devmode, uiData._id]);
 
   const graphicsCode = ["plot", "barplot", "pie"]
-  const [triggerWebRRun, setTriggerWebRRun] = useState(false)
+  const [triggerWebRRun, setTriggerWebRRun] = useState(null)
 
   async function getReadyPyodide() {
     if (uiData.devmode) {
@@ -461,8 +461,8 @@ print(opdt)
               <div className="px-3 pt-0">
                 {uiData?.devmode &&
                   <button
-                  className="py-2 px-3 text-sm bg-ui-violet"
-                  onClick={() => addSlider("slider.codeEditorSlider")}>Add Slider</button>
+                    className="py-2 px-3 text-sm bg-ui-violet"
+                    onClick={() => addSlider("slider.codeEditorSlider")}>Add Slider</button>
                 }
                 {
                   (uiData?.uiContent?.slider?.codeEditorSlider &&
@@ -518,7 +518,7 @@ print(opdt)
                           runCodeAws()
                         }
                         else if (uiData.activityCodeRuntime === "Web-R") {
-                          setTriggerWebRRun(!triggerWebRRun)
+                          setTriggerWebRRun(!Boolean(triggerWebRRun))
                         }
                       }}
                     >
@@ -529,7 +529,7 @@ print(opdt)
               </div>
 
               {(uiData.activityCodeRuntime === "Web-R") ?
-                <div className="px-3 w-full">
+                <div className={`px-3 w-full ${triggerWebRRun !== null ? "" : "hidden"}`}>
                   <WebRApp.Terminal />
                   <WebRApp.Plot />
                 </div> : ""

@@ -24,6 +24,7 @@ body {
 .term {
   width: 100%;
   height: 140px;
+  overflow: auto;
 }
 
 
