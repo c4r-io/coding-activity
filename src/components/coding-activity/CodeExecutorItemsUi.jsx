@@ -374,7 +374,7 @@ const CodeExecutorItemsUi = ({ searchParams, data }) => {
             </div>
           )}
         </div>
-        {videoClipListList.pages > 0 && (
+        {videoClipListList?.pages > 0 && (
           <Pagination
             activePage={page}
             pageLength={videoClipListList?.pages}
